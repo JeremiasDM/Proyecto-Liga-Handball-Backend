@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Login from "./components/Login";
-import HudPrincipal from "./components/Menu";
+import Login from "./Login";
+import HudPrincipal from "./Menu";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

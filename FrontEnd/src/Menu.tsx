@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import Autoridades from "./Autoridades";
-import VerClubes from "./VerClub";
-import VerJugadores from "./VerJugadores";
-import FixturePage from "./FixturePage";
-import Historia from "./Historia";
-import Estadistica from "./Estadistica";
-import NoticiasPage from "./Noticiaspage"; // Importa el componente de noticias
-// Si tienes Login.tsx, importa aquí:
-// import Login from "./Login";
+import Autoridades from "./Autoridades/Autoridades";
+import VerClubes from "./Clubes/VerClub";
+import VerJugadores from "./Jugadores/VerJugadores";
+import FixturePage from "./Fixture/FixturePage";
+import Historia from "./Historia/Historia";
+import Estadistica from "./Estadistica/Estadistica";
+import NoticiasPage from "./Noticias/Noticiaspage";
+
 
 export default function App() {
   const [vista, setVista] = useState<
