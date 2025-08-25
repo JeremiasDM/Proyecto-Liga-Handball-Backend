@@ -6,7 +6,7 @@ import FixturePage from "./Fixture/FixturePage";
 import Historia from "./Historia/Historia";
 import Estadistica from "./Estadistica/Estadistica";
 import NoticiasPage from "./Noticias/Noticiaspage";
-
+import Reglamento from "./Reglamento/Reglamento"; // Importa el reglamento
 
 export default function App() {
   const [vista, setVista] = useState<
@@ -19,6 +19,7 @@ export default function App() {
     | "historia"
     | "login"
     | "noticias"
+    | "reglamento"
   >(() => {
     return (localStorage.getItem("vista") as any) || "inicio";
   });
@@ -230,6 +231,7 @@ export default function App() {
                   <button className="dropdown-btn" onClick={() => { setVista("jugadores"); setOpenHandball(false); }}>Jugadores</button>
                   <button className="dropdown-btn" onClick={() => { setVista("estadisticas"); setOpenHandball(false); }}>Tablas de puntuación</button>
                   <button className="dropdown-btn" onClick={() => { setVista("fixture"); setOpenHandball(false); }}>Fixture</button>
+                  <button className="dropdown-btn" onClick={() => { setVista("reglamento"); setOpenHandball(false); }}>Reglamento</button>
                 </div>
               )}
             </div>
@@ -250,6 +252,8 @@ export default function App() {
               {openInstitucional && (
                 <div className="dropdown" onClick={stop}>
                   <button className="dropdown-btn" onClick={() => { setVista("autoridades"); setOpenInstitucional(false); }}>Autoridades</button>
+                  <button className="dropdown-btn" onClick={() => { setOpenInstitucional(false); }}>Referentes</button>
+                  <button className="dropdown-btn" onClick={() => { setOpenInstitucional(false); }}>Pago de árbitros</button>
                   <button className="dropdown-btn" onClick={() => { setVista("historia"); setOpenInstitucional(false); }}>Historia</button>
                 </div>
               )}
@@ -343,6 +347,7 @@ export default function App() {
           {vista === "historia" && <Historia />}
           {vista === "estadisticas" && <Estadistica />}
           {vista === "noticias" && <NoticiasPage />}
+          {vista === "reglamento" && <Reglamento />}
           {/* {vista === "login" && <Login />} */}
         </main>
 

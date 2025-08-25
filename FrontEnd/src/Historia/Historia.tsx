@@ -1,37 +1,106 @@
+import React, { useState } from "react";
+
+const eventos = [
+  {
+    año: 2018,
+    imagen: "/foto1.jpeg",
+    texto: "Texto de relleno para el año 2018. Aquí puedes contar el inicio de la liga y los primeros pasos.",
+  },
+  {
+    año: 2019,
+    imagen: "/foto2.jpeg",
+    texto: "Texto de relleno para el año 2019. Describe los avances y logros de este año.",
+  },
+  {
+    año: 2020,
+    imagen: "/foto3.jpeg",
+    texto: "Texto de relleno para el año 2020. Puedes mencionar desafíos y actividades realizadas.",
+  },
+  {
+    año: 2021,
+    imagen: "/foto4.jpeg",
+    texto: "Texto de relleno para el año 2021. Resalta eventos importantes o cambios.",
+  },
+  {
+    año: 2022,
+    imagen: "/foto5.jpeg",
+    texto: "Texto de relleno para el año 2022. Agrega información relevante de este año.",
+  },
+  {
+    año: 2023,
+    imagen: "/foto6.jpeg",
+    texto: "Texto de relleno para el año 2023. Menciona la resolución y el crecimiento.",
+  },
+  {
+    año: 2024,
+    imagen: "/foto7.jpeg",
+    texto: "Texto de relleno para el año 2024. Habla sobre la actualidad y proyecciones.",
+  },
+];
+
 export default function Historia() {
+  const [activo, setActivo] = useState(0);
+
   return (
-    <div className="historia-container">
+    <div className="historia-timeline-container">
       <style>{`
-        .historia-container {
+        .historia-timeline-container {
           background: white;
           padding: 2rem;
           border-radius: 12px;
           max-width: 900px;
           margin: auto;
           box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-          line-height: 1.6;
           color: #333;
         }
         .historia-header {
           text-align: center;
           margin-bottom: 2rem;
         }
-        .historia-header h2 {
-          color: #1f3c88;
-        }
-        .historia-imagenes {
+        .timeline {
           display: flex;
-          flex-wrap: wrap;
-          gap: 1rem;
           justify-content: center;
-          margin-top: 2rem;
+          align-items: center;
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+          overflow-x: auto;
         }
-        .historia-imagenes img {
+        .timeline-fecha {
+          cursor: pointer;
+          padding: 0.7rem 1.2rem;
+          border-radius: 20px;
+          background: #f0f4fa;
+          color: #1f3c88;
+          font-weight: 600;
+          border: 2px solid transparent;
+          transition: all 0.2s;
+        }
+        .timeline-fecha.activo {
+          background: #1f3c88;
+          color: #fff;
+          border-color: #1f3c88;
+          box-shadow: 0 2px 8px rgba(31,60,136,0.08);
+        }
+        .evento {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1.2rem;
+        }
+        .evento img {
           width: 100%;
-          max-width: 280px;
-          border-radius: 8px;
+          max-width: 350px;
+          border-radius: 10px;
           object-fit: cover;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        }
+        .evento-texto {
+          background: #f7f9fc;
+          padding: 1.2rem 1.5rem;
+          border-radius: 8px;
+          font-size: 1.1rem;
+          text-align: center;
+          max-width: 600px;
         }
       `}</style>
 
@@ -39,25 +108,21 @@ export default function Historia() {
         <h2>Nuestra Historia</h2>
       </div>
 
-      <p>
-        La Liga nace en 2018 con el objetivo de desarrollar el handball en la región. A partir de noviembre de 2023,
-        se convierte en la Asociación Liga Recreativa Handball Punilla por resolución 489 C/23. Actualmente, cuenta con
-        más de 200 jugadores en la categoría mayores y más de 50 niños en las categorías formativas, abarcando edades de 7
-        a 50 años, quienes disfrutan de este espacio de recreación y deporte cada 15 días.
-      </p>
+      <div className="timeline">
+        {eventos.map((evento, idx) => (
+          <div
+            key={evento.año}
+            className={`timeline-fecha${activo === idx ? " activo" : ""}`}
+            onClick={() => setActivo(idx)}
+          >
+            {evento.año}
+          </div>
+        ))}
+      </div>
 
-      <p>
-        Las competencias anuales incluyen 9 jornadas en la categoría mayores, con sedes alternas en las distintas localidades
-        participantes. En las categorías formativas se realiza un encuentro mensual, también en diferentes localidades. La asociación
-        cuenta con más de 12 equipos en la categoría mayores y más de 5 equipos en las categorías formativas, que disfrutan de este
-        espacio cada fin de semana. Detrás de esta organización hay una comisión y colaboradores dedicados a gestionar las necesidades
-        de los jugadores y las instituciones que representan.
-      </p>
-
-      <div className="historia-imagenes">
-        <img src="/foto2.jpeg" alt="Historia 1" />
-        <img src="/foto4.jpeg" alt="Historia 2" />
-        <img src="/foto6.jpeg" alt="Historia 3" />
+      <div className="evento">
+        <img src={eventos[activo].imagen} alt={`Evento ${eventos[activo].año}`} />
+        <div className="evento-texto">{eventos[activo].texto}</div>
       </div>
     </div>
   );

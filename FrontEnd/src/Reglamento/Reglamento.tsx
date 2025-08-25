@@ -1,141 +1,96 @@
-import { useEffect, useRef, useState } from "react";
-import * as pdfjsLib from "pdfjs-dist/build/pdf";
-import pdfjsWorker from "pdfjs-dist/build/pdf.worker?worker";
-
-(pdfjsLib as any).GlobalWorkerOptions.workerSrc = pdfjsWorker;
+import React from "react";
 
 export default function Reglamento() {
-  const [pdf, setPdf] = useState<any>(null);
-  const [pageNum, setPageNum] = useState(1);
-  const [numPages, setNumPages] = useState(0);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  // Cambia la ruta por la de tu PDF
-  const pdfUrl = "./REGLAMENTO DISCIPLINARIO LIGA RECREATIVA DE HANDBALL PUNILLA.pdf";
-  useEffect(() => {
-    const fetchPdf = async () => {
-      const loadingTask = pdfjsLib.getDocument(pdfUrl);
-      const loadedPdf = await loadingTask.promise;
-      setPdf(loadedPdf);
-      setNumPages(loadedPdf.numPages);
-    };
-    fetchPdf();
-  }, [pdfUrl]);
-
-  useEffect(() => {
-    const renderPage = async () => {
-      if (!pdf || !canvasRef.current) return;
-      const page = await pdf.getPage(pageNum);
-      const viewport = page.getViewport({ scale: 1.5 });
-      const canvas = canvasRef.current;
-      const context = canvas.getContext("2d");
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-      await page.render({ canvasContext: context, viewport }).promise;
-    };
-    renderPage();
-  }, [pdf, pageNum]);
-
-  const handlePrev = () => setPageNum((n) => (n > 1 ? n - 1 : n));
-  const handleNext = () => setPageNum((n) => (n < numPages ? n + 1 : n));
-
   return (
-    <div className="container">
+    <div className="reglamento-timeline-container">
       <style>{`
-        body {
-          background-color: #0B0E19;
-          color: #FFFFFF;
-          font-family: Arial, sans-serif;
+        .reglamento-timeline-container {
+          background: #fff;
+          padding: 2rem;
+          border-radius: 12px;
+          max-width: 900px;
+          margin: 2rem auto;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+          color: #1f3c88;
+          font-family: 'Segoe UI', Arial, sans-serif;
         }
-        .container {
-          background-color: #1F3C88;
-          border-radius: 15px;
-          padding: 20px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-          width: 90%;
-          max-width: 1200px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
+        .reglamento-header {
           text-align: center;
+          margin-bottom: 2rem;
         }
-        .header {
-          width: 100%;
-          margin-bottom: 20px;
+        .reglamento-header h2 {
+          margin: 0;
+          color: #1f3c88;
         }
-        .main-content {
-          width: 100%;
+        .reglamento-main-content {
           display: flex;
           flex-direction: column;
           align-items: center;
         }
-        #pdf-container {
+        .reglamento-pdf-container {
           width: 100%;
-          height: 700px;
-          background-color: #f0f0f0;
-          border: 1px solid #ccc;
-          border-radius: 8px;
-          overflow: auto;
+          min-height: 500px;
+          background: #f7f9fc;
+          border-radius: 10px;
+          box-shadow: 0 2px 8px rgba(31,60,136,0.06);
           display: flex;
           justify-content: center;
           align-items: center;
+          margin-bottom: 1.5rem;
+          overflow-x: auto;
         }
-        #pdf-canvas {
-          width: 100%;
-          height: 100%;
-          display: block;
-        }
-        .navigation-buttons {
-          margin-top: 20px;
-        }
-        button {
-          background-color: #FFFFFF;
-          color: #1F3C88;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 5px;
-          cursor: pointer;
-          font-size: 1rem;
-          margin: 0 10px;
-        }
-        button:hover {
-          background-color: #ddd;
-        }
-        .footer {
-          width: 100%;
-          margin-top: 20px;
+        .reglamento-footer {
+          text-align: center;
+          margin-top: 2rem;
+          color: #888;
+          font-size: 0.95rem;
         }
         @media (max-width: 700px) {
-          .container {
-            padding: 8px;
+          .reglamento-timeline-container {
+            padding: 1rem;
           }
-          #pdf-container {
-            height: 350px;
+          .reglamento-pdf-container {
+            min-height: 250px;
           }
         }
       `}</style>
-      <header className="header">
-        <h1>Reglamento Disciplinario - Liga Recreativa de Handball Punilla</h1>
-      </header>
-      <main className="main-content">
-        <div id="pdf-container">
-          <canvas id="pdf-canvas" ref={canvasRef}></canvas>
+      <div className="reglamento-header">
+        <h2>Reglamento Disciplinario</h2>
+        <p style={{ color: "#2746a6", marginTop: 8, fontSize: "1.1rem" }}>
+          Liga Recreativa de Handball Punilla
+        </p>
+      </div>
+      <div className="reglamento-main-content">
+        <div className="reglamento-pdf-container">
+          <iframe
+            src="/REGLAMENTO.pdf"
+            width="100%"
+            height="600px"
+            style={{ border: "none", borderRadius: 8 }}
+            title="Reglamento PDF"
+          />
         </div>
-        <div className="navigation-buttons">
-          <button onClick={handlePrev} disabled={pageNum <= 1}>
-            Página Anterior
-          </button>
-          <span style={{ color: "#fff", margin: "0 10px" }}>
-            Página {pageNum} de {numPages}
-          </span>
-          <button onClick={handleNext} disabled={pageNum >= numPages}>
-            Página Siguiente
-          </button>
-        </div>
-      </main>
-      <footer className="footer">
-        <p>Liga Recreativa de Handball Punilla - Agosto 2023</p>
-      </footer>
+        <a
+          href="/REGLAMENTO.pdf"
+          download
+          style={{
+            background: "#1f3c88",
+            color: "#fff",
+            padding: "0.7rem 1.5rem",
+            borderRadius: 6,
+            fontWeight: 600,
+            textDecoration: "none",
+            marginTop: 8,
+            display: "inline-block",
+            transition: "background 0.2s",
+          }}
+        >
+          Descargar PDF
+        </a>
+      </div>
+      <div className="reglamento-footer">
+        Liga Recreativa de Handball Punilla - Agosto 2025
+      </div>
     </div>
   );
 }
