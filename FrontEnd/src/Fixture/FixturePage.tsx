@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import RegistrarFixture from "./RegistrarFixture";
 import EditarFixture from "./EditarFixture";
 import ListaFixture from "./ListaFixture";
-import type { Fixture, Encuentro } from "./types";
+import type { Encuentro, Fixture } from "../types/types";
 
 const FixturePage: React.FC = () => {
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
