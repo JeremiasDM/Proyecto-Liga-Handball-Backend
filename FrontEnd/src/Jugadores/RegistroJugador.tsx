@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { Rol } from "./types"; 
+import type { Rol } from "../types/types";
 
 type Props = {
   onRegistrar: (jugador: any) => void;
@@ -101,7 +101,7 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar, rolUsuario }) => {
             Guardar
           </button>
 
-          {/* Solo la Presidenta puede cargar docs */}
+          
           {rolUsuario === "Presidenta" && (
             <button
               type="button"
