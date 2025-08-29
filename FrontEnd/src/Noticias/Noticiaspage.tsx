@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import type { Noticia } from "./types";
+import type { Noticia } from "../types/types";
 import FormularioNoticia from "./FormularioNoticia";
 import NoticiasLista from "./NoticiasLista";
 import CarruselNoticias from "./CarruselNoticias";
