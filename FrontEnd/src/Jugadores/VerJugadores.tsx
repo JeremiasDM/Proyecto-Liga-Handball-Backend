@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Noticia } from "./types"; 
 import FormularioDatos from "./FormularioDatos";
 import FormularioDocumentacion from "./FormularioDocumentacion";
 
@@ -11,8 +10,8 @@ type Jugador = {
   apellido: string;
   club: string;
   dni: string;
-  carnetUrl?: string; // enlace a carnet en NoSQL
-  fichaMedicaUrl?: string; // enlace a ficha médica en NoSQL
+  carnetUrl?: string; 
+  fichaMedicaUrl?: string; 
 };
 
 type Props = {
@@ -26,7 +25,6 @@ const VerJugadores: React.FC<Props> = ({ jugador, onActualizar, onEliminar }) =>
   const [editandoDocs, setEditandoDocs] = useState(false);
 
   useEffect(() => {
-    // Aquí más adelante podríamos cargar la documentación desde Mongo
   }, [jugador]);
 
   return (
