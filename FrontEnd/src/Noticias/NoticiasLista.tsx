@@ -1,5 +1,5 @@
 import React from "react";
-import type { Noticia } from "./types";
+import type { Noticia } from "../types/types";
 
 type Props = {
   noticias: Noticia[];
