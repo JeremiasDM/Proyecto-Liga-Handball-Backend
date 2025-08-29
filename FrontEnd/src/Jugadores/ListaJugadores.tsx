@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import type { Jugador } from "./types";
+import type { Jugador } from "../types/types";
 
 type Props = {
   onEditar?: (jugador: Jugador) => void;
@@ -66,7 +66,7 @@ const ListaJugadores: React.FC<Props> = ({ onEditar }) => {
                 <td style={{ padding: "8px" }}>{j.club}</td>
                 <td style={{ padding: "8px" }}>{j.categoria}</td>
                 <td style={{ padding: "8px" }}>
-                  {/* 🔒 Aquí luego conectamos NoSQL para subir/mostrar carnet y ficha médica */}
+                 
                   <button>Ver Documentos</button>
                 </td>
                 {rol === "Presidenta" && (
