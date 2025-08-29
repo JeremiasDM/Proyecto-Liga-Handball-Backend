@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { Noticia } from "./types";
+import type { Noticia } from "../types/types";
 
 type Props = {
   noticia?: Noticia;
@@ -13,14 +13,13 @@ const FormularioNoticia: React.FC<Props> = ({ noticia, onGuardar, onCancelar }) 
   const [contenido, setContenido] = useState(noticia?.contenido || "");
   const [imagenUrl, setImagenUrl] = useState(noticia?.imagenUrl || "");
 
-  // Manejo de subida de imagen
   const handleImagen = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         if (typeof reader.result === "string") {
-          setImagenUrl(reader.result); // 🔹 localStorage mock
+          setImagenUrl(reader.result); 
         }
       };
       reader.readAsDataURL(file);
