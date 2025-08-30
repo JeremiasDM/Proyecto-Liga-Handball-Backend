@@ -3,16 +3,11 @@
  *
  * Descripción:
  * Este script de TypeScript gestiona la interactividad de la página "Ver Referentes".
- * Aunque la página HTML y los estilos CSS ya están definidos, este código añade la
- * lógica necesaria para:
- * 1. Manejar la funcionalidad de búsqueda.
- * 2. Asignar eventos a los botones de acción ("alta", "baja", etc.).
- * 3. Simular la carga dinámica de una lista de referentes en el contenedor principal.
- * 4. Gestionar la navegación a otras páginas (simulada).
+ * Añade la lógica para la búsqueda, el renderizado dinámico y el manejo de acciones
+ * en los botones, usando un enfoque más robusto y centralizado.
  */
 
 // Se define una interfaz para la estructura de datos de un referente.
-// Esto es útil si los datos se cargan desde una API.
 interface Referente {
   id: number;
   nombre: string;
@@ -20,33 +15,39 @@ interface Referente {
   equipo: string;
 }
 
-// Datos de referentes simulados. En una aplicación real, estos datos vendrían de una base de datos.
+// Datos de referentes simulados.
 const referentesSimulados: Referente[] = [
   { id: 1, nombre: 'Juan', apellido: 'Pérez', equipo: 'Los Cóndores' },
   { id: 2, nombre: 'Ana', apellido: 'Gómez', equipo: 'Las Águilas' },
   { id: 3, nombre: 'Carlos', apellido: 'López', equipo: 'Los Halcones' },
   { id: 4, nombre: 'Marta', apellido: 'Rodríguez', equipo: 'Las Panteras' },
   { id: 5, nombre: 'Jorge', apellido: 'García', equipo: 'Los Titanes' },
+  { id: 6, nombre: 'Sofía', apellido: 'Martínez', equipo: 'Los Dragones' },
+  { id: 7, nombre: 'Pedro', apellido: 'Fernández', equipo: 'Los Gigantes' },
 ];
 
 /**
  * @function renderizarReferentes
- * @description Inserta elementos HTML en el cuadro de referentes para mostrar la lista.
+ * @description Inserta elementos HTML en el contenedor para mostrar la lista de referentes.
  * @param {Referente[]} referentes - Un array de objetos Referente a mostrar.
  */
 function renderizarReferentes(referentes: Referente[]): void {
   const cuadroReferentes = document.querySelector('.cuadro-referentes');
-  if (!cuadroReferentes) return; // Si el elemento no existe, salimos de la función.
+  if (!cuadroReferentes) {
+    console.error('El contenedor ".cuadro-referentes" no fue encontrado.');
+    return;
+  }
 
-  cuadroReferentes.innerHTML = ''; // Limpiamos el contenido anterior.
+  // Limpiamos el contenido anterior.
+  cuadroReferentes.innerHTML = '';
 
   if (referentes.length === 0) {
     cuadroReferentes.innerHTML = '<p class="no-results">No se encontraron referentes.</p>';
     return;
   }
 
+  // Creamos y añadimos los elementos para cada referente.
   referentes.forEach(referente => {
-    // Se crea un div por cada referente.
     const referenteDiv = document.createElement('div');
     referenteDiv.className = 'item-referente';
     referenteDiv.innerHTML = `
@@ -59,8 +60,8 @@ function renderizarReferentes(referentes: Referente[]): void {
 
 /**
  * @function manejarBusqueda
- * @description Filtra la lista de referentes basada en el texto del buscador.
- * @param {string} terminoBusqueda - El texto ingresado por el usuario en el buscador.
+ * @description Filtra la lista de referentes basándose en el texto del buscador.
+ * @param {string} terminoBusqueda - El texto ingresado por el usuario.
  */
 function manejarBusqueda(terminoBusqueda: string): void {
   const termino = terminoBusqueda.toLowerCase();
@@ -72,10 +73,7 @@ function manejarBusqueda(terminoBusqueda: string): void {
   renderizarReferentes(referentesFiltrados);
 }
 
-/**
- * @description Este es el principal escuchador de eventos que se activa cuando el DOM ha cargado completamente.
- * Contiene toda la lógica para configurar los eventos de la página.
- */
+// Lógica principal al cargar el DOM
 document.addEventListener('DOMContentLoaded', () => {
   // Inicialmente, se renderiza la lista completa de referentes.
   renderizarReferentes(referentesSimulados);
@@ -90,39 +88,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Manejo de los botones de acción ---
-  // Se seleccionan todos los botones de acción para asignarles eventos.
+  // Se asigna un listener a los botones de acción usando un atributo 'data-action'
   const botonesAccion = document.querySelectorAll('.acciones-referentes .btn-verde');
   botonesAccion.forEach(boton => {
-    boton.addEventListener('click', () => {
-      const accion = boton.textContent?.trim().toLowerCase();
+    boton.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const accion = target.dataset.action || target.textContent?.trim().toLowerCase();
+
       switch (accion) {
+        case 'alta':
         case 'alta de referente':
           alert('Navegando a la página de alta de referentes...');
-          // window.location.href = 'alta-referente.html'; // Ejemplo de navegación real
+          // window.location.href = 'alta-referente.html';
           break;
+        case 'baja':
         case 'baja de referente':
         case 'eliminar referente':
           alert('Función de baja/eliminación no implementada.');
           break;
+        case 'modificar':
         case 'modificar referente':
           alert('Navegando a la página de modificación de referentes...');
-          // window.location.href = 'modificar-referente.html'; // Ejemplo de navegación real
+          // window.location.href = 'modificar-referente.html';
           break;
         case 'volver':
           alert('Volviendo a la página anterior.');
-          // window.history.back(); // Ejemplo para volver a la página anterior
+          // window.history.back();
           break;
         default:
           console.log(`Acción no reconocida: ${accion}`);
+          break;
       }
     });
   });
-
-  // --- Manejo de otros elementos ---
-  const volverButton = document.querySelector('.btn-verde') as HTMLButtonElement;
-  if (volverButton) {
-    volverButton.addEventListener('click', () => {
-      window.history.back();
-    });
-  }
 });
