@@ -1,96 +1,75 @@
-import React from 'react';
+import React, { useState } from "react";
 
-const estiloInput = {
-  width: '90%',
-  padding: '8px',
-  margin: '5px 0',
-  borderRadius: '5px',
-  border: '1px solid #ccc',
-  backgroundColor: '#0B0E19',
-  color: '#FFFFFF'
+type Jugador = {
+  id: number;
+  nombre: string;
+  apellido: string;
+  club: string;
+  dni: string;
+  carnetUrl?: string;
+  fichaMedicaUrl?: string;
 };
 
-const estiloBoton = {
-  padding: '10px',
-  margin: '5px',
-  border: 'none',
-  borderRadius: '5px',
-  cursor: 'pointer'
+type Props = {
+  jugador: Jugador;
+  onGuardar: (jugador: Jugador) => void;
+  onCancelar: () => void;
 };
 
-const estiloCaja = {
-  flex: '1',
-  minWidth: '45%',
-  padding: '10px',
-  margin: '5px',
-  border: '1px solid #ccc',
-  borderRadius: '5px',
-  backgroundColor: '#0B0E19'
-};
+// Simulación de rol
+const rolActual = localStorage.getItem("rol") || "Referente";
 
-const FormularioDocumentacion = ({
-  datos,
-  setDatos,
-  previewCarnet,
-  previewFicha,
-  setPreviewCarnet,
-  setPreviewFicha,
-  setFase,
-  handleGuardar,
-  handleCancelar,
-  modo
-}) => {
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    if (files && files[0]) {
-      setDatos({ ...datos, [name]: files[0] });
-      if (name === 'carnet') {
-        setPreviewCarnet(URL.createObjectURL(files[0]));
-      } else if (name === 'ficha') {
-        setPreviewFicha(URL.createObjectURL(files[0]));
+const FormularioDocumentacion: React.FC<Props> = ({ jugador, onGuardar, onCancelar }) => {
+  const [carnet, setCarnet] = useState<string | undefined>(jugador.carnetUrl);
+  const [fichaMedica, setFichaMedica] = useState<string | undefined>(jugador.fichaMedicaUrl);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, tipo: "carnet" | "ficha") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === "string") {
+        if (tipo === "carnet") setCarnet(reader.result);
+        if (tipo === "ficha") setFichaMedica(reader.result);
       }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (rolActual !== "Presidenta") {
+      alert("No tienes permisos para actualizar documentación.");
+      return;
     }
+    onGuardar({ ...jugador, carnetUrl: carnet, fichaMedicaUrl: fichaMedica });
+    onCancelar();
   };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setDatos({ ...datos, [name]: value });
-  };
-
-  const today = new Date().toISOString().split('T')[0];
 
   return (
-    <>
-      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-        <div style={estiloCaja}>
-          <strong> Carnet*</strong>
-          <input type="file" name="carnet" accept="image/*" onChange={handleFileChange} style={estiloInput} />
-          {previewCarnet && <img src={previewCarnet} alt="Previsualización carnet" style={{ maxWidth: '200%', maxHeight: '200px', marginTop: '5px' }} />}
-        </div>
+    <form onSubmit={handleSubmit} style={{ marginTop: 15 }}>
+      <h4>Documentación del Jugador</h4>
 
-        <div style={estiloCaja}>
-          <strong> Ficha Médica*</strong>
-          <input type="file" name="ficha" accept="image/*" onChange={handleFileChange} style={estiloInput} />
-          {previewFicha && <img src={previewFicha} alt="Previsualización ficha" style={{ maxWidth: '200%', maxHeight: '200px', marginTop: '5px' }} />}
+      <label>Carnet:</label>
+      <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "carnet")} />
+      {carnet && <img src={carnet} alt="Carnet" style={{ maxWidth: 200, marginTop: 10 }} />}
 
-          <label style={{ display: 'block', marginTop: '10px' }}>Fecha de vencimiento*</label>
-          <input
-            type="date"
-            name="vencimientoFicha"
-            value={datos.vencimientoFicha || ''}
-            onChange={handleChange}
-            style={estiloInput}
-            min={today}
-          />
-        </div>
+      <label style={{ marginTop: 10, display: "block" }}>Ficha Médica:</label>
+      <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload(e, "ficha")} />
+      {fichaMedica && (
+        <a href={fichaMedica} target="_blank" rel="noopener noreferrer">
+          Ver ficha médica cargada
+        </a>
+      )}
+
+      <div style={{ marginTop: 10 }}>
+        <button type="submit">Guardar</button>
+        <button type="button" onClick={onCancelar}>
+          Cancelar
+        </button>
       </div>
-
-      <button onClick={() => setFase(1)} style={{ ...estiloBoton, backgroundColor: 'gray', color: '#FFFFFF' }}>Volver</button>
-      <button onClick={handleGuardar} style={{ ...estiloBoton, backgroundColor: 'green', color: '#FFFFFF' }}>
-        {modo === 'registro' ? 'Guardar' : 'Actualizar'}
-      </button>
-      <button onClick={handleCancelar} style={{ ...estiloBoton, backgroundColor: 'red', color: '#FFFFFF' }}>Cancelar</button>
-    </>
+    </form>
   );
 };
 

@@ -4,8 +4,10 @@ export default function VerClubes() {
   const [busqueda, setBusqueda] = useState("");
 
   const clubes = [
-    { id: 1, nombre: "Club Atlético Norte", localidad: "Villa Unión", escudo: "/escudos/atletico-norte.png", genero: "masculino", referente: "Luis Perez" },
-    { id: 2, nombre: "Deportivo Sur", localidad: "La Esperanza", escudo: "/escudos/deportivo-sur.png", genero: "femenino" },
+    { id: 1, nombre: "Club Capilla del Monte", localidad: "Capilla del Monte", escudo: "./Escudos Clubes/Club_Capilla_Del_Monte.jpeg", genero: "masculino" },
+        { id: 1, nombre: "Club Capilla del Monte", localidad: "Capilla del Monte", escudo: "./Escudos Clubes/Club_Capilla_Del_Monte.jpeg", genero: "femenino" },
+    { id: 2, nombre: "Club Huesta Grande", localidad: "Huerta Grande", escudo: "./Escudos Clubes/Club_Huerta_Grande.jpeg", genero: "masculino" },
+        { id: 2, nombre: "Club Huesta Grande", localidad: "Huerta Grande", escudo: "./Escudos Clubes/Club_Huerta_Grande.jpeg", genero: "femenino" },
     { id: 3, nombre: "Unión del Oeste", localidad: "San Pedro", escudo: "/escudos/union-oeste.png", genero: "masculino" },
     { id: 4, nombre: "Estrella Roja", localidad: "Santa Clara", escudo: "/escudos/estrella-roja.png", genero: "femenino" },
     { id: 5, nombre: "Racing del Norte", localidad: "Villa María", escudo: "/escudos/racing-norte.png", genero: "masculino" },

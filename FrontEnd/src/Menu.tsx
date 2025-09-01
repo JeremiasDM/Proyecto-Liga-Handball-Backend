@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import Autoridades from "./Autoridades/Autoridades";
 import VerClubes from "./Clubes/VerClub";
 import VerJugadores from "./Jugadores/VerJugadores";
+import VerReferentes from "./Referentes/ver-referentes";
 import FixturePage from "./Fixture/FixturePage";
 import Historia from "./Historia/Historia";
 import Estadistica from "./Estadistica/Estadistica";
 import NoticiasPage from "./Noticias/Noticiaspage";
-import Reglamento from "./Reglamento/Reglamento"; // Importa el reglamento
+import Reglamento from "./Reglamento/Reglamento";
 
 export default function App() {
   const [vista, setVista] = useState<
@@ -20,6 +21,7 @@ export default function App() {
     | "login"
     | "noticias"
     | "reglamento"
+    | "referentes" // Se añade la nueva vista
   >(() => {
     return (localStorage.getItem("vista") as any) || "inicio";
   });
@@ -32,7 +34,7 @@ export default function App() {
     localStorage.setItem("vista", vista);
   }, [vista]);
 
-  // Cierra desplegables al hacer click fuera
+  // Cierra desplegables al hacer clic fuera
   useEffect(() => {
     const close = () => {
       setOpenHandball(false);
@@ -42,7 +44,7 @@ export default function App() {
     return () => window.removeEventListener("click", close);
   }, []);
 
-  // Evita cierre al hacer click en los botones
+  // Evita cierre al hacer clic en los botones
   const stop = (e: React.MouseEvent) => e.stopPropagation();
 
   return (
@@ -252,7 +254,8 @@ export default function App() {
               {openInstitucional && (
                 <div className="dropdown" onClick={stop}>
                   <button className="dropdown-btn" onClick={() => { setVista("autoridades"); setOpenInstitucional(false); }}>Autoridades</button>
-                  <button className="dropdown-btn" onClick={() => { setOpenInstitucional(false); }}>Referentes</button>
+                  {/* Se añade el botón para "Referentes" */}
+                  <button className="dropdown-btn" onClick={() => { setVista("referentes"); setOpenInstitucional(false); }}>Referentes</button>
                   <button className="dropdown-btn" onClick={() => { setOpenInstitucional(false); }}>Pago de árbitros</button>
                   <button className="dropdown-btn" onClick={() => { setVista("historia"); setOpenInstitucional(false); }}>Historia</button>
                 </div>
@@ -348,7 +351,7 @@ export default function App() {
           {vista === "estadisticas" && <Estadistica />}
           {vista === "noticias" && <NoticiasPage />}
           {vista === "reglamento" && <Reglamento />}
-          {/* {vista === "login" && <Login />} */}
+          {vista === "referentes" && <VerReferentes />} 
         </main>
 
         <footer>

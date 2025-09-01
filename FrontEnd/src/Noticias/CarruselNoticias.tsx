@@ -1,32 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
-import type { Noticia } from "./types/Noticia";
+import type { Noticia } from "../types/types";
 
 const placeholderImg = "https://via.placeholder.com/800x400?text=Sin+imagen";
 
-const CarruselNoticias: React.FC = () => {
-  const [noticias, setNoticias] = useState<Noticia[]>([]);
+type CarruselNoticiasProps = {
+  noticias: Noticia[];
+};
+
+const CarruselNoticias: React.FC<CarruselNoticiasProps> = ({ noticias }) => {
   const [indice, setIndice] = useState(0);
   const [pausado, setPausado] = useState(false);
   const carruselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const guardadas = localStorage.getItem("noticias");
-    if (guardadas) {
-      try {
-        const noticiasParseadas = JSON.parse(guardadas)
-          .filter(
-            (n: any) =>
-              n &&
-              typeof n.titulo === "string" &&
-              typeof n.resumen === "string"
-          )
-          .slice(0, 5);
-        setNoticias(noticiasParseadas);
-      } catch {
-        setNoticias([]);
-      }
-    }
-  }, []);
+    setIndice(0); // Reinicia el índice si cambia la lista de noticias
+  }, [noticias]);
 
   useEffect(() => {
     if (noticias.length > 1 && !pausado) {

@@ -1,143 +1,85 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
+import type { Jugador } from "../types/types";
 
-const ListaJugadores = ({
-  jugadores,
-  onEditar,
-  onEliminar,
-  onActualizarFicha,
-  onAgregarSancion
-}) => {
-  const [filtroCategoria, setFiltroCategoria] = useState('');
-  const [filtroClub, setFiltroClub] = useState('');
-  const [editandoId, setEditandoId] = useState(null);
-  const [nuevaFicha, setNuevaFicha] = useState({});
+type Props = {
+  onEditar?: (jugador: Jugador) => void;
+};
 
-  const today = new Date().toISOString().split('T')[0];
+const ListaJugadores: React.FC<Props> = ({ onEditar }) => {
+  const [jugadores, setJugadores] = useState<Jugador[]>([]);
+  const [rol, setRol] = useState<string | null>(null);
 
-  const filtrados = jugadores.filter(j =>
-    (filtroCategoria ? j.categoria === filtroCategoria : true) &&
-    (filtroClub ? j.club === filtroClub : true)
-  );
+  // Cargar rol desde el token almacenado
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1])); // decodificar JWT
+        setRol(payload.rol);
+      } catch {
+        setRol(null);
+      }
+    }
+  }, []);
 
-  const handleGuardarFicha = (j) => {
-    if (nuevaFicha[j.dni]?.file && nuevaFicha[j.dni]?.vencimiento) {
-      onActualizarFicha(j.dni, nuevaFicha[j.dni].file, nuevaFicha[j.dni].vencimiento);
-      setEditandoId(null);
-      setNuevaFicha(prev => {
-        const nuevo = { ...prev };
-        delete nuevo[j.dni];
-        return nuevo;
-      });
-    } else {
-      alert('Debe seleccionar archivo y fecha');
+  // Cargar jugadores desde la API
+  useEffect(() => {
+    fetch("http://localhost:4000/api/jugadores")
+      .then((res) => res.json())
+      .then((data) => setJugadores(data))
+      .catch((err) => console.error("Error al cargar jugadores:", err));
+  }, []);
+
+  // Eliminar jugador
+  const eliminarJugador = async (id: number) => {
+    if (!window.confirm("¿Seguro que querés eliminar este jugador?")) return;
+    try {
+      await fetch(`http://localhost:4000/api/jugadores/${id}`, { method: "DELETE" });
+      setJugadores(jugadores.filter((j) => j.id !== id));
+    } catch (err) {
+      console.error("Error eliminando jugador:", err);
     }
   };
 
   return (
     <div>
-      <div style={{ marginBottom: '10px' }}>
-        <label>Filtrar por categoría: </label>
-        <select
-          value={filtroCategoria}
-          onChange={(e) => setFiltroCategoria(e.target.value)}
-          style={{ marginRight: '10px' }}
-        >
-          <option value="">Todas</option>
-          <option value="Masculino">Masculino</option>
-          <option value="Femenino">Femenino</option>
-        </select>
-
-        <label>Filtrar por club: </label>
-        <select
-          value={filtroClub}
-          onChange={(e) => setFiltroClub(e.target.value)}
-        >
-          <option value="">Todos</option>
-          {[...new Set(jugadores.map(j => j.club))].map(club => (
-            <option key={club} value={club}>{club}</option>
-          ))}
-        </select>
-      </div>
-
-      <table style={{ width: '100%', background: '#1F3C88', color: '#fff', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>DNI</th>
-            <th>Club</th>
-            <th>Categoría</th>
-            <th>Ficha Médica</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtrados.map(j => (
-            <tr key={j.dni}>
-              <td>{j.nombre} {j.apellido}</td>
-              <td>{j.dni}</td>
-              <td>{j.club}</td>
-              <td>{j.categoria}</td>
-              <td>
-                {j.vencimientoFicha ? (
-                  j.vencimientoFicha < today ? (
-                    <span style={{ color: 'red' }}>⚠ Vencida</span>
-                  ) : (
-                    <span style={{ color: 'white' }}>{j.vencimientoFicha}</span>
-                  )
-                ) : 'Sin ficha'}
-              </td>
-              <td>
-                {editandoId === j.dni ? (
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) =>
-                        setNuevaFicha(prev => ({
-                          ...prev,
-                          [j.dni]: {
-                            ...prev[j.dni],
-                            file: e.target.files[0]
-                          }
-                        }))
-                      }
-                      style={{ marginBottom: '5px' }}
-                    />
-                    <input
-                      type="date"
-                      onChange={(e) =>
-                        setNuevaFicha(prev => ({
-                          ...prev,
-                          [j.dni]: {
-                            ...prev[j.dni],
-                            vencimiento: e.target.value
-                          }
-                        }))
-                      }
-                      style={{ backgroundColor: '#FFFFFF', color: '#000', marginBottom: '5px' }}
-                    />
-                    <div>
-                      <button onClick={() => handleGuardarFicha(j)} style={{ marginRight: '5px' }}>Guardar</button>
-                      <button onClick={() => setEditandoId(null)}>Cancelar</button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <button onClick={() => setEditandoId(j.dni)} style={{ marginRight: '5px' }}>
-                      Actualizar Ficha
-                    </button>
-                    <button onClick={() => onEditar(j)} style={{ marginRight: '5px' }}>Editar</button>
-                    <button onClick={() => onEliminar(j.dni)} style={{ marginRight: '5px' }}>Desactivar</button>
-                    <button onClick={() => onAgregarSancion(j.dni, 'Amarilla')} style={{ marginRight: '2px' }}>Amarilla</button>
-                    <button onClick={() => onAgregarSancion(j.dni, '2 Min')} style={{ marginRight: '2px' }}>2 Min</button>
-                    <button onClick={() => onAgregarSancion(j.dni, 'Roja')}>Roja</button>
-                  </>
-                )}
-              </td>
+      <h3>Lista de Jugadores</h3>
+      {jugadores.length === 0 ? (
+        <p>No hay jugadores cargados.</p>
+      ) : (
+        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
+          <thead>
+            <tr style={{ background: "#1F3C88", color: "#fff" }}>
+              <th style={{ padding: "8px" }}>Nombre</th>
+              <th style={{ padding: "8px" }}>Apellido</th>
+              <th style={{ padding: "8px" }}>Club</th>
+              <th style={{ padding: "8px" }}>Categoría</th>
+              <th style={{ padding: "8px" }}>Documentos</th>
+              {rol === "Presidenta" && <th style={{ padding: "8px" }}>Acciones</th>}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {jugadores.map((j) => (
+              <tr key={j.id} style={{ borderBottom: "1px solid #ccc" }}>
+                <td style={{ padding: "8px" }}>{j.nombre}</td>
+                <td style={{ padding: "8px" }}>{j.apellido}</td>
+                <td style={{ padding: "8px" }}>{j.club}</td>
+                <td style={{ padding: "8px" }}>{j.categoria}</td>
+                <td style={{ padding: "8px" }}>
+                 
+                  <button>Ver Documentos</button>
+                </td>
+                {rol === "Presidenta" && (
+                  <td style={{ padding: "8px" }}>
+                    {onEditar && <button onClick={() => onEditar(j)}>Editar</button>}
+                    <button onClick={() => eliminarJugador(j.id)}>Eliminar</button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

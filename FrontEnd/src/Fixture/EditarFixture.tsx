@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import type { Fixture, Encuentro } from "./types";
+import type { Encuentro, Fixture } from "../types/types";
+import FormularioPartido from "./FormularioPartido";
+
+const clubesValidos = [
+  "Club A1", "Club A2", "Club A3", "Club A4",
+  "Club B1", "Club B2", "Club B3", "Club B4"
+];
+const gruposValidos = ["A", "B"];
 
 type Props = {
   fixture: Fixture;
@@ -21,7 +28,7 @@ const EditarFixture: React.FC<Props> = ({ fixture, onGuardar, onCancelar }) => {
   const handlePartidoChange = (index: number, campo: keyof Encuentro, valor: string) => {
     const partidosActualizados = [...formData.partidos];
     const partido = { ...partidosActualizados[index] };
-    partido[campo] = campo === "jornada" ? Number(valor) : valor;
+    (partido as any)[campo] = campo === "jornada" ? Number(valor) : valor;
     partidosActualizados[index] = partido;
     setFormData({ ...formData, partidos: partidosActualizados });
   };
@@ -40,16 +47,13 @@ const EditarFixture: React.FC<Props> = ({ fixture, onGuardar, onCancelar }) => {
 
         <h4>Editar Partidos</h4>
         {formData.partidos.map((partido, i) => (
-          <div key={i}>
-            <input type="number" value={partido.jornada} onChange={(e) => handlePartidoChange(i, "jornada", e.target.value)} />
-            <select value={partido.grupo} onChange={(e) => handlePartidoChange(i, "grupo", e.target.value)}>
-              <option value="A">Grupo A</option>
-              <option value="B">Grupo B</option>
-            </select>
-            <input type="text" value={partido.club1} onChange={(e) => handlePartidoChange(i, "club1", e.target.value)} />
-            <input type="text" value={partido.club2} onChange={(e) => handlePartidoChange(i, "club2", e.target.value)} />
-            <input type="text" value={partido.resultado} onChange={(e) => handlePartidoChange(i, "resultado", e.target.value)} />
-          </div>
+          <FormularioPartido
+            key={i}
+            partido={partido}
+            onChange={(campo, valor) => handlePartidoChange(i, campo, valor)}
+            clubesValidos={clubesValidos}
+            gruposValidos={gruposValidos}
+          />
         ))}
 
         <button type="submit">Guardar Cambios</button>

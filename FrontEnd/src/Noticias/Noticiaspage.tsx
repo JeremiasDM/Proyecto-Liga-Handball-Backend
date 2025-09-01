@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import type { Noticia } from "./types";
+import type { Noticia } from "../types/types";
 import FormularioNoticia from "./FormularioNoticia";
 import NoticiasLista from "./NoticiasLista";
+import CarruselNoticias from "./CarruselNoticias";
 
 const NoticiasPage: React.FC = () => {
   const [noticias, setNoticias] = useState<Noticia[]>([]);
@@ -10,12 +11,26 @@ const NoticiasPage: React.FC = () => {
 
   useEffect(() => {
     const guardadas = localStorage.getItem("noticias");
-    if (guardadas) setNoticias(JSON.parse(guardadas));
+    if (guardadas) {
+      setNoticias(JSON.parse(guardadas));
+    }
+
+    // FUTURO: reemplazar por fetch a backend
+    /*
+    fetch("/api/noticias")
+      .then(res => res.json())
+      .then(data => setNoticias(data))
+      .catch(err => console.error(err));
+    */
   }, []);
 
+  // -------------------------
+  // Guardar en localStorage (solo mock)
+  // -------------------------
   useEffect(() => {
     localStorage.setItem("noticias", JSON.stringify(noticias));
   }, [noticias]);
+// CRUD preparado
 
   const agregarNoticia = (noticia: Noticia) => {
     if (noticias.length >= 5) {
@@ -23,49 +38,87 @@ const NoticiasPage: React.FC = () => {
       return;
     }
     setNoticias([...noticias, noticia]);
+
+    // FUTURO: POST al backend
+    // fetch("/api/noticias", { method: "POST", body: JSON.stringify(noticia) })
   };
 
   const actualizarNoticia = (noticia: Noticia) => {
     setNoticias(noticias.map((n) => (n.id === noticia.id ? noticia : n)));
     setEditando(null);
+
+    // FUTURO: PUT al backend
+    // fetch(`/api/noticias/${noticia.id}`, { method: "PUT", body: JSON.stringify(noticia) })
   };
 
   const eliminarNoticia = (id: number) => {
     if (window.confirm("¿Seguro que querés eliminar esta noticia?")) {
       setNoticias(noticias.filter((n) => n.id !== id));
       setViendo(null);
+
+      // FUTURO: DELETE al backend
+      // fetch(`/api/noticias/${id}`, { method: "DELETE" })
     }
   };
 
   return (
-    <div style={{ maxWidth: 1000, margin: "0 auto", padding: "2rem" }}>
-      <h2 style={{ color: "#1f3c88", marginBottom: "1.5rem" }}>Noticias</h2>
+    <div className="p-6 space-y-6">
+      <h2 className="text-2xl font-bold text-center">Noticias</h2>
+
+      {/* Carrusel solo si hay noticias */}
+      {noticias.length > 0 && <CarruselNoticias noticias={noticias} />}
 
       {viendo ? (
-        <div style={{ background: "#fff", padding: "1.5rem", borderRadius: 12, boxShadow: "0 4px 10px rgba(0,0,0,0.1)" }}>
-          <button onClick={() => setViendo(null)} style={{ marginBottom: "1rem" }}>
+        <div className="bg-white shadow-md rounded-lg p-4">
+          <button
+            onClick={() => setViendo(null)}
+            className="mb-2 text-blue-600 hover:underline"
+          >
             ← Volver
           </button>
-          <h3 style={{ fontSize: "1.8rem", marginBottom: "0.5rem" }}>{viendo.titulo}</h3>
-          <small style={{ color: "#777" }}>{new Date(viendo.fecha).toLocaleDateString()}</small>
-          <img
-            src={viendo.imagenUrl}
-            alt={viendo.titulo}
-            style={{ width: "100%", maxHeight: 400, objectFit: "cover", margin: "1rem 0", borderRadius: 8 }}
-          />
-          <p style={{ fontSize: "1.1rem", lineHeight: 1.6 }}>{viendo.contenido}</p>
-          <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
-            <button onClick={() => setEditando(viendo)}>Editar</button>
-            <button onClick={() => eliminarNoticia(viendo.id)}>Eliminar</button>
+          <h3 className="text-xl font-semibold">{viendo.titulo}</h3>
+          <small className="text-gray-500">
+            {new Date(viendo.fecha).toLocaleDateString()}
+          </small>
+          {viendo.imagenUrl && (
+            <img
+              src={viendo.imagenUrl}
+              alt={viendo.titulo}
+              className="w-full max-h-80 object-cover my-4 rounded-lg"
+            />
+          )}
+          <p className="text-gray-700">{viendo.contenido}</p>
+          <div className="mt-4 flex gap-2">
+            <button
+              onClick={() => setEditando(viendo)}
+              className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+            >
+              Editar
+            </button>
+            <button
+              onClick={() => eliminarNoticia(viendo.id)}
+              className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+            >
+              Eliminar
+            </button>
           </div>
         </div>
       ) : editando ? (
-        <FormularioNoticia noticia={editando} onGuardar={actualizarNoticia} onCancelar={() => setEditando(null)} />
+        <FormularioNoticia
+          noticia={editando}
+          onGuardar={actualizarNoticia}
+          onCancelar={() => setEditando(null)}
+        />
       ) : (
         <>
           <FormularioNoticia onGuardar={agregarNoticia} />
-          <hr style={{ margin: "2rem 0" }} />
-          <NoticiasLista noticias={noticias} onVer={(n) => setViendo(n)} onEditar={(n) => setEditando(n)} onEliminar={(id) => eliminarNoticia(id)} />
+          <hr className="my-4" />
+          <NoticiasLista
+            noticias={noticias}
+            onVer={(n) => setViendo(n)}
+            onEditar={(n) => setEditando(n)}
+            onEliminar={(id) => eliminarNoticia(id)}
+          />
         </>
       )}
     </div>

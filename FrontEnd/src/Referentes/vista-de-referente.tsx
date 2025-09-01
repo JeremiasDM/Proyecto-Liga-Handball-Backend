@@ -3,13 +3,11 @@
  *
  * Descripción:
  * Este script de TypeScript se encarga de poblar dinámicamente los campos de la página
- * "Vista del Referente" con datos obtenidos, por ejemplo, de una API o de la URL.
- * El script simula la carga de datos de un referente específico y los muestra en la
- * interfaz HTML predefinida.
+ * "Vista del Referente" con datos obtenidos de forma asíncrona. Se ha mejorado la
+ * lógica para manejar de forma segura los elementos del DOM y los posibles errores.
  */
 
-// Se define una interfaz para la estructura de datos de un referente,
-// lo que ayuda a mantener la consistencia y la seguridad de tipos.
+// Se define una interfaz para la estructura de datos de un referente.
 interface Referente {
   nombre: string;
   apellido: string;
@@ -27,11 +25,19 @@ interface Referente {
  * @returns {Promise<Referente | null>} Una promesa que se resuelve con los datos del referente o null si no se encuentra.
  */
 async function obtenerReferentePorId(id: string): Promise<Referente | null> {
-  // En una aplicación real, aquí harías una llamada a una API, por ejemplo:
-  // const response = await fetch(`/api/referentes/${id}`);
-  // if (!response.ok) return null;
-  // const data: Referente = await response.json();
-  // return data;
+  // En una aplicación real, se haría una llamada a una API como esta:
+  // try {
+  //   const response = await fetch(`/api/referentes/${id}`);
+  //   if (!response.ok) {
+  //     console.error(`Error al obtener el referente. Código de estado: ${response.status}`);
+  //     return null;
+  //   }
+  //   const data: Referente = await response.json();
+  //   return data;
+  // } catch (error) {
+  //   console.error('Ocurrió un error en la red:', error);
+  //   return null;
+  // }
 
   // Datos simulados para demostración.
   const datosSimulados: Referente = {
@@ -41,31 +47,62 @@ async function obtenerReferentePorId(id: string): Promise<Referente | null> {
     dni: '12.345.678',
     correo: 'maria.gonzalez@example.com',
     equipo: 'Los Halcones',
-    fotoUrl: 'https://via.placeholder.com/150/00cc66/ffffff?text=MG' // URL de una imagen de ejemplo
+    fotoUrl: 'https://via.placeholder.com/150/00cc66/ffffff?text=MG'
   };
 
-  // Se devuelve una promesa para simular el comportamiento asíncrono de una petición real.
-  return new Promise(resolve => setTimeout(() => resolve(datosSimulados), 500));
+  // Simulación de respuesta exitosa o de error (para propósitos de demostración)
+  const isFound = id === '123';
+  return new Promise(resolve => setTimeout(() => resolve(isFound ? datosSimulados : null), 500));
 }
 
 /**
  * @function mostrarDatosReferente
- * @description Rellena los elementos HTML de la página con los datos del referente.
+ * @description Rellena los elementos HTML de la página con los datos del referente de forma segura.
  * @param {Referente} referente - El objeto con la información del referente.
  */
 function mostrarDatosReferente(referente: Referente): void {
-  // Se obtienen los elementos HTML por su ID y se les asigna el valor correspondiente.
-  (document.getElementById('nombreReferente') as HTMLSpanElement).textContent = referente.nombre;
-  (document.getElementById('apellidoReferente') as HTMLSpanElement).textContent = referente.apellido;
-  (document.getElementById('categoriaReferente') as HTMLSpanElement).textContent = referente.categoria;
-  (document.getElementById('dniReferente') as HTMLSpanElement).textContent = referente.dni;
-  (document.getElementById('correoReferente') as HTMLSpanElement).textContent = referente.correo;
-  (document.getElementById('equipoReferente') as HTMLSpanElement).textContent = referente.equipo;
+  // Mapa de IDs de elementos a las propiedades del objeto Referente.
+  const fields = {
+    nombreReferente: referente.nombre,
+    apellidoReferente: referente.apellido,
+    categoriaReferente: referente.categoria,
+    dniReferente: referente.dni,
+    correoReferente: referente.correo,
+    equipoReferente: referente.equipo,
+  };
 
+  // Itera sobre el mapa para asignar los valores de forma segura.
+  for (const [id, value] of Object.entries(fields)) {
+    const element = document.getElementById(id);
+    if (element) {
+      element.textContent = value;
+    } else {
+      console.warn(`Elemento con ID "${id}" no encontrado en el DOM.`);
+    }
+  }
+
+  // Manejo de la imagen de forma separada para mejor control.
   const fotoElement = document.getElementById('referentePhoto') as HTMLImageElement;
   if (fotoElement) {
     fotoElement.src = referente.fotoUrl;
     fotoElement.alt = `Foto de ${referente.nombre} ${referente.apellido}`;
+  } else {
+    console.warn('Elemento de imagen con ID "referentePhoto" no encontrado.');
+  }
+}
+
+/**
+ * @function manejarMensaje
+ * @description Muestra un mensaje de error o informativo en el contenedor principal.
+ * @param {string} mensaje - El mensaje a mostrar.
+ * @param {boolean} isError - Indica si el mensaje es de error.
+ */
+function manejarMensaje(mensaje: string, isError: boolean = false): void {
+  const viewContainer = document.querySelector('.view-container') as HTMLElement;
+  if (viewContainer) {
+    const clase = isError ? 'error-message' : 'info-message';
+    viewContainer.innerHTML = `<p class="${clase}">${mensaje}</p>`;
+    // Opcional: ocultar otros elementos relevantes de la vista si hay un error.
   }
 }
 
@@ -74,35 +111,20 @@ function mostrarDatosReferente(referente: Referente): void {
  * @description Función principal para iniciar la carga de datos al cargar la página.
  */
 async function inicializarPagina(): Promise<void> {
-  // En una aplicación real, se obtendría el ID de la URL.
-  // const urlParams = new URLSearchParams(window.location.search);
-  // const referenteId = urlParams.get('id');
-
-  // Aquí se simula un ID para la demostración.
-  const referenteId = '123';
+  const urlParams = new URLSearchParams(window.location.search);
+  const referenteId = urlParams.get('id') || '123'; // Simulación: Si no hay ID en la URL, se usa '123'.
 
   if (referenteId) {
-    // Se simula un estado de carga mientras se obtienen los datos.
     console.log(`Cargando datos del referente con ID: ${referenteId}...`);
-    // Se obtienen los datos del referente de forma asíncrona.
     const referente = await obtenerReferentePorId(referenteId);
-    
+
     if (referente) {
-      // Si se encuentran los datos, se muestran en la página.
       mostrarDatosReferente(referente);
     } else {
-      // Si el referente no se encuentra, se muestra un mensaje de error.
-      const viewContainer = document.querySelector('.view-container') as HTMLElement;
-      if (viewContainer) {
-        viewContainer.innerHTML = '<p class="error-message">Referente no encontrado.</p>';
-      }
+      manejarMensaje('Referente no encontrado.', true);
     }
   } else {
-    // Si no hay ID en la URL, se muestra un mensaje de error.
-    const viewContainer = document.querySelector('.view-container') as HTMLElement;
-    if (viewContainer) {
-      viewContainer.innerHTML = '<p class="error-message">No se ha especificado un referente para mostrar.</p>';
-    }
+    manejarMensaje('No se ha especificado un referente para mostrar.', true);
   }
 }
 

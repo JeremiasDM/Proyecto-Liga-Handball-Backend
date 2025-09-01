@@ -1,178 +1,117 @@
-import React, { useState } from 'react';
-import FormularioDatos from './FormularioDatos';
-import FormularioDocumentacion from './FormularioDocumentacion';
-import BarraProgreso from './BarraProgreso';
-import ListaJugadores from './ListaJugadores';
+import React, { useState } from "react";
+import type { Rol } from "../types/types";
 
-const RegistroJugador = () => {
-  const [fase, setFase] = useState(1);
-  const [modo, setModo] = useState(null);
-  const [datos, setDatos] = useState(jugadorVacio());
-  const [jugadores, setJugadores] = useState([]);
-  const [previewCarnet, setPreviewCarnet] = useState(null);
-  const [previewFicha, setPreviewFicha] = useState(null);
+type Props = {
+  onRegistrar: (jugador: any) => void;
+  rolUsuario: Rol; 
+};
 
-  function jugadorVacio() {
-    return {
-      nombre: '',
-      apellido: '',
-      dni: '',
-      telefono: '',
-      genero: '',
-      localidad: '',
-      club: '',
-      categoria: '',
-      fechaNacimiento: '',
-      carnet: null,
-      ficha: null,
-      vencimientoFicha: '',
-      sanciones: []
-    };
-  }
+const RegistroJugador: React.FC<Props> = ({ onRegistrar, rolUsuario }) => {
+  const [jugador, setJugador] = useState({
+    nombre: "",
+    apellido: "",
+    dni: "",
+    club: "",
+    categoria: "",
+  });
 
-  const handleCancelar = () => {
-    setDatos(jugadorVacio());
-    setModo(null);
-    setPreviewCarnet(null);
-    setPreviewFicha(null);
-    setFase(1);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+
+    
+    if ((name === "nombre" || name === "apellido") && !/^[A-Za-z\s]*$/.test(value)) return;
+    if (name === "dni" && !/^\d{0,8}$/.test(value)) return; // hasta 8 números
+
+    setJugador({ ...jugador, [name]: value });
   };
 
-  const handleGuardar = () => {
-    if (!datos.carnet || !datos.ficha) {
-      alert('Debe subir el carnet y la ficha médica');
-      return;
-    }
-    if (!datos.fechaNacimiento) {
-      alert('Debe completar la fecha de nacimiento');
-      return;
-    }
-    if (!datos.vencimientoFicha) {
-      alert('Debe completar la fecha de vencimiento de la ficha médica');
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!jugador.nombre || !jugador.apellido || !jugador.dni || !jugador.club || !jugador.categoria) {
+      alert("Todos los campos son obligatorios");
       return;
     }
 
-    const hoy = new Date().toISOString().split('T')[0];
-    if (datos.vencimientoFicha < hoy) {
-      alert('La fecha de vencimiento no puede ser pasada');
-      return;
-    }
+    // Guardar en MySQL (datos tabulares)
+    // FUTURO: API → POST /jugadores { jugador }
 
-    if (modo === 'registro') {
-      setJugadores([...jugadores, datos]);
-      alert('Jugador registrado correctamente');
-    } else if (modo === 'edicion') {
-      const actualizados = jugadores.map(j =>
-        j.dni === datos.dni ? datos : j
-      );
-      setJugadores(actualizados);
-      alert('Jugador actualizado correctamente');
-    }
+    // Guardar en NoSQL (documentos relacionados: carnet, ficha médica)
+    // FUTURO: Subida a Mongo
 
-    handleCancelar();
-  };
-
-  const handleEditar = (jugador) => {
-    setDatos(jugador);
-    setModo('edicion');
-    setFase(1);
-    setPreviewCarnet(jugador.carnet ? URL.createObjectURL(jugador.carnet) : null);
-    setPreviewFicha(jugador.ficha ? URL.createObjectURL(jugador.ficha) : null);
-  };
-
-  const handleEliminar = (dni) => {
-    if (window.confirm('¿Está seguro que desea desactivar este jugador?')) {
-      const actualizados = jugadores.filter(j => j.dni !== dni);
-      setJugadores(actualizados);
-      alert('Jugador desactivado');
-    }
-  };
-
-  const handleAgregar = () => {
-    setDatos(jugadorVacio());
-    setModo('registro');
-    setFase(1);
-    setPreviewCarnet(null);
-    setPreviewFicha(null);
-  };
-
-  const handleActualizarFichaDirecto = (dni, nuevaFicha, nuevoVencimiento) => {
-    const actualizados = jugadores.map(j =>
-      j.dni === dni
-        ? { ...j, ficha: nuevaFicha, vencimientoFicha: nuevoVencimiento }
-        : j
-    );
-    setJugadores(actualizados);
-    alert('Ficha médica actualizada');
-  };
-
-  const handleAgregarSancion = (dni, tipo) => {
-    const actualizados = jugadores.map(j =>
-      j.dni === dni
-        ? { ...j, sanciones: [...(j.sanciones || []), tipo] }
-        : j
-    );
-    setJugadores(actualizados);
-    alert(`Sanción "${tipo}" agregada`);
+    onRegistrar(jugador);
+    setJugador({ nombre: "", apellido: "", dni: "", club: "", categoria: "" });
   };
 
   return (
-    <div style={{
-      maxWidth: '800px',
-      margin: 'auto',
-      padding: '20px',
-      background: '#1F3C88',
-      borderRadius: '10px',
-      color: '#FFFFFF'
-    }}>
-      {modo ? (
-        <>
-          <h2>{modo === 'registro' ? 'Registrar Jugador' : 'Editar Jugador'}</h2>
-          <BarraProgreso fase={fase} />
-          {fase === 1 && (
-            <FormularioDatos
-              datos={datos}
-              setDatos={setDatos}
-              setFase={setFase}
-              handleCancelar={handleCancelar}
-              modo={modo}
-              jugadores={jugadores}
-            />
-          )}
-          {fase === 2 && (
-            <FormularioDocumentacion
-              datos={datos}
-              setDatos={setDatos}
-              previewCarnet={previewCarnet}
-              previewFicha={previewFicha}
-              setPreviewCarnet={setPreviewCarnet}
-              setPreviewFicha={setPreviewFicha}
-              setFase={setFase}
-              handleGuardar={handleGuardar}
-              handleCancelar={handleCancelar}
-              modo={modo}
-            />
-          )}
-        </>
-      ) : (
-        <>
-          <h2>Gestión de Jugadores</h2>
+    <div className="max-w-lg mx-auto bg-white shadow-lg rounded-2xl p-6">
+      <h2 className="text-xl font-bold mb-4 text-center">Registro de Jugador</h2>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          name="nombre"
+          placeholder="Nombre"
+          value={jugador.nombre}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          name="apellido"
+          placeholder="Apellido"
+          value={jugador.apellido}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          name="dni"
+          placeholder="DNI"
+          value={jugador.dni}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          name="club"
+          placeholder="Club"
+          value={jugador.club}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        />
+        <select
+          name="categoria"
+          value={jugador.categoria}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        >
+          <option value="">Seleccione Categoría</option>
+          <option value="Infantil">Infantil</option>
+          <option value="Juvenil">Juvenil</option>
+          <option value="Mayor">Mayor</option>
+        </select>
+
+        <div className="flex justify-between mt-4">
           <button
-            onClick={handleAgregar}
-            style={{ padding: '8px 12px', marginBottom: '10px', backgroundColor: 'green', color: 'white', border: 'none', borderRadius: '5px' }}
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            Agregar nuevo jugador
+            Guardar
           </button>
-          <ListaJugadores
-            jugadores={jugadores}
-            setJugadores={setJugadores}
-            onEditar={handleEditar}
-            onEliminar={handleEliminar}
-            onActualizarFicha={handleActualizarFichaDirecto}
-            onAgregarSancion={handleAgregarSancion}
-          />
-        </>
-      )}
+
+          
+          {rolUsuario === "Presidenta" && (
+            <button
+              type="button"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              Subir Documentación
+            </button>
+          )}
+        </div>
+      </form>
     </div>
   );
 };

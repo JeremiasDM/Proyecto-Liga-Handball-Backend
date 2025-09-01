@@ -1,5 +1,5 @@
 import React from "react";
-import type { Noticia } from "./types";
+import type { Noticia } from "../types/types";
 
 type Props = {
   noticias: Noticia[];
@@ -10,34 +10,44 @@ type Props = {
 
 const NoticiasLista: React.FC<Props> = ({ noticias, onVer, onEditar, onEliminar }) => {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {noticias.map((n) => (
         <div
           key={n.id}
-          style={{
-            background: "#fff",
-            borderRadius: 12,
-            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-          }}
+          className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition"
         >
           {n.imagenUrl && (
             <img
               src={n.imagenUrl}
               alt={n.titulo}
-              style={{ width: "100%", height: 180, objectFit: "cover" }}
+              className="w-full h-40 object-cover"
             />
           )}
-          <div style={{ padding: "1rem", flex: 1 }}>
-            <h4 style={{ marginBottom: "0.5rem", color: "#1f3c88" }}>{n.titulo}</h4>
-            <small style={{ color: "#777" }}>{new Date(n.fecha).toLocaleDateString()}</small>
-            <p style={{ margin: "0.75rem 0", fontSize: "0.95rem", color: "#555" }}>{n.resumen}</p>
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "auto" }}>
-              <button onClick={() => onVer(n)}>Ver más</button>
-              <button onClick={() => onEditar(n)}>Editar</button>
-              <button onClick={() => onEliminar(n.id)}>Eliminar</button>
+          <div className="p-3 space-y-2">
+            <h4 className="font-semibold text-lg">{n.titulo}</h4>
+            <small className="text-gray-500">
+              {new Date(n.fecha).toLocaleDateString()}
+            </small>
+            <p className="text-gray-700 text-sm line-clamp-3">{n.resumen}</p>
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => onVer(n)}
+                className="text-blue-600 hover:underline"
+              >
+                Ver más
+              </button>
+              <button
+                onClick={() => onEditar(n)}
+                className="text-yellow-600 hover:underline"
+              >
+                Editar
+              </button>
+              <button
+                onClick={() => onEliminar(n.id)}
+                className="text-red-600 hover:underline"
+              >
+                Eliminar
+              </button>
             </div>
           </div>
         </div>
