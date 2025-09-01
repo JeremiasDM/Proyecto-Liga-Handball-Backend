@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Autoridades from "./Autoridades/Autoridades";
 import VerClubes from "./Clubes/VerClub";
 import VerJugadores from "./Jugadores/VerJugadores";
-import VerReferentes from "./Referentes/ver-referentes";
+//import VerReferentes from "./Referentes/ver-referentes";
 import FixturePage from "./Fixture/FixturePage";
 import Historia from "./Historia/Historia";
 import Estadistica from "./Estadistica/Estadistica";
@@ -21,7 +21,7 @@ export default function App() {
     | "login"
     | "noticias"
     | "reglamento"
-    | "referentes" // Se añade la nueva vista
+    | "referentes" 
   >(() => {
     return (localStorage.getItem("vista") as any) || "inicio";
   });
