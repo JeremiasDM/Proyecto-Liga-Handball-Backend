@@ -1,126 +1,55 @@
-import React, { useState, useEffect } from "react";
-import type { Noticia } from "../types/types";
-import FormularioNoticia from "./FormularioNoticia";
-import NoticiasLista from "./NoticiasLista";
+import React, { useEffect, useState } from "react";
 import CarruselNoticias from "./CarruselNoticias";
+import FormularioNoticia, { Noticia } from "./FormularioNoticia";
+import NoticiasLista from "./NoticiasLista";
 
 const NoticiasPage: React.FC = () => {
   const [noticias, setNoticias] = useState<Noticia[]>([]);
-  const [editando, setEditando] = useState<Noticia | null>(null);
-  const [viendo, setViendo] = useState<Noticia | null>(null);
 
   useEffect(() => {
-    const guardadas = localStorage.getItem("noticias");
-    if (guardadas) {
-      setNoticias(JSON.parse(guardadas));
-    }
-
-    // FUTURO: reemplazar por fetch a backend
-    /*
-    fetch("/api/noticias")
-      .then(res => res.json())
-      .then(data => setNoticias(data))
-      .catch(err => console.error(err));
-    */
+    setNoticias([
+      {
+        id: 1,
+        titulo: "Inicio del Torneo Clausura",
+        resumen: "La Liga de Handball de Punilla da inicio a su Torneo Clausura 2025.",
+        contenido: "Con gran entusiasmo, la liga da comienzo al torneo Clausura...",
+        imagenUrl: "/noticias/torneo.jpg",
+        fecha: "2025-09-01",
+      },
+      {
+        id: 2,
+        titulo: "Capacitación de Árbitros",
+        resumen: "Se realizó una capacitación intensiva para árbitros de la liga.",
+        contenido: "El curso incluyó teoría y práctica sobre reglamentos actualizados...",
+        imagenUrl: "/noticias/arbitros.jpg",
+        fecha: "2025-08-25",
+      },
+    ]);
   }, []);
 
-  // -------------------------
-  // Guardar en localStorage (solo mock)
-  // -------------------------
-  useEffect(() => {
-    localStorage.setItem("noticias", JSON.stringify(noticias));
-  }, [noticias]);
-// CRUD preparado
-
-  const agregarNoticia = (noticia: Noticia) => {
-    if (noticias.length >= 5) {
-      alert("Solo se permiten 5 noticias. Elimina una antes de agregar otra.");
-      return;
-    }
-    setNoticias([...noticias, noticia]);
-
-    // FUTURO: POST al backend
-    // fetch("/api/noticias", { method: "POST", body: JSON.stringify(noticia) })
-  };
-
-  const actualizarNoticia = (noticia: Noticia) => {
-    setNoticias(noticias.map((n) => (n.id === noticia.id ? noticia : n)));
-    setEditando(null);
-
-    // FUTURO: PUT al backend
-    // fetch(`/api/noticias/${noticia.id}`, { method: "PUT", body: JSON.stringify(noticia) })
+  const agregarNoticia = (nueva: Noticia) => {
+    setNoticias([nueva, ...noticias]);
   };
 
   const eliminarNoticia = (id: number) => {
-    if (window.confirm("¿Seguro que querés eliminar esta noticia?")) {
-      setNoticias(noticias.filter((n) => n.id !== id));
-      setViendo(null);
+    setNoticias(noticias.filter((n) => n.id !== id));
+  };
 
-      // FUTURO: DELETE al backend
-      // fetch(`/api/noticias/${id}`, { method: "DELETE" })
-    }
+  const editarNoticia = (id: number, datos: Partial<Noticia>) => {
+    setNoticias(noticias.map((n) => (n.id === id ? { ...n, ...datos } : n)));
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-center">Noticias</h2>
+    <div className="p-6 space-y-6 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold text-center text-blue-900">
+        Noticias de la Liga de Handball de Punilla
+      </h1>
 
-      {/* Carrusel solo si hay noticias */}
-      {noticias.length > 0 && <CarruselNoticias noticias={noticias} />}
+      <CarruselNoticias noticias={noticias} onEditar={(n) => editarNoticia(n.id, n)} onEliminar={eliminarNoticia} />
 
-      {viendo ? (
-        <div className="bg-white shadow-md rounded-lg p-4">
-          <button
-            onClick={() => setViendo(null)}
-            className="mb-2 text-blue-600 hover:underline"
-          >
-            ← Volver
-          </button>
-          <h3 className="text-xl font-semibold">{viendo.titulo}</h3>
-          <small className="text-gray-500">
-            {new Date(viendo.fecha).toLocaleDateString()}
-          </small>
-          {viendo.imagenUrl && (
-            <img
-              src={viendo.imagenUrl}
-              alt={viendo.titulo}
-              className="w-full max-h-80 object-cover my-4 rounded-lg"
-            />
-          )}
-          <p className="text-gray-700">{viendo.contenido}</p>
-          <div className="mt-4 flex gap-2">
-            <button
-              onClick={() => setEditando(viendo)}
-              className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-            >
-              Editar
-            </button>
-            <button
-              onClick={() => eliminarNoticia(viendo.id)}
-              className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-            >
-              Eliminar
-            </button>
-          </div>
-        </div>
-      ) : editando ? (
-        <FormularioNoticia
-          noticia={editando}
-          onGuardar={actualizarNoticia}
-          onCancelar={() => setEditando(null)}
-        />
-      ) : (
-        <>
-          <FormularioNoticia onGuardar={agregarNoticia} />
-          <hr className="my-4" />
-          <NoticiasLista
-            noticias={noticias}
-            onVer={(n) => setViendo(n)}
-            onEditar={(n) => setEditando(n)}
-            onEliminar={(id) => eliminarNoticia(id)}
-          />
-        </>
-      )}
+      <FormularioNoticia onGuardar={agregarNoticia} />
+
+      <NoticiasLista noticias={noticias} onEliminar={eliminarNoticia} onEditar={(n) => editarNoticia(n.id, n)} />
     </div>
   );
 };
