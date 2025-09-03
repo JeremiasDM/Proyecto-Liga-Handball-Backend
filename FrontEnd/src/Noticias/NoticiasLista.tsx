@@ -1,54 +1,41 @@
 import React from "react";
-import type { Noticia } from "../types/types";
+import type { Noticia } from "./FormularioNoticia";
 
 type Props = {
   noticias: Noticia[];
-  onVer: (n: Noticia) => void;
-  onEditar: (n: Noticia) => void;
+  onEditar: (noticia: Noticia) => void;
   onEliminar: (id: number) => void;
 };
 
-const NoticiasLista: React.FC<Props> = ({ noticias, onVer, onEditar, onEliminar }) => {
+const NoticiasLista: React.FC<Props> = ({ noticias, onEditar, onEliminar }) => {
+  if (!Array.isArray(noticias) || noticias.length === 0) {
+    return <p className="text-gray-500">No hay noticias publicadas.</p>;
+  }
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {noticias.map((n) => (
-        <div
-          key={n.id}
-          className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition"
-        >
-          {n.imagenUrl && (
-            <img
-              src={n.imagenUrl}
-              alt={n.titulo}
-              className="w-full h-40 object-cover"
-            />
+    <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      {noticias.map((noticia) => (
+        <div key={noticia.id} className="bg-white p-4 rounded-xl shadow flex flex-col">
+          {noticia.imagenUrl && (
+            <img src={noticia.imagenUrl} alt={noticia.titulo} className="rounded-lg mb-3 h-40 object-cover" />
           )}
-          <div className="p-3 space-y-2">
-            <h4 className="font-semibold text-lg">{n.titulo}</h4>
-            <small className="text-gray-500">
-              {new Date(n.fecha).toLocaleDateString()}
-            </small>
-            <p className="text-gray-700 text-sm line-clamp-3">{n.resumen}</p>
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={() => onVer(n)}
-                className="text-blue-600 hover:underline"
-              >
-                Ver más
-              </button>
-              <button
-                onClick={() => onEditar(n)}
-                className="text-yellow-600 hover:underline"
-              >
-                Editar
-              </button>
-              <button
-                onClick={() => onEliminar(n.id)}
-                className="text-red-600 hover:underline"
-              >
-                Eliminar
-              </button>
-            </div>
+          <h3 className="text-lg font-bold text-gray-800">{noticia.titulo}</h3>
+          <p className="text-sm text-gray-600">{noticia.resumen}</p>
+          <small className="text-xs text-gray-400 mb-2">
+            {new Date(noticia.fecha).toLocaleDateString("es-AR", {
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+            })}
+          </small>
+          <p className="text-sm text-gray-700 flex-1">{noticia.contenido}</p>
+          <div className="flex gap-2 mt-3">
+            <button onClick={() => onEditar(noticia)} className="flex-1 bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
+              Editar
+            </button>
+            <button onClick={() => onEliminar(noticia.id)} className="flex-1 bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">
+              Eliminar
+            </button>
           </div>
         </div>
       ))}
