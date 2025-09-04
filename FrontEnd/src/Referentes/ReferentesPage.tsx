@@ -1,64 +1,101 @@
 import React, { useEffect, useState } from "react";
 import RegistrarReferente from "./RegistrarReferente";
 import EditarReferente from "./EditarReferente";
-import VerReferentes from "./ListaReferente";
-import VistaReferente from "./VistaReferentes";
+import ListaReferente from "./ListaReferente";
+import VistaReferente from "./VistaReferente";
 
-
-type Rol = "Presidenta" | "Referente" | "Usuario";
-
-type Referente = {
+export type Referente = {
   id: number;
   nombre: string;
   apellido: string;
-  categoria: string;
+  categoria: "Masculino" | "Femenino";
   dni: string;
   correo: string;
   equipo: string;
-  fotoUrl?: string; 
+  fotoUrl?: string;
 };
 
-// Página principal
 const ReferentesPage: React.FC = () => {
-  const [rolActual, setRolActual] = useState<Rol>("Usuario");
   const [referentes, setReferentes] = useState<Referente[]>([]);
   const [referenteSeleccionado, setReferenteSeleccionado] = useState<Referente | null>(null);
+  const [editando, setEditando] = useState(false);
 
+  // Cargar referentes desde localStorage al inicio
   useEffect(() => {
-    const mockData: Referente[] = [
-      { id: 1, nombre: "Juan", apellido: "Pérez", categoria: "Masculino", dni: "12345678", correo: "juan@example.com", equipo: "Cóndores", fotoUrl: "/uploads/juan.png" },
-      { id: 2, nombre: "Ana", apellido: "Gómez", categoria: "Femenino", dni: "87654321", correo: "ana@example.com", equipo: "Águilas" }
-    ];
-    setReferentes(mockData);
-
-    const rolGuardado = localStorage.getItem("rol") as Rol;
-    if (rolGuardado) setRolActual(rolGuardado);
+    const data = localStorage.getItem("referentes");
+    if (data) {
+      setReferentes(JSON.parse(data));
+    }
   }, []);
 
+  // Guardar referentes en localStorage al modificarlos
+  useEffect(() => {
+    localStorage.setItem("referentes", JSON.stringify(referentes));
+  }, [referentes]);
+
+  const registrarReferente = (nuevo: Referente) => {
+    setReferentes([{ ...nuevo, id: Date.now() }, ...referentes]);
+  };
+
+  const actualizarReferente = (editado: Referente) => {
+    setReferentes(referentes.map((r) => (r.id === editado.id ? editado : r)));
+    setReferenteSeleccionado(null);
+    setEditando(false);
+  };
+
+  const eliminarReferente = (id: number) => {
+    if (window.confirm("¿Seguro que quieres eliminar este referente?")) {
+      setReferentes(referentes.filter((r) => r.id !== id));
+      setReferenteSeleccionado(null);
+      setEditando(false);
+    }
+  };
+
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Gestión de Referentes</h2>
+    <div className="p-6 space-y-6 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold text-center text-blue-900">
+        Gestión de Referentes
+      </h1>
 
-      {rolActual === "Presidenta" && (
-        <RegistrarReferente onGuardar={(nuevo) => setReferentes([...referentes, nuevo])} />
+      {/* Registro de nuevo referente */}
+      <div className="max-w-2xl mx-auto bg-white shadow-md rounded-xl p-6">
+        <RegistrarReferente onGuardar={registrarReferente} />
+      </div>
+
+      {/* Lista de referentes */}
+      <div className="bg-white shadow-md rounded-xl p-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          Lista de Referentes
+        </h2>
+        <ListaReferente
+          referentes={referentes}
+          onVer={(ref) => {
+            setReferenteSeleccionado(ref);
+            setEditando(false);
+          }}
+          onEditar={(ref) => {
+            setReferenteSeleccionado(ref);
+            setEditando(true);
+          }}
+          onEliminar={eliminarReferente}
+        />
+      </div>
+
+      {/* Vista o edición del referente seleccionado */}
+      {referenteSeleccionado && !editando && (
+        <VistaReferente
+          referente={referenteSeleccionado}
+          onVolver={() => setReferenteSeleccionado(null)}
+        />
       )}
-
-      <VerReferentes
-        referentes={referentes}
-        rol={rolActual}
-        onSeleccionar={(ref) => setReferenteSeleccionado(ref)}
-      />
-
-      {referenteSeleccionado && (
-        <VistaReferente referente={referenteSeleccionado} />
-      )}
-
-      {rolActual === "Presidenta" && referenteSeleccionado && (
+      {referenteSeleccionado && editando && (
         <EditarReferente
           referente={referenteSeleccionado}
-          onActualizar={(editado) =>
-            setReferentes(referentes.map(r => r.id === editado.id ? editado : r))
-          }
+          onActualizar={actualizarReferente}
+          onCancelar={() => {
+            setReferenteSeleccionado(null);
+            setEditando(false);
+          }}
         />
       )}
     </div>
