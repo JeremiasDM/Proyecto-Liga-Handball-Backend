@@ -22,34 +22,67 @@ const JugadoresPage: React.FC = () => {
   }, [jugadores]);
 
   const registrarJugador = (nuevo: Jugador) => {
-    const existe = jugadores.some((j) => j.dni === nuevo.dni);
-    if (existe) {
+    const existeDni = jugadores.some((j) => j.dni === nuevo.dni);
+    if (existeDni) {
       alert("El DNI ingresado ya pertenece a otro jugador.");
       return;
     }
+
+    if (nuevo.telefono) {
+      const existeTel = jugadores.some((j) => j.telefono === nuevo.telefono);
+      if (existeTel) {
+        alert("El teléfono ingresado ya pertenece a otro jugador.");
+        return;
+      }
+    }
+
     setJugadorEnProceso(nuevo);
     setFase(2);
   };
 
   const guardarDocumentacion = (jugadorConDocs: Jugador) => {
-    const existe = jugadores.some((j) => j.dni === jugadorConDocs.dni);
-    if (existe) {
+    const existeDni = jugadores.some((j) => j.dni === jugadorConDocs.dni);
+    if (existeDni) {
       alert("El DNI ingresado ya pertenece a otro jugador.");
       return;
     }
+
+    if (jugadorConDocs.telefono) {
+      const existeTel = jugadores.some(
+        (j) => j.telefono === jugadorConDocs.telefono
+      );
+      if (existeTel) {
+        alert("El teléfono ingresado ya pertenece a otro jugador.");
+        return;
+      }
+    }
+
     setJugadores([jugadorConDocs, ...jugadores]);
     setJugadorEnProceso(null);
     setFase(1);
   };
 
   const actualizarJugador = (jugadorActualizado: Jugador) => {
-    const existe = jugadores.some(
+    const existeDni = jugadores.some(
       (j) => j.dni === jugadorActualizado.dni && j.id !== jugadorActualizado.id
     );
-    if (existe) {
+    if (existeDni) {
       alert("El DNI ingresado ya pertenece a otro jugador.");
       return;
     }
+
+    if (jugadorActualizado.telefono) {
+      const existeTel = jugadores.some(
+        (j) =>
+          j.telefono === jugadorActualizado.telefono &&
+          j.id !== jugadorActualizado.id
+      );
+      if (existeTel) {
+        alert("El teléfono ingresado ya pertenece a otro jugador.");
+        return;
+      }
+    }
+
     setJugadores(
       jugadores.map((j) =>
         j.id === jugadorActualizado.id ? jugadorActualizado : j
