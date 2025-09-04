@@ -1,18 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { Jugador } from "./FormularioDatos";
 import FormularioDatos from "./FormularioDatos";
 import FormularioDocumentacion from "./FormularioDocumentacion";
-
-const rolActual = localStorage.getItem("rol") || "Referente";
-
-type Jugador = {
-  id: number;
-  nombre: string;
-  apellido: string;
-  club: string;
-  dni: string;
-  carnetUrl?: string; 
-  fichaMedicaUrl?: string; 
-};
 
 type Props = {
   jugador: Jugador;
@@ -24,57 +13,36 @@ const VerJugadores: React.FC<Props> = ({ jugador, onActualizar, onEliminar }) =>
   const [editandoDatos, setEditandoDatos] = useState(false);
   const [editandoDocs, setEditandoDocs] = useState(false);
 
-  useEffect(() => {
-  }, [jugador]);
-
   return (
-    <div style={{ border: "1px solid #ccc", borderRadius: 8, padding: 20, marginBottom: 20 }}>
-      <h3>
+    <div className="bg-white shadow rounded-xl p-4 mb-4">
+      <h3 className="text-lg font-semibold">
         {jugador.nombre} {jugador.apellido}
       </h3>
       <p><strong>Club:</strong> {jugador.club}</p>
       <p><strong>DNI:</strong> {jugador.dni}</p>
 
-      {/* Mostrar carnet si existe */}
-      {jugador.carnetUrl && (
-        <div>
-          <p><strong>Carnet:</strong></p>
-          <img src={jugador.carnetUrl} alt="Carnet" style={{ maxWidth: 200 }} />
-        </div>
-      )}
-
-      {/* Mostrar ficha médica si existe */}
+      {jugador.carnetUrl && <img src={jugador.carnetUrl} alt="Carnet" className="mt-2 max-w-[200px] rounded shadow" />}
       {jugador.fichaMedicaUrl && (
-        <div>
-          <p><strong>Ficha Médica:</strong></p>
-          <a href={jugador.fichaMedicaUrl} target="_blank" rel="noopener noreferrer">
-            Ver ficha médica
-          </a>
-        </div>
+        <a href={jugador.fichaMedicaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline block mt-2">
+          Ver ficha médica
+        </a>
       )}
 
-      {/* Botones con permisos */}
-      <div style={{ marginTop: 10 }}>
-        {rolActual === "Presidenta" && (
-          <>
-            <button onClick={() => setEditandoDatos(!editandoDatos)}>
-              {editandoDatos ? "Cancelar Edición" : "Editar Datos"}
-            </button>
-            <button onClick={() => setEditandoDocs(!editandoDocs)}>
-              {editandoDocs ? "Cancelar Documentación" : "Editar Documentación"}
-            </button>
-            <button onClick={() => onEliminar(jugador.id)} style={{ color: "red" }}>
-              Eliminar
-            </button>
-          </>
-        )}
+      <div className="flex gap-2 mt-3">
+        <button onClick={() => setEditandoDatos(!editandoDatos)} className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+          {editandoDatos ? "Cancelar" : "Editar Datos"}
+        </button>
+        <button onClick={() => setEditandoDocs(!editandoDocs)} className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
+          {editandoDocs ? "Cancelar" : "Editar Documentación"}
+        </button>
+        <button onClick={() => onEliminar(jugador.id)} className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+          Eliminar
+        </button>
       </div>
 
-      {/* Formularios condicionales */}
       {editandoDatos && (
         <FormularioDatos jugador={jugador} onGuardar={onActualizar} onCancelar={() => setEditandoDatos(false)} />
       )}
-
       {editandoDocs && (
         <FormularioDocumentacion jugador={jugador} onGuardar={onActualizar} onCancelar={() => setEditandoDocs(false)} />
       )}
