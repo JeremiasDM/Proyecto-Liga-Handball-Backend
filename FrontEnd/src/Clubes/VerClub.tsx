@@ -4,8 +4,10 @@ export default function VerClubes() {
   const [busqueda, setBusqueda] = useState("");
 
   const clubes = [
-    { id: 1, nombre: "Club Atlético Norte", localidad: "Villa Unión", escudo: "/escudos/atletico-norte.png", genero: "masculino", referente: "Luis Perez" },
-    { id: 2, nombre: "Deportivo Sur", localidad: "La Esperanza", escudo: "/escudos/deportivo-sur.png", genero: "femenino" },
+    { id: 1, nombre: "Club Capilla del Monte", localidad: "Capilla del Monte", escudo: "./Escudos Clubes/Club_Capilla_Del_Monte.jpeg", genero: "masculino" },
+    { id: 1, nombre: "Club Capilla del Monte", localidad: "Capilla del Monte", escudo: "./Escudos Clubes/Club_Capilla_Del_Monte.jpeg", genero: "femenino" },
+    { id: 2, nombre: "Club Huesta Grande", localidad: "Huerta Grande", escudo: "./Escudos Clubes/Club_Huerta_Grande.jpeg", genero: "masculino" },
+    { id: 2, nombre: "Club Huesta Grande", localidad: "Huerta Grande", escudo: "./Escudos Clubes/Club_Huerta_Grande.jpeg", genero: "femenino" },
     { id: 3, nombre: "Unión del Oeste", localidad: "San Pedro", escudo: "/escudos/union-oeste.png", genero: "masculino" },
     { id: 4, nombre: "Estrella Roja", localidad: "Santa Clara", escudo: "/escudos/estrella-roja.png", genero: "femenino" },
     { id: 5, nombre: "Racing del Norte", localidad: "Villa María", escudo: "/escudos/racing-norte.png", genero: "masculino" },
@@ -20,31 +22,40 @@ export default function VerClubes() {
     club.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  const renderClubes = (genero: string) => (
+  const renderClubes = (genero) => (
     <>
       <h3 style={{ marginTop: "1rem", marginBottom: "0.5rem" }}>
         {genero === "masculino" ? "Clubes Masculinos" : "Clubes Femeninos"}
       </h3>
-      {clubesFiltrados.filter(c => c.genero === genero).map((club) => (
-        <div key={club.id} className="club-card">
-          <img src={club.escudo} alt={`Escudo de ${club.nombre}`} className="club-escudo" />
-          <div>
-            <h4>{club.nombre}</h4>
-            <p>{club.localidad}</p>
+      {clubesFiltrados
+        .filter(c => c.genero === genero)
+        .slice(0, 4) // Aquí se limita a mostrar solo los primeros 4
+        .map((club) => (
+          <div key={club.id} className="club-card">
+            <img src={club.escudo} alt={`Escudo de ${club.nombre}`} className="club-escudo" />
+            <div>
+              <h4>{club.nombre}</h4>
+              <p>{club.localidad}</p>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
     </>
   );
 
   return (
     <>
       <style>{`
+        body {
+          background-color: #f0f2f5;
+          margin: 0;
+          padding: 0;
+        }
         .ver-container {
-          background: white;
+          background: #f0f2f5;
           border-radius: 12px;
           padding: 2rem;
           width: 100%;
+          height: 80%;
           max-width: 1200px;
           box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
@@ -59,6 +70,11 @@ export default function VerClubes() {
         }
         .contenido {
           display: flex;
+          gap: 2rem;
+        }
+        .cuadro-clubes-contenedor {
+          display: flex;
+          flex: 1;
           gap: 2rem;
         }
         .cuadro-clubes {
@@ -84,10 +100,11 @@ export default function VerClubes() {
           border-radius: 4px;
           background: #eee;
         }
-        .lado-derecho {
+        .buscador-central {
           width: 300px;
           display: flex;
           flex-direction: column;
+          align-items: center;
           gap: 1rem;
         }
         .search-input-container {
@@ -112,20 +129,24 @@ export default function VerClubes() {
           <h2>Clubes</h2>
         </div>
         <div className="contenido">
-          <div className="cuadro-clubes">
-            {renderClubes("masculino")}
-            {renderClubes("femenino")}
-          </div>
-          <div className="lado-derecho">
-            <div className="search-input-container">
-              <input
-                type="text"
-                placeholder="Buscar..."
-                className="buscador"
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-              />
-              <span className="search-icon">🔍</span>
+          <div className="cuadro-clubes-contenedor">
+            <div className="cuadro-clubes">
+              {renderClubes("masculino")}
+            </div>
+            <div className="buscador-central">
+              <div className="search-input-container">
+                <input
+                  type="text"
+                  placeholder="Buscar..."
+                  className="buscador"
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                />
+                <span className="search-icon">🔍</span>
+              </div>
+            </div>
+            <div className="cuadro-clubes">
+              {renderClubes("femenino")}
             </div>
           </div>
         </div>
