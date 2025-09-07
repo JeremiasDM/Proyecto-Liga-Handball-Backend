@@ -13,14 +13,13 @@ export default function Estadistica() {
     { pos: 1, equipo: "Las Águilas", pts: 25, pj: 9, g: 8, e: 1, p: 0, dg: 200 },
     { pos: 2, equipo: "Club Unión HG Fem", pts: 22, pj: 8, g: 7, e: 1, p: 0, dg: 150 },
     { pos: 3, equipo: "Capilla del Monte Fem", pts: 19, pj: 7, g: 6, e: 1, p: 0, dg: 120 },
-    { pos: 4, equipo: "Malagueño Fem", pts: 16, pj: 6, g: 5, e: 1, p: 0, dg: 80 },
+    { pos: 4, equipo: "Malagueño Fem", pts: 16, pj: 6, e: 5, p: 1, dg: 80 },
     { pos: 5, equipo: "Saldán Fem", pts: 14, pj: 6, g: 4, e: 2, p: 0, dg: 60 },
   ];
 
   const tablaStyle: React.CSSProperties = {
     width: "100%",
     borderCollapse: "collapse",
-    marginBottom: "2rem",
   };
 
   const thtdStyle: React.CSSProperties = {
@@ -30,70 +29,86 @@ export default function Estadistica() {
   };
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "900px", margin: "auto" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "1rem", color: "#1f3c88" }}>
-        Tabla de Posiciones Masculino
+    <div style={{ padding: "2rem", maxWidth: "1500px", margin: "auto" }}>
+      <h1 style={{ textAlign: "center", marginBottom: "2rem", color: "#333" }}>
+        Tablas de Posiciones
       </h1>
-      <table style={tablaStyle}>
-        <thead>
-          <tr>
-            <th style={thtdStyle}>Pos</th>
-            <th style={thtdStyle}>Equipo</th>
-            <th style={thtdStyle}>Pts</th>
-            <th style={thtdStyle}>PJ</th>
-            <th style={thtdStyle}>G</th>
-            <th style={thtdStyle}>E</th>
-            <th style={thtdStyle}>P</th>
-            <th style={thtdStyle}>DG</th>
-          </tr>
-        </thead>
-        <tbody>
-          {masculino.map((eq) => (
-            <tr key={eq.pos}>
-              <td style={thtdStyle}>{eq.pos}</td>
-              <td style={thtdStyle}>{eq.equipo}</td>
-              <td style={thtdStyle}>{eq.pts}</td>
-              <td style={thtdStyle}>{eq.pj}</td>
-              <td style={thtdStyle}>{eq.g}</td>
-              <td style={thtdStyle}>{eq.e}</td>
-              <td style={thtdStyle}>{eq.p}</td>
-              <td style={thtdStyle}>{eq.dg}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "2rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ flex: 1, minWidth: "500px" }}>
+          <h2 style={{ textAlign: "center", marginBottom: "1rem", color: "#1f3c88" }}>
+            Masculino
+          </h2>
+          <table style={tablaStyle}>
+            <thead>
+              <tr>
+                <th style={thtdStyle}>Pos</th>
+                <th style={thtdStyle}>Equipo</th>
+                <th style={thtdStyle}>Pts</th>
+                <th style={thtdStyle}>PJ</th>
+                <th style={thtdStyle}>G</th>
+                <th style={thtdStyle}>E</th>
+                <th style={thtdStyle}>P</th>
+                <th style={thtdStyle}>DG</th>
+              </tr>
+            </thead>
+            <tbody>
+              {masculino.map((eq) => (
+                <tr key={eq.pos}>
+                  <td style={thtdStyle}>{eq.pos}</td>
+                  <td style={thtdStyle}>{eq.equipo}</td>
+                  <td style={thtdStyle}>{eq.pts}</td>
+                  <td style={thtdStyle}>{eq.pj}</td>
+                  <td style={thtdStyle}>{eq.g}</td>
+                  <td style={thtdStyle}>{eq.e}</td>
+                  <td style={thtdStyle}>{eq.p}</td>
+                  <td style={thtdStyle}>{eq.dg}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      <h1 style={{ textAlign: "center", marginBottom: "1rem", color: "#c2185b" }}>
-        Tabla de Posiciones Femenino
-      </h1>
-      <table style={tablaStyle}>
-        <thead>
-          <tr>
-            <th style={thtdStyle}>Pos</th>
-            <th style={thtdStyle}>Equipo</th>
-            <th style={thtdStyle}>Pts</th>
-            <th style={thtdStyle}>PJ</th>
-            <th style={thtdStyle}>G</th>
-            <th style={thtdStyle}>E</th>
-            <th style={thtdStyle}>P</th>
-            <th style={thtdStyle}>DG</th>
-          </tr>
-        </thead>
-        <tbody>
-          {femenino.map((eq) => (
-            <tr key={eq.pos}>
-              <td style={thtdStyle}>{eq.pos}</td>
-              <td style={thtdStyle}>{eq.equipo}</td>
-              <td style={thtdStyle}>{eq.pts}</td>
-              <td style={thtdStyle}>{eq.pj}</td>
-              <td style={thtdStyle}>{eq.g}</td>
-              <td style={thtdStyle}>{eq.e}</td>
-              <td style={thtdStyle}>{eq.p}</td>
-              <td style={thtdStyle}>{eq.dg}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <div style={{ flex: 1, minWidth: "500px" }}>
+          <h2 style={{ textAlign: "center", marginBottom: "1rem", color: "#c2185b" }}>
+            Femenino
+          </h2>
+          <table style={tablaStyle}>
+            <thead>
+              <tr>
+                <th style={thtdStyle}>Pos</th>
+                <th style={thtdStyle}>Equipo</th>
+                <th style={thtdStyle}>Pts</th>
+                <th style={thtdStyle}>PJ</th>
+                <th style={thtdStyle}>G</th>
+                <th style={thtdStyle}>E</th>
+                <th style={thtdStyle}>P</th>
+                <th style={thtdStyle}>DG</th>
+              </tr>
+            </thead>
+            <tbody>
+              {femenino.map((eq) => (
+                <tr key={eq.pos}>
+                  <td style={thtdStyle}>{eq.pos}</td>
+                  <td style={thtdStyle}>{eq.equipo}</td>
+                  <td style={thtdStyle}>{eq.pts}</td>
+                  <td style={thtdStyle}>{eq.pj}</td>
+                  <td style={thtdStyle}>{eq.g}</td>
+                  <td style={thtdStyle}>{eq.e}</td>
+                  <td style={thtdStyle}>{eq.p}</td>
+                  <td style={thtdStyle}>{eq.dg}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
