@@ -5,18 +5,21 @@ export default function Reglamento() {
     <div className="reglamento-timeline-container">
       <style>{`
         .reglamento-timeline-container {
-          background: #fff;
-          padding: 2rem;
-          border-radius: 12px;
-          max-width: 900px;
-          margin: 2rem auto;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+          background: #f7f9fc;
+          padding: 3rem;
+          /* Elimina el max-width para que se extienda */
+          /* max-width: 900px; */
+          min-height: 60vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
           color: #1f3c88;
           font-family: 'Segoe UI', Arial, sans-serif;
+          width: 100%; /* Asegúrate de que ocupe todo el ancho */
         }
         .reglamento-header {
           text-align: center;
-          margin-bottom: 2rem;
+          margin-bottom: 3rem;
         }
         .reglamento-header h2 {
           margin: 0;
@@ -26,31 +29,58 @@ export default function Reglamento() {
           display: flex;
           flex-direction: column;
           align-items: center;
+          width: 100%;
+          height: 100%;
+          flex-grow: 1;
         }
         .reglamento-pdf-container {
           width: 100%;
-          min-height: 500px;
-          background: #f7f9fc;
-          border-radius: 10px;
-          box-shadow: 0 2px 8px rgba(31,60,136,0.06);
+          /* Elimina el max-width para que se extienda */
+          max-width: 800px; 
+          min-height: 230px;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.07);
           display: flex;
           justify-content: center;
           align-items: center;
           margin-bottom: 1.5rem;
-          overflow-x: auto;
+          padding: 1rem;
+        }
+        .reglamento-pdf-iframe {
+            width: 80%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+            overflow-x: auto;
         }
         .reglamento-footer {
           text-align: center;
-          margin-top: 2rem;
+          margin-top: auto;
           color: #888;
           font-size: 0.95rem;
         }
-        @media (max-width: 700px) {
+        a {
+            background: #1f3c88;
+            color: #fff;
+            padding: 0.7rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 800;
+            text-decoration: none;
+            margin-top: 8px;
+            display: inline-block;
+            transition: background 0.2s;
+        }
+        a:hover {
+            background: #2746a6;
+        }
+        @media (max-width: 800px) {
           .reglamento-timeline-container {
             padding: 1rem;
           }
           .reglamento-pdf-container {
-            min-height: 250px;
+            min-height: 800px;
+            width: 100%;
           }
         }
       `}</style>
@@ -64,26 +94,13 @@ export default function Reglamento() {
         <div className="reglamento-pdf-container">
           <iframe
             src="/REGLAMENTO.pdf"
-            width="100%"
-            height="600px"
-            style={{ border: "none", borderRadius: 8 }}
+            className="reglamento-pdf-iframe"
             title="Reglamento PDF"
           />
         </div>
         <a
           href="/REGLAMENTO.pdf"
           download
-          style={{
-            background: "#1f3c88",
-            color: "#fff",
-            padding: "0.7rem 1.5rem",
-            borderRadius: 6,
-            fontWeight: 600,
-            textDecoration: "none",
-            marginTop: 8,
-            display: "inline-block",
-            transition: "background 0.2s",
-          }}
         >
           Descargar PDF
         </a>
