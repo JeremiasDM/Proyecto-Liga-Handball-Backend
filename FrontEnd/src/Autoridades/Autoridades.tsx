@@ -40,12 +40,18 @@ export default function Autoridades() {
   return (
     <>
       <style>{`
+        /* AJUSTES PARA OCUPAR TODA LA PANTALLA */
         .autoridades-container {
           background: #0B0E19;
           color: white;
+          max-width: 100vw;
           min-height: 100vh;
-          padding: 2rem;
+          padding: 2.5rem;
           font-family: 'Inter', sans-serif;
+          /* Centra el contenedor principal y lo limita a un ancho máximo */
+          width: 100%;
+          height: 100%;
+          
         }
         .titulo {
           text-align: center;
@@ -55,8 +61,9 @@ export default function Autoridades() {
         }
         .grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 1.5rem;
+          /* Ajusta el tamaño de las columnas para que las tarjetas llenen mejor el espacio */
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 1rem;
           justify-items: center;
         }
         .card {
@@ -65,7 +72,9 @@ export default function Autoridades() {
           border-radius: 1rem;
           padding: 1rem;
           text-align: center;
-          width: 200px;
+          /* La tarjeta ocupa el 100% de su columna, pero con un ancho máximo */
+          width: 100%;
+          max-width: 250px;
           backdrop-filter: blur(5px);
         }
         .card img {
