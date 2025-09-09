@@ -1,96 +1,42 @@
 import React, { useState } from "react";
 import RegistrarFixture from "./RegistrarFixture";
-import EditarFixture from "./EditarFixture";
 import ListaFixture from "./ListaFixture";
-import type { Encuentro, Fixture } from "../types/types";
+import EditarFixture from "./EditarFixture";
+import type { Partido } from "./FormularioPartido";
 
 const FixturePage: React.FC = () => {
-  const [fixtures, setFixtures] = useState<Fixture[]>([]);
-  const [fixtureEditando, setFixtureEditando] = useState<Fixture | null>(null);
-  const [indiceEditando, setIndiceEditando] = useState<number | null>(null);
+  const [partidos, setPartidos] = useState<Partido[]>([]);
+  const [partidoSeleccionado, setPartidoSeleccionado] = useState<Partido | null>(null);
 
-  const agregarFixture = (nuevo: Fixture) => {
-    setFixtures([...fixtures, nuevo]);
+  const handleRegistrar = (nuevo: Partido) => {
+    setPartidos([...partidos, { ...nuevo, id: Date.now() }]);
   };
 
-  const editarFixture = (fixture: Fixture, index: number) => {
-    setFixtureEditando(fixture);
-    setIndiceEditando(index);
+  const handleActualizar = (editado: Partido) => {
+    setPartidos(partidos.map(p => (p.id === editado.id ? editado : p)));
+    setPartidoSeleccionado(null);
   };
 
-  const guardarEdicion = (actualizado: Fixture) => {
-    if (indiceEditando === null) return;
-    const nuevas = [...fixtures];
-    nuevas[indiceEditando] = actualizado;
-    setFixtures(nuevas);
-    cancelarEdicion();
-  };
-
-  const cancelarEdicion = () => {
-    setFixtureEditando(null);
-    setIndiceEditando(null);
-  };
-
-  const generarFixtureAutomatico = () => {
-    const clubesA = ["Club A1", "Club A2", "Club A3", "Club A4"];
-    const clubesB = ["Club B1", "Club B2", "Club B3", "Club B4"];
-
-    const partidos: Encuentro[] = [];
-    let jornada = 1;
-
-    clubesA.forEach((club, i) => {
-      if (i + 1 < clubesA.length) {
-        partidos.push({
-          jornada,
-          grupo: "A",
-          club1: club,
-          club2: clubesA[i + 1],
-          resultado: "-"
-        });
-      }
-    });
-
-    clubesB.forEach((club, i) => {
-      if (i + 1 < clubesB.length) {
-        partidos.push({
-          jornada,
-          grupo: "B",
-          club1: club,
-          club2: clubesB[i + 1],
-          resultado: "-"
-        });
-      }
-    });
-
-    const fixtureGenerado: Fixture = {
-      fecha: new Date().toISOString().split("T")[0],
-      lugar: "Automático",
-      partidos
-    };
-
-    setFixtures([...fixtures, fixtureGenerado]);
-    alert("Fixture automático generado ");
+  const handleEliminar = (id: number) => {
+    if (!window.confirm("¿Seguro que deseas eliminar este partido?")) return;
+    setPartidos(partidos.filter(p => p.id !== id));
   };
 
   return (
-    <div>
+    <div style={{ padding: 20 }}>
       <h2>Gestión de Fixture</h2>
-      {fixtureEditando ? (
-        <EditarFixture
-          fixture={fixtureEditando}
-          onGuardar={guardarEdicion}
-          onCancelar={cancelarEdicion}
-        />
-      ) : (
-        <RegistrarFixture onAgregarFixture={agregarFixture} />
+
+      <RegistrarFixture onRegistrar={handleRegistrar} />
+
+      <ListaFixture
+        partidos={partidos}
+        onEditar={setPartidoSeleccionado}
+        onEliminar={handleEliminar}
+      />
+
+      {partidoSeleccionado && (
+        <EditarFixture partido={partidoSeleccionado} onActualizar={handleActualizar} />
       )}
-
-      <button onClick={generarFixtureAutomatico}>
-        Generar Fixture Automático
-      </button>
-
-      <hr />
-      <ListaFixture fixtures={fixtures} onEdit={editarFixture} />
     </div>
   );
 };
