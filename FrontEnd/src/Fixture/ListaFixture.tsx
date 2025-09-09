@@ -1,39 +1,38 @@
 import React from "react";
-import type { Fixture } from "../types/types";
 import PartidoItem from "./PartidoItem";
+import type { Partido } from "./FormularioPartido";
 
-type Props = {
-  fixtures: Fixture[];
-  onEdit?: (fixture: Fixture, index: number) => void;
-};
+interface Props {
+  partidos: Partido[];
+  onEditar: (partido: Partido) => void;
+  onEliminar: (id: number) => void;
+}
 
-const ListaFixture: React.FC<Props> = ({ fixtures, onEdit }) => {
-  if (fixtures.length === 0) {
-    return <p>No hay fixtures registrados.</p>;
+const ListaFixture: React.FC<Props> = ({ partidos, onEditar, onEliminar }) => {
+  if (partidos.length === 0) {
+    return <p>No hay partidos cargados.</p>;
   }
 
-  return (
-    <div style={{ padding: "1rem", backgroundColor: "#f0f2f5", borderRadius: "8px" }}>
-      <h3 style={{ color: "#b0b3bbff" }}>Listado de Fixtures</h3>
+  // Ordenar por jornada y hora
+  const partidosOrdenados = [...partidos].sort((a, b) => {
+    if (a.jornada !== b.jornada) return a.jornada - b.jornada;
+    if (a.hora && b.hora) return a.hora.localeCompare(b.hora);
+    return 0;
+  });
 
-      {fixtures.map((fixture, i) => (
-        <div
-          key={i}
-          style={{ marginBottom: 16, background: "#fff", borderRadius: 8, padding: 12 }}
-        >
-          <div>
-            <strong>Fecha:</strong> {fixture.fecha} | <strong>Lugar:</strong> {fixture.lugar}
-            {onEdit && (
-              <button style={{ marginLeft: 12 }} onClick={() => onEdit(fixture, i)}>
-                Editar
-              </button>
-            )}
+  return (
+    <div className="space-y-3 mt-4">
+      {partidosOrdenados.map((p) => (
+        <div key={p.id} className="flex justify-between items-center p-3 bg-gray-50 border rounded">
+          <PartidoItem partido={p} />
+          <div className="space-x-2">
+            <button onClick={() => onEditar(p)} className="px-3 py-1 bg-blue-600 text-white rounded">
+              Editar
+            </button>
+            <button onClick={() => onEliminar(p.id!)} className="px-3 py-1 bg-red-600 text-white rounded">
+              Eliminar
+            </button>
           </div>
-          <ul style={{ paddingLeft: 18, marginTop: 8 }}>
-            {fixture.partidos.map((p, j) => (
-              <PartidoItem key={j} partido={p} />
-            ))}
-          </ul>
         </div>
       ))}
     </div>
