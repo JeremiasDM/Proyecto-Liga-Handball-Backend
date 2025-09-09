@@ -1,64 +1,16 @@
-import React, { useState, useEffect } from "react";
-import type { Encuentro, Fixture } from "../types/types";
-import FormularioPartido from "./FormularioPartido";
+import React from "react";
+import FormularioPartido, { Partido } from "./FormularioPartido";
 
-const clubesValidos = [
-  "Club A1", "Club A2", "Club A3", "Club A4",
-  "Club B1", "Club B2", "Club B3", "Club B4"
-];
-const gruposValidos = ["A", "B"];
+interface Props {
+  partido: Partido;
+  onActualizar: (partido: Partido) => void;
+}
 
-type Props = {
-  fixture: Fixture;
-  onGuardar: (f: Fixture) => void;
-  onCancelar: () => void;
-};
-
-const EditarFixture: React.FC<Props> = ({ fixture, onGuardar, onCancelar }) => {
-  const [formData, setFormData] = useState<Fixture>(fixture);
-
-  useEffect(() => {
-    setFormData(fixture);
-  }, [fixture]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handlePartidoChange = (index: number, campo: keyof Encuentro, valor: string) => {
-    const partidosActualizados = [...formData.partidos];
-    const partido = { ...partidosActualizados[index] };
-    (partido as any)[campo] = campo === "jornada" ? Number(valor) : valor;
-    partidosActualizados[index] = partido;
-    setFormData({ ...formData, partidos: partidosActualizados });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onGuardar(formData);
-  };
-
+const EditarFixture: React.FC<Props> = ({ partido, onActualizar }) => {
   return (
-    <div>
-      <h3>Editar Fixture</h3>
-      <form onSubmit={handleSubmit}>
-        <input name="fecha" type="date" value={formData.fecha} onChange={handleChange} />
-        <input name="lugar" value={formData.lugar} onChange={handleChange} />
-
-        <h4>Editar Partidos</h4>
-        {formData.partidos.map((partido, i) => (
-          <FormularioPartido
-            key={i}
-            partido={partido}
-            onChange={(campo, valor) => handlePartidoChange(i, campo, valor)}
-            clubesValidos={clubesValidos}
-            gruposValidos={gruposValidos}
-          />
-        ))}
-
-        <button type="submit">Guardar Cambios</button>
-        <button type="button" onClick={onCancelar}>Cancelar</button>
-      </form>
+    <div className="p-4 bg-yellow-100 rounded mt-4">
+      <h3 className="text-lg font-bold mb-2">Editar Partido</h3>
+      <FormularioPartido partidoInicial={partido} onSubmit={onActualizar} />
     </div>
   );
 };
