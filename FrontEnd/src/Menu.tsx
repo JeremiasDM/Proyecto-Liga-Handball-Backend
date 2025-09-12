@@ -158,7 +158,7 @@ export default function App() {
           gap: 2rem;
           grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
           width: 100%;
-          max-width: 1200px;
+          max-width: 1500px;
         }
         .card {
           background: white;
