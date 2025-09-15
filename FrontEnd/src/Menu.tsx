@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Autoridades from "./Autoridades/Autoridades";
 import VerClubes from "./Clubes/VerClub";
-import VerJugadores from "./Jugadores/VerJugadores";
+import JugadoresPage from "./Jugadores/JugadoresPage";
 import ReferentesPage from "./Referentes/ReferentesPage";
 import FixturePage from "./Fixture/FixturePage";
 import Historia from "./Historia/Historia";
@@ -539,7 +539,7 @@ export default function App() {
           )}
           {vista === "autoridades" && <Autoridades />}
           {vista === "clubes" && <VerClubes />}
-          {vista === "jugadores" && <VerJugadores />}
+          {vista === "jugadores" && <JugadoresPage />}
           {vista === "fixture" && <FixturePage />}
           {vista === "historia" && <Historia />}
           {vista === "estadisticas" && <Estadistica />}
