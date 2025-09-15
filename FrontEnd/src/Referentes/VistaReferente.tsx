@@ -16,13 +16,6 @@ const VistaReferente: React.FC<Props> = ({ referente, onVolver }) => {
       <p><strong>DNI:</strong> {referente.dni}</p>
       <p><strong>Correo:</strong> {referente.correo}</p>
       <p><strong>Equipo:</strong> {referente.equipo}</p>
-      {referente.fotoUrl && (
-        <img
-          src={referente.fotoUrl}
-          alt={`${referente.nombre} ${referente.apellido}`}
-          className="w-32 h-32 object-cover mt-4 rounded"
-        />
-      )}
       <button
         onClick={onVolver}
         className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
