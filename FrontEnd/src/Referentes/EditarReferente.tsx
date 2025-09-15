@@ -21,7 +21,6 @@ const EditarReferente: React.FC<Props> = ({
     dni: referente.dni,
     correo: referente.correo,
     equipo: referente.equipo,
-    foto: null as File | null,
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -66,10 +65,6 @@ const EditarReferente: React.FC<Props> = ({
       setError("El equipo debe contener solo letras, números y espacios.");
       return false;
     }
-    if (formData.foto && formData.foto.size > 5 * 1024 * 1024) {
-      setError("La foto no debe superar los 5MB.");
-      return false;
-    }
     setError(null);
     return true;
   };
@@ -86,9 +81,6 @@ const EditarReferente: React.FC<Props> = ({
       dni: formData.dni,
       correo: formData.correo,
       equipo: formData.equipo,
-      fotoUrl: formData.foto
-        ? URL.createObjectURL(formData.foto)
-        : referente.fotoUrl,
     };
 
     onActualizar(actualizado);
@@ -144,13 +136,6 @@ const EditarReferente: React.FC<Props> = ({
         value={formData.equipo}
         onChange={(e) => setFormData({ ...formData, equipo: e.target.value })}
         className="w-full p-2 border rounded"
-      />
-      <input
-        type="file"
-        accept="image/png, image/jpeg"
-        onChange={(e) =>
-          setFormData({ ...formData, foto: e.target.files?.[0] || null })
-        }
       />
 
       <div className="flex space-x-2">
