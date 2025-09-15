@@ -12,7 +12,6 @@ export type Referente = {
   dni: string;
   correo: string;
   equipo: string;
-  fotoUrl?: string;
 };
 
 const ReferentesPage: React.FC = () => {
@@ -20,7 +19,6 @@ const ReferentesPage: React.FC = () => {
   const [referenteSeleccionado, setReferenteSeleccionado] = useState<Referente | null>(null);
   const [editando, setEditando] = useState(false);
 
-  // Cargar referentes desde localStorage al inicio
   useEffect(() => {
     const data = localStorage.getItem("referentes");
     if (data) {
@@ -28,7 +26,6 @@ const ReferentesPage: React.FC = () => {
     }
   }, []);
 
-  // Guardar referentes en localStorage al modificarlos
   useEffect(() => {
     localStorage.setItem("referentes", JSON.stringify(referentes));
   }, [referentes]);
@@ -57,12 +54,10 @@ const ReferentesPage: React.FC = () => {
         Gestión de Referentes
       </h1>
 
-      {/* Registro de nuevo referente */}
       <div className="max-w-2xl mx-auto bg-white shadow-md rounded-xl p-6">
-        <RegistrarReferente onGuardar={registrarReferente} />
+        <RegistrarReferente onGuardar={registrarReferente} existentes={referentes} />
       </div>
 
-      {/* Lista de referentes */}
       <div className="bg-white shadow-md rounded-xl p-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           Lista de Referentes
@@ -81,7 +76,6 @@ const ReferentesPage: React.FC = () => {
         />
       </div>
 
-      {/* Vista o edición del referente seleccionado */}
       {referenteSeleccionado && !editando && (
         <VistaReferente
           referente={referenteSeleccionado}
@@ -91,6 +85,7 @@ const ReferentesPage: React.FC = () => {
       {referenteSeleccionado && editando && (
         <EditarReferente
           referente={referenteSeleccionado}
+          existentes={referentes}
           onActualizar={actualizarReferente}
           onCancelar={() => {
             setReferenteSeleccionado(null);
