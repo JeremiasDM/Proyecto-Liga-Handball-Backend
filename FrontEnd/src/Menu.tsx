@@ -8,8 +8,7 @@ import Historia from "./Historia/Historia";
 import Estadistica from "./Estadistica/Estadistica";
 import NoticiasPage from "./Noticias/NoticiasPage";
 import Reglamento from "./Reglamento/Reglamento";
-// Importa los íconos de forma adecuada. Por ejemplo, si usas React-Icons:
-// import { FaHandball, FaBuilding } from 'react-icons/fa'; // Asegúrate de instalar react-icons
+
 
 export default function App() {
   const [vista, setVista] = useState(
