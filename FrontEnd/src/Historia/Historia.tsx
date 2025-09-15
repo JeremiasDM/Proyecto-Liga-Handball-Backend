@@ -44,14 +44,18 @@ export default function Historia() {
   return (
     <div className="historia-timeline-container">
       <style>{`
+        body {
+            margin: 0;
+            padding: 2.5;
+            box-sizing: border-box;
+        }
         .historia-timeline-container {
-          background: white;
-          padding: 2rem;
-          border-radius: 12px;
-          max-width: 900px;
-          margin: auto;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+          background: #f0f2f5;
           color: #333;
+          width: 80vw;
+          min-height: 50vh;
+          padding: 2rem ;
+          box-sizing: border-box; /* Asegura que el padding no se agregue al ancho total */
         }
         .historia-header {
           text-align: center;
@@ -64,16 +68,18 @@ export default function Historia() {
           gap: 1.5rem;
           margin-bottom: 2rem;
           overflow-x: auto;
+          padding: 0 1rem;
         }
         .timeline-fecha {
           cursor: pointer;
           padding: 0.7rem 1.2rem;
           border-radius: 20px;
-          background: #f0f4fa;
+          background: #e9eef6;
           color: #1f3c88;
           font-weight: 600;
           border: 2px solid transparent;
           transition: all 0.2s;
+          flex-shrink: 0;
         }
         .timeline-fecha.activo {
           background: #1f3c88;
@@ -86,21 +92,24 @@ export default function Historia() {
           flex-direction: column;
           align-items: center;
           gap: 1.2rem;
+          padding: 0 1rem;
         }
         .evento img {
           width: 100%;
-          max-width: 350px;
+          max-width: 400px;
+          height: auto;
           border-radius: 10px;
           object-fit: cover;
           box-shadow: 0 2px 8px rgba(0,0,0,0.10);
         }
         .evento-texto {
-          background: #f7f9fc;
+          background: #fff;
           padding: 1.2rem 1.5rem;
           border-radius: 8px;
           font-size: 1.1rem;
           text-align: center;
-          max-width: 600px;
+          max-width: 500px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
       `}</style>
 

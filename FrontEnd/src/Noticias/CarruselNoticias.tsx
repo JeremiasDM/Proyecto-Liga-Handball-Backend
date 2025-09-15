@@ -1,130 +1,41 @@
-import React, { useState, useEffect, useRef } from "react";
-import type { Noticia } from "../types/types";
+import React from "react";
 
-const placeholderImg = "https://via.placeholder.com/800x400?text=Sin+imagen";
+type Noticia = {
+  id: number;
+  titulo: string;
+  contenido: string;
+  fecha: string;
+  imagenUrl?: string;
+};
 
-type CarruselNoticiasProps = {
+type Props = {
   noticias: Noticia[];
 };
 
-const CarruselNoticias: React.FC<CarruselNoticiasProps> = ({ noticias }) => {
-  const [indice, setIndice] = useState(0);
-  const [pausado, setPausado] = useState(false);
-  const carruselRef = useRef<HTMLDivElement>(null);
+const CarrouselNoticias: React.FC<Props> = ({ noticias }) => {
+  if (noticias.length === 0) return <p>No hay noticias para mostrar.</p>;
 
-  useEffect(() => {
-    setIndice(0); // Reinicia el índice si cambia la lista de noticias
-  }, [noticias]);
-
-  useEffect(() => {
-    if (noticias.length > 1 && !pausado) {
-      const timer = setInterval(() => {
-        setIndice((prev) => (prev + 1) % noticias.length);
-      }, 5000);
-      return () => clearInterval(timer);
-    }
-  }, [noticias, pausado]);
-
-  if (noticias.length === 0) {
-    return <p>No hay noticias para mostrar.</p>;
-  }
-
-  const noticiaActual = noticias[indice];
+  const ultimas = [...noticias]
+    .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+    .slice(0, 5);
 
   return (
-    <div
-      ref={carruselRef}
-      style={{ position: "relative", width: "100%", maxWidth: "800px", margin: "0 auto" }}
-      onMouseEnter={() => setPausado(true)}
-      onMouseLeave={() => setPausado(false)}
-      aria-label="Carrusel de noticias"
-    >
-      <div style={{ position: "relative" }}>
-        <img
-          src={noticiaActual.imagenUrl || placeholderImg}
-          alt={noticiaActual.titulo || "Imagen de noticia"}
-          style={{ width: "100%", height: "400px", objectFit: "cover", borderRadius: "8px" }}
-        />
-        <div style={{
-          position: "absolute",
-          bottom: "0",
-          left: "0",
-          width: "100%",
-          padding: "1rem",
-          background: "rgba(0,0,0,0.5)",
-          color: "white",
-          borderBottomLeftRadius: "8px",
-          borderBottomRightRadius: "8px"
-        }}>
-          <h3>{noticiaActual.titulo || "Sin título"}</h3>
-          <p>{noticiaActual.resumen || "Sin resumen disponible."}</p>
+    <div className="flex overflow-x-auto space-x-4 p-2 border rounded bg-gray-100">
+      {ultimas.map((n) => (
+        <div key={n.id} className="min-w-[200px] p-3 bg-white shadow rounded">
+          {n.imagenUrl ? (
+            <img src={n.imagenUrl} alt={n.titulo} className="w-full h-32 object-cover rounded" />
+          ) : (
+            <div className="w-full h-32 bg-gray-300 flex items-center justify-center rounded">
+              Sin imagen
+            </div>
+          )}
+          <h4 className="mt-2 font-bold">{n.titulo}</h4>
+          <p className="text-xs text-gray-500">{n.fecha}</p>
         </div>
-      </div>
-
-      <button
-        onClick={() => setIndice((prev) => (prev - 1 + noticias.length) % noticias.length)}
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "10px",
-          transform: "translateY(-50%)",
-          background: "rgba(0,0,0,0.5)",
-          color: "white",
-          border: "none",
-          padding: "0.5rem 1rem",
-          cursor: "pointer"
-        }}
-        aria-label="Anterior noticia"
-      >
-        ◀
-      </button>
-      <button
-        onClick={() => setIndice((prev) => (prev + 1) % noticias.length)}
-        style={{
-          position: "absolute",
-          top: "50%",
-          right: "10px",
-          transform: "translateY(-50%)",
-          background: "rgba(0,0,0,0.5)",
-          color: "white",
-          border: "none",
-          padding: "0.5rem 1rem",
-          cursor: "pointer"
-        }}
-        aria-label="Siguiente noticia"
-      >
-        ▶
-      </button>
-      <div style={{
-        position: "absolute",
-        bottom: "10px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        display: "flex",
-        gap: "6px"
-      }}>
-        {noticias.map((_, i) => (
-          <span
-            key={i}
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: "50%",
-              background: i === indice ? "#fff" : "#888",
-              display: "inline-block",
-              border: "1px solid #333"
-            }}
-            aria-label={`Ir a la noticia ${i + 1}`}
-            tabIndex={0}
-            onClick={() => setIndice(i)}
-            onKeyDown={e => {
-              if (e.key === "Enter" || e.key === " ") setIndice(i);
-            }}
-          />
-        ))}
-      </div>
+      ))}
     </div>
   );
 };
 
-export default CarruselNoticias;
+export default CarrouselNoticias;

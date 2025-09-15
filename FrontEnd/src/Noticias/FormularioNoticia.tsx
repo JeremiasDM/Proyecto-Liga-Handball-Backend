@@ -1,130 +1,104 @@
 import React, { useState } from "react";
-import type { Noticia } from "../types/types";
 
-type Props = {
-  noticia?: Noticia;
-  onGuardar: (n: Noticia) => void;
-  onCancelar?: () => void;
+type Noticia = {
+  id?: number;
+  titulo: string;
+  contenido: string;
+  fecha: string;
+  imagenUrl?: string;
 };
 
-const FormularioNoticia: React.FC<Props> = ({ noticia, onGuardar, onCancelar }) => {
-  const [titulo, setTitulo] = useState(noticia?.titulo || "");
-  const [resumen, setResumen] = useState(noticia?.resumen || "");
-  const [contenido, setContenido] = useState(noticia?.contenido || "");
-  const [imagenUrl, setImagenUrl] = useState(noticia?.imagenUrl || "");
+type Props = {
+  onGuardar: (noticia: Noticia) => void;
+};
 
-  const handleImagen = (e: React.ChangeEvent<HTMLInputElement>) => {
+const FormularioNoticia: React.FC<Props> = ({ onGuardar }) => {
+  const [form, setForm] = useState<Noticia>({
+    titulo: "",
+    contenido: "",
+    fecha: "",
+    imagenUrl: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          setImagenUrl(reader.result); 
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
 
-      // FUTURO: Subir imagen a backend (Mongo)
-      /*
-      const formData = new FormData();
-      formData.append("file", file);
-      fetch("/api/upload", { method: "POST", body: formData })
-        .then(res => res.json())
-        .then(data => setImagenUrl(data.url));
-      */
+    if (!file.type.startsWith("image/")) {
+      alert("La imagen debe ser un archivo válido (jpg, png, etc).");
+      return;
     }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("La imagen no debe superar los 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === "string") {
+        setForm({ ...form, imagenUrl: reader.result });
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!titulo || !resumen || !contenido) {
-      alert("Completa todos los campos obligatorios");
+
+    if (!form.titulo || form.titulo.length < 5) {
+      alert("El título debe tener al menos 5 caracteres.");
+      return;
+    }
+    if (!form.contenido) {
+      alert("El contenido es obligatorio.");
+      return;
+    }
+    if (!form.fecha) {
+      alert("Debe seleccionar una fecha.");
       return;
     }
 
-    const nueva: Noticia = {
-      id: noticia?.id || Date.now(),
-      titulo,
-      resumen,
-      contenido,
-      imagenUrl,
-      fecha: noticia?.fecha || new Date().toISOString(),
-    };
-
-    onGuardar(nueva);
-
-    // Reset
-    setTitulo("");
-    setResumen("");
-    setContenido("");
-    setImagenUrl("");
+    onGuardar({ ...form, id: Date.now() });
+    setForm({ titulo: "", contenido: "", fecha: "", imagenUrl: "" });
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white shadow-md rounded-lg p-4 space-y-3"
-    >
-      <h3 className="text-lg font-semibold text-gray-700">
-        {noticia ? "Editar Noticia" : "Nueva Noticia"}
-      </h3>
-
+    <form onSubmit={handleSubmit} className="space-y-3">
       <input
-        className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500"
+        type="text"
+        name="titulo"
         placeholder="Título"
-        value={titulo}
-        onChange={(e) => setTitulo(e.target.value)}
+        value={form.titulo}
+        onChange={handleChange}
+        className="w-full p-2 border rounded"
         required
       />
-
       <textarea
-        className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500"
-        placeholder="Resumen"
-        value={resumen}
-        onChange={(e) => setResumen(e.target.value)}
+        name="contenido"
+        placeholder="Contenido"
+        value={form.contenido}
+        onChange={handleChange}
+        className="w-full p-2 border rounded"
         required
       />
-
-      <textarea
-        className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500"
-        placeholder="Contenido completo"
-        value={contenido}
-        onChange={(e) => setContenido(e.target.value)}
-        required
-      />
-
       <input
-        type="file"
-        accept="image/*"
-        onChange={handleImagen}
-        className="block w-full text-sm text-gray-600"
+        type="date"
+        name="fecha"
+        value={form.fecha}
+        onChange={handleChange}
+        className="w-full p-2 border rounded"
+        required
       />
+      <input type="file" accept="image/*" onChange={handleFileUpload} />
 
-      {imagenUrl && (
-        <img
-          src={imagenUrl}
-          alt="preview"
-          className="w-full max-h-60 object-cover rounded-md mt-2"
-        />
-      )}
-
-      <div className="flex gap-2 mt-4">
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          Guardar
-        </button>
-        {onCancelar && (
-          <button
-            type="button"
-            onClick={onCancelar}
-            className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-          >
-            Cancelar
-          </button>
-        )}
-      </div>
+      <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
+        Guardar Noticia
+      </button>
     </form>
   );
 };
