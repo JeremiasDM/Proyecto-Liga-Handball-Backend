@@ -1,8 +1,11 @@
-import React from 'react';
 import { FaUser, FaFileAlt } from 'react-icons/fa';
 
-const BarraProgreso = ({ fase }) => {
-  const estiloPaso = (activo) => ({
+interface BarraProgresoProps {
+  fase: number;
+}
+
+const BarraProgreso = ({ fase }: BarraProgresoProps) => {
+  const estiloPaso = (activo: boolean) => ({
     padding: '5px 10px',
     borderRadius: '5px',
     backgroundColor: activo ? '#1F3C88' : '#555',
