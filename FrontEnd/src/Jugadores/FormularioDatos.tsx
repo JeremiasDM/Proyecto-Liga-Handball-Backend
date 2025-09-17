@@ -1,54 +1,29 @@
 import React, { useState } from "react";
-import { Jugador } from "./RegistroJugador";
+import type { Jugador } from "../types/types";
+import { validarJugador } from "../utils/validaciones";
 
 type Props = {
   jugador: Jugador;
   onGuardar: (jugador: Jugador) => void;
   onCancelar: () => void;
+  jugadores?: Jugador[]; // Opcional, para validar duplicados si lo necesitas
 };
 
-const FormularioDatos: React.FC<Props> = ({ jugador, onGuardar, onCancelar }) => {
+const FormularioDatos: React.FC<Props> = ({ jugador, onGuardar, onCancelar, jugadores = [] }) => {
   const [form, setForm] = useState<Jugador>({ ...jugador });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if ((name === "nombre" || name === "apellido") && !/^[A-Za-z\s]*$/.test(value)) return;
-    if (name === "dni" && !/^\d{0,8}$/.test(value)) return;
-    if (name === "telefono" && !/^\d{0,15}$/.test(value)) return;
     setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!form.nombre.trim() || !form.apellido.trim() || !form.dni.trim() || !form.club.trim()) {
-      alert("Todos los campos son obligatorios.");
+    const error = validarJugador(form, jugadores);
+    if (error) {
+      alert(error);
       return;
     }
-
-    if (form.nombre.trim().length < 2 || form.apellido.trim().length < 2) {
-      alert("El nombre y apellido deben tener al menos 2 caracteres.");
-      return;
-    }
-
-    if (!/^\d{7,8}$/.test(form.dni)) {
-      alert("El DNI debe tener 7 u 8 dígitos.");
-      return;
-    }
-
-    if (form.telefono && !/^\d{7,15}$/.test(form.telefono)) {
-      alert("El teléfono debe tener entre 7 y 15 dígitos numéricos.");
-      return;
-    }
-
-    if (form.vencimiento) {
-      const fecha = new Date(form.vencimiento);
-      if (isNaN(fecha.getTime()) || fecha <= new Date()) {
-        alert("La fecha de vencimiento debe ser válida y futura.");
-        return;
-      }
-    }
-
     onGuardar(form);
     onCancelar();
   };
