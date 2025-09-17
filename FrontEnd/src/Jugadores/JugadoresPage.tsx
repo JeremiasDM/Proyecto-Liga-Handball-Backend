@@ -1,98 +1,50 @@
-import React, { useState, useEffect } from "react";
-import RegistroJugador, { Jugador } from "./RegistroJugador";
+import React, { useState } from "react";
+import RegistroJugador from "./RegistroJugador";
 import ListaJugadores from "./ListaJugadores";
-import VerJugadores from "./VerJugadores";
 import FormularioDocumentacion from "./FormularioDocumentacion";
 import BarraProgreso from "./BarraProgreso";
+import { useJugadores } from "../hooks/useJugadores";
+import { validarJugador } from "../utils/validaciones";
+import type { Jugador } from "../types/types";
 
 const JugadoresPage: React.FC = () => {
-  const [jugadores, setJugadores] = useState<Jugador[]>([]);
+  const { jugadores, agregar, actualizar, eliminar } = useJugadores();
   const [fase, setFase] = useState<1 | 2>(1);
   const [jugadorEnProceso, setJugadorEnProceso] = useState<Jugador | null>(null);
 
-  useEffect(() => {
-    const data = localStorage.getItem("jugadores");
-    if (data) {
-      setJugadores(JSON.parse(data));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("jugadores", JSON.stringify(jugadores));
-  }, [jugadores]);
-
   const registrarJugador = (nuevo: Jugador) => {
-    const existeDni = jugadores.some((j) => j.dni === nuevo.dni);
-    if (existeDni) {
-      alert("El DNI ingresado ya pertenece a otro jugador.");
+    const error = validarJugador(nuevo, jugadores);
+    if (error) {
+      alert(error);
       return;
     }
-
-    if (nuevo.telefono) {
-      const existeTel = jugadores.some((j) => j.telefono === nuevo.telefono);
-      if (existeTel) {
-        alert("El teléfono ingresado ya pertenece a otro jugador.");
-        return;
-      }
-    }
-
     setJugadorEnProceso(nuevo);
     setFase(2);
   };
 
   const guardarDocumentacion = (jugadorConDocs: Jugador) => {
-    const existeDni = jugadores.some((j) => j.dni === jugadorConDocs.dni);
-    if (existeDni) {
-      alert("El DNI ingresado ya pertenece a otro jugador.");
+    const error = validarJugador(jugadorConDocs, jugadores);
+    if (error) {
+      alert(error);
       return;
     }
-
-    if (jugadorConDocs.telefono) {
-      const existeTel = jugadores.some(
-        (j) => j.telefono === jugadorConDocs.telefono
-      );
-      if (existeTel) {
-        alert("El teléfono ingresado ya pertenece a otro jugador.");
-        return;
-      }
-    }
-
-    setJugadores([jugadorConDocs, ...jugadores]);
+    agregar(jugadorConDocs);
     setJugadorEnProceso(null);
     setFase(1);
   };
 
   const actualizarJugador = (jugadorActualizado: Jugador) => {
-    const existeDni = jugadores.some(
-      (j) => j.dni === jugadorActualizado.dni && j.id !== jugadorActualizado.id
-    );
-    if (existeDni) {
-      alert("El DNI ingresado ya pertenece a otro jugador.");
+    const error = validarJugador(jugadorActualizado, jugadores);
+    if (error) {
+      alert(error);
       return;
     }
-
-    if (jugadorActualizado.telefono) {
-      const existeTel = jugadores.some(
-        (j) =>
-          j.telefono === jugadorActualizado.telefono &&
-          j.id !== jugadorActualizado.id
-      );
-      if (existeTel) {
-        alert("El teléfono ingresado ya pertenece a otro jugador.");
-        return;
-      }
-    }
-
-    setJugadores(
-      jugadores.map((j) =>
-        j.id === jugadorActualizado.id ? jugadorActualizado : j
-      )
-    );
+    actualizar(jugadorActualizado);
   };
 
   const eliminarJugador = (id: number) => {
     if (window.confirm("¿Seguro que quieres eliminar este jugador?")) {
-      setJugadores(jugadores.filter((j) => j.id !== id));
+      eliminar(id);
     }
   };
 
@@ -104,7 +56,9 @@ const JugadoresPage: React.FC = () => {
 
       <div className="max-w-2xl mx-auto bg-white shadow-md rounded-xl p-6">
         <BarraProgreso fase={fase} />
-        {fase === 1 && <RegistroJugador onRegistrar={registrarJugador} />}
+        {fase === 1 && (
+          <RegistroJugador onRegistrar={registrarJugador} />
+        )}
         {fase === 2 && jugadorEnProceso && (
           <FormularioDocumentacion
             jugador={jugadorEnProceso}
@@ -123,17 +77,9 @@ const JugadoresPage: React.FC = () => {
         </h2>
         <ListaJugadores
           jugadores={jugadores}
-          onEditar={(j) => actualizarJugador(j)}
+          onEditar={actualizarJugador}
           onEliminar={eliminarJugador}
         />
-        {jugadores.map((j) => (
-          <VerJugadores
-            key={j.id}
-            jugador={j}
-            onActualizar={actualizarJugador}
-            onEliminar={eliminarJugador}
-          />
-        ))}
       </div>
     </div>
   );
