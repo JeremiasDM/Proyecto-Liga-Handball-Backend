@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Jugador } from "./RegistroJugador";
+import type { Jugador } from "../types/types";
 
 type Props = {
   jugador: Jugador;
@@ -41,7 +41,6 @@ const FormularioDocumentacion: React.FC<Props> = ({ jugador, onGuardar, onCancel
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onGuardar({ ...jugador, carnetUrl: carnet, fichaMedicaUrl: fichaMedica });
-    onCancelar();
   };
 
   return (
