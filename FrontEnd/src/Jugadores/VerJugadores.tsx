@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Jugador } from "./FormularioDatos";
 import FormularioDatos from "./FormularioDatos";
 import FormularioDocumentacion from "./FormularioDocumentacion";
+import type { Jugador } from "../types/types";
 
 type Props = {
   jugador: Jugador;
