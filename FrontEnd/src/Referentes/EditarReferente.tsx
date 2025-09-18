@@ -1,159 +1,57 @@
 import React, { useState } from "react";
-import type { Referente } from "./ReferentesPage";
+import type { Referente } from "../types/types";
+import { validarReferente } from "../utils/validaciones";
 
-interface Props {
+type Props = {
   referente: Referente;
-  onActualizar: (editado: Referente) => void;
+  onActualizar: (referente: Referente) => void;
   onCancelar: () => void;
-  existentes?: Referente[];
-}
+  referentes?: Referente[]; 
+};
 
-const EditarReferente: React.FC<Props> = ({
-  referente,
-  onActualizar,
-  onCancelar,
-  existentes = [],
-}) => {
-  const [formData, setFormData] = useState({
-    nombre: referente.nombre,
-    apellido: referente.apellido,
-    categoria: referente.categoria,
-    dni: referente.dni,
-    correo: referente.correo,
-    equipo: referente.equipo,
-  });
+const categorias = ["Masculino", "Femenino"];
+
+const EditarReferente: React.FC<Props> = ({ referente, onActualizar, onCancelar, referentes = [] }) => {
+  const [form, setForm] = useState<Referente>({ ...referente });
   const [error, setError] = useState<string | null>(null);
 
-  const validarCampos = (): boolean => {
-    if (!/^[a-zA-Z\s]{2,}$/.test(formData.nombre)) {
-      setError("El nombre debe tener solo letras y al menos 2 caracteres.");
-      return false;
-    }
-    if (!/^[a-zA-Z\s]{2,}$/.test(formData.apellido)) {
-      setError("El apellido debe tener solo letras y al menos 2 caracteres.");
-      return false;
-    }
-    if (!formData.categoria) {
-      setError("Debe seleccionar una categoría.");
-      return false;
-    }
-    if (!/^\d{7,10}$/.test(formData.dni)) {
-      setError("El DNI debe tener entre 7 y 10 números.");
-      return false;
-    }
-    if (
-      existentes.some(
-        (r) => r.dni === formData.dni && r.id !== referente.id
-      )
-    ) {
-      setError("El DNI ya pertenece a otro referente.");
-      return false;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.(com|com\.ar|net|org|edu)$/.test(formData.correo)) {
-      setError("Correo inválido.");
-      return false;
-    }
-    if (
-      existentes.some(
-        (r) => r.correo === formData.correo && r.id !== referente.id
-      )
-    ) {
-      setError("El correo ya pertenece a otro referente.");
-      return false;
-    }
-    if (!/^[a-zA-Z0-9\s]{2,}$/.test(formData.equipo)) {
-      setError("El equipo debe contener solo letras, números y espacios.");
-      return false;
-    }
-    setError(null);
-    return true;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validarCampos()) return;
-
-    const actualizado: Referente = {
-      ...referente,
-      nombre: formData.nombre,
-      apellido: formData.apellido,
-      categoria: formData.categoria as "Masculino" | "Femenino",
-      dni: formData.dni,
-      correo: formData.correo,
-      equipo: formData.equipo,
-    };
-
-    onActualizar(actualizado);
+    const errorMsg = validarReferente(form, referentes);
+    if (errorMsg) {
+      setError(errorMsg);
+      return;
+    }
+    onActualizar(form);
+    setError(null);
+    onCancelar();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded shadow">
-      <h2 className="text-xl font-bold">Editar Referente</h2>
-      {error && <p className="text-red-600">{error}</p>}
-
-      <input
-        type="text"
-        placeholder="Nombre"
-        value={formData.nombre}
-        onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        type="text"
-        placeholder="Apellido"
-        value={formData.apellido}
-        onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
-        className="w-full p-2 border rounded"
-      />
-      <select
-        value={formData.categoria}
-        onChange={(e) =>
-          setFormData({ ...formData, categoria: e.target.value })
-        }
-        className="w-full p-2 border rounded"
-      >
-        <option value="">Seleccione categoría</option>
-        <option value="Masculino">Masculino</option>
-        <option value="Femenino">Femenino</option>
-      </select>
-      <input
-        type="text"
-        placeholder="DNI"
-        value={formData.dni}
-        onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        type="email"
-        placeholder="Correo"
-        value={formData.correo}
-        onChange={(e) => setFormData({ ...formData, correo: e.target.value })}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        type="text"
-        placeholder="Equipo"
-        value={formData.equipo}
-        onChange={(e) => setFormData({ ...formData, equipo: e.target.value })}
-        className="w-full p-2 border rounded"
-      />
-
-      <div className="flex space-x-2">
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Guardar Cambios
-        </button>
-        <button
-          type="button"
-          onClick={onCancelar}
-          className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
-        >
-          Cancelar
-        </button>
-      </div>
-    </form>
+    <div className="max-w-lg mx-auto bg-white shadow-lg rounded-2xl p-6">
+      <h2 className="text-xl font-bold mb-4 text-center">Editar Referente</h2>
+      {error && <div className="text-red-600 mb-2">{error}</div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input name="nombre" placeholder="Nombre" value={form.nombre} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <input name="apellido" placeholder="Apellido" value={form.apellido} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <select name="categoria" value={form.categoria} onChange={handleChange} className="w-full p-2 border rounded" required>
+          <option value="">Seleccione Categoría</option>
+          {categorias.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <input name="dni" placeholder="DNI" value={form.dni} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <input name="correo" placeholder="Correo" value={form.correo} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <input name="equipo" placeholder="Equipo" value={form.equipo} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <div className="flex gap-2 mt-4">
+          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Actualizar</button>
+          <button type="button" onClick={onCancelar} className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancelar</button>
+        </div>
+      </form>
+    </div>
   );
 };
 
