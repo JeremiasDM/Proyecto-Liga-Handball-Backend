@@ -1,5 +1,5 @@
 import React from "react";
-import type { Referente } from "./ReferentesPage";
+import type { Referente } from "../types/types";
 
 interface Props {
   referente: Referente;
@@ -8,8 +8,8 @@ interface Props {
 
 const VistaReferente: React.FC<Props> = ({ referente, onVolver }) => {
   return (
-    <div className="p-6 bg-white rounded shadow space-y-2">
-      <h3 className="text-2xl font-bold mb-4">
+    <div className="max-w-lg mx-auto bg-white shadow-lg rounded-2xl p-6">
+      <h3 className="text-lg font-bold mb-2 text-center">
         {referente.nombre} {referente.apellido}
       </h3>
       <p><strong>Categoría:</strong> {referente.categoria}</p>
@@ -18,7 +18,7 @@ const VistaReferente: React.FC<Props> = ({ referente, onVolver }) => {
       <p><strong>Equipo:</strong> {referente.equipo}</p>
       <button
         onClick={onVolver}
-        className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+        className="mt-4 px-4 py-2 bg-gray-500 text-white rounded w-full"
       >
         Volver
       </button>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Autoridades from "./Autoridades/Autoridades";
 import VerClubes from "./Clubes/VerClub";
-import VerJugadores from "./Jugadores/VerJugadores";
+import JugadoresPage from "./Jugadores/JugadoresPage";
 import ReferentesPage from "./Referentes/ReferentesPage";
 import FixturePage from "./Fixture/FixturePage";
 import Historia from "./Historia/Historia";
@@ -513,7 +513,7 @@ export default function App() {
                 </div>
               </div>
               <div className="card">
-                <img src="https://images.unsplash.com/photo-1601645193272-d6f1dc7c07ae?auto=format&fit=crop&w=1200&q=80" alt="Jugador" />
+                <img src="unnamed.jpg" alt="Jugador" />
                 <div className="card-content">
                   <h2>Jugador Destacado</h2>
                   <p>Juan Pérez lidera con 5 goles y 2 asistencias en los últimos 3 partidos.</p>
@@ -540,7 +540,7 @@ export default function App() {
           )}
           {vista === "autoridades" && <Autoridades />}
           {vista === "clubes" && <VerClubes />}
-          {vista === "jugadores" && <VerJugadores />}
+          {vista === "jugadores" && <JugadoresPage />}
           {vista === "fixture" && <FixturePage />}
           {vista === "historia" && <Historia />}
           {vista === "estadisticas" && <Estadistica />}

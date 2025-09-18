@@ -191,7 +191,7 @@ export default function VerClubes() {
               Modificar
             </button>
             <button style={btnCancelStyle} onClick={() => handleDeleteClub(club.id)}>
-              Borrar
+              Eliminar
             </button>
           </div>
         </div>

@@ -1,159 +1,65 @@
 import React, { useState } from "react";
-import type { Referente } from "./ReferentesPage";
+import type { Referente } from "../types/types";
+import { validarReferente } from "../utils/validaciones";
 
-interface Props {
-  onGuardar: (nuevo: Referente) => void;
-  existentes?: Referente[];
-}
+type Props = {
+  onGuardar: (referente: Referente) => void;
+};
 
-const RegistrarReferente: React.FC<Props> = ({ onGuardar, existentes = [] }) => {
-  const [formData, setFormData] = useState({
+const categorias = ["Masculino", "Femenino"];
+
+const RegistrarReferente: React.FC<Props> = ({ onGuardar }) => {
+  const [form, setForm] = useState<Referente>({
+    id: Date.now(),
     nombre: "",
     apellido: "",
-    categoria: "",
+    categoria: "Masculino",
     dni: "",
     correo: "",
     equipo: "",
-    foto: null as File | null,
   });
-  const [error, setError] = useState<string | null>(null);
 
-  const validarCampos = (): boolean => {
-    if (!/^[a-zA-Z\s]{2,}$/.test(formData.nombre)) {
-      setError("El nombre debe tener solo letras y al menos 2 caracteres.");
-      return false;
-    }
-    if (!/^[a-zA-Z\s]{2,}$/.test(formData.apellido)) {
-      setError("El apellido debe tener solo letras y al menos 2 caracteres.");
-      return false;
-    }
-    if (!formData.categoria) {
-      setError("Debe seleccionar una categoría.");
-      return false;
-    }
-    if (!/^\d{7,10}$/.test(formData.dni)) {
-      setError("El DNI debe tener entre 7 y 10 números.");
-      return false;
-    }
-    if (existentes.some((r) => r.dni === formData.dni)) {
-      setError("El DNI ya pertenece a otro referente.");
-      return false;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.(com|com\.ar|net|org|edu)$/.test(formData.correo)) {
-      setError("Correo inválido.");
-      return false;
-    }
-    if (existentes.some((r) => r.correo === formData.correo)) {
-      setError("El correo ya pertenece a otro referente.");
-      return false;
-    }
-    if (!/^[a-zA-Z0-9\s]{2,}$/.test(formData.equipo)) {
-      setError("El equipo debe contener solo letras, números y espacios.");
-      return false;
-    }
-    if (formData.foto && formData.foto.size > 5 * 1024 * 1024) {
-      setError("La foto no debe superar los 5MB.");
-      return false;
-    }
-    setError(null);
-    return true;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validarCampos()) return;
-
-    const nuevo: Referente = {
+    const error = validarReferente(form, []);
+    if (error) {
+      alert(error);
+      return;
+    }
+    onGuardar({ ...form, id: Date.now() });
+    setForm({
       id: Date.now(),
-      nombre: formData.nombre,
-      apellido: formData.apellido,
-      categoria: formData.categoria as "Masculino" | "Femenino",
-      dni: formData.dni,
-      correo: formData.correo,
-      equipo: formData.equipo,
-      fotoUrl: formData.foto ? URL.createObjectURL(formData.foto) : undefined,
-    };
-
-    onGuardar(nuevo);
-
-    setFormData({
       nombre: "",
       apellido: "",
-      categoria: "",
+      categoria: "Masculino",
       dni: "",
       correo: "",
       equipo: "",
-      foto: null,
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <h2 className="text-xl font-bold mb-2">Registrar Referente</h2>
-      {error && <p className="text-red-600">{error}</p>}
-
-      <input
-        type="text"
-        placeholder="Nombre"
-        value={formData.nombre}
-        onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        type="text"
-        placeholder="Apellido"
-        value={formData.apellido}
-        onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
-        className="w-full p-2 border rounded"
-      />
-      <select
-        value={formData.categoria}
-        onChange={(e) =>
-          setFormData({ ...formData, categoria: e.target.value })
-        }
-        className="w-full p-2 border rounded"
-      >
-        <option value="">Seleccione categoría</option>
-        <option value="Masculino">Masculino</option>
-        <option value="Femenino">Femenino</option>
-      </select>
-      <input
-        type="text"
-        placeholder="DNI"
-        value={formData.dni}
-        onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        type="email"
-        placeholder="Correo"
-        value={formData.correo}
-        onChange={(e) => setFormData({ ...formData, correo: e.target.value })}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        type="text"
-        placeholder="Equipo"
-        value={formData.equipo}
-        onChange={(e) => setFormData({ ...formData, equipo: e.target.value })}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        type="file"
-        accept="image/png, image/jpeg"
-        onChange={(e) =>
-          setFormData({ ...formData, foto: e.target.files?.[0] || null })
-        }
-      />
-
-      <button
-        type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        Registrar
-      </button>
-    </form>
+    <div className="max-w-lg mx-auto bg-white shadow-lg rounded-2xl p-6">
+      <h2 className="text-xl font-bold mb-4 text-center">Registrar Referente</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input name="nombre" placeholder="Nombre" value={form.nombre} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <input name="apellido" placeholder="Apellido" value={form.apellido} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <select name="categoria" value={form.categoria} onChange={handleChange} className="w-full p-2 border rounded" required>
+          <option value="">Seleccione Categoría</option>
+          {categorias.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <input name="dni" placeholder="DNI" value={form.dni} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <input name="correo" placeholder="Correo" value={form.correo} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <input name="equipo" placeholder="Equipo" value={form.equipo} onChange={handleChange} className="w-full p-2 border rounded" required />
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">Guardar</button>
+      </form>
+    </div>
   );
 };
 
-export default RegistrarReferente
+export default RegistrarReferente;

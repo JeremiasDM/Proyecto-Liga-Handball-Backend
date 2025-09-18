@@ -1,48 +1,40 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import RegistrarReferente from "./RegistrarReferente";
 import EditarReferente from "./EditarReferente";
 import ListaReferente from "./ListaReferente";
 import VistaReferente from "./VistaReferente";
-
-export type Referente = {
-  id: number;
-  nombre: string;
-  apellido: string;
-  categoria: "Masculino" | "Femenino";
-  dni: string;
-  correo: string;
-  equipo: string;
-};
+import { useReferentes } from "../hooks/useReferentes";
+import { validarReferente } from "../utils/validaciones";
+import type { Referente } from "../types/types";
 
 const ReferentesPage: React.FC = () => {
-  const [referentes, setReferentes] = useState<Referente[]>([]);
+  const { referentes, agregar, actualizar, eliminar } = useReferentes();
   const [referenteSeleccionado, setReferenteSeleccionado] = useState<Referente | null>(null);
   const [editando, setEditando] = useState(false);
 
-  useEffect(() => {
-    const data = localStorage.getItem("referentes");
-    if (data) {
-      setReferentes(JSON.parse(data));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("referentes", JSON.stringify(referentes));
-  }, [referentes]);
-
   const registrarReferente = (nuevo: Referente) => {
-    setReferentes([{ ...nuevo, id: Date.now() }, ...referentes]);
+    const error = validarReferente(nuevo, referentes);
+    if (error) {
+      alert(error);
+      return;
+    }
+    agregar({ ...nuevo, id: Date.now() });
   };
 
   const actualizarReferente = (editado: Referente) => {
-    setReferentes(referentes.map((r) => (r.id === editado.id ? editado : r)));
-    setReferenteSeleccionado(null);
+    const error = validarReferente(editado, referentes);
+    if (error) {
+      alert(error);
+      return;
+    }
+    actualizar(editado);
     setEditando(false);
+    setReferenteSeleccionado(null);
   };
 
   const eliminarReferente = (id: number) => {
     if (window.confirm("¿Seguro que quieres eliminar este referente?")) {
-      setReferentes(referentes.filter((r) => r.id !== id));
+      eliminar(id);
       setReferenteSeleccionado(null);
       setEditando(false);
     }
@@ -50,24 +42,16 @@ const ReferentesPage: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold text-center text-blue-900">
+      <h2 className="text-3xl font-bold text-center text-blue-900 mb-6">
         Gestión de Referentes
-      </h1>
-
-      <div className="max-w-2xl mx-auto bg-white shadow-md rounded-xl p-6">
-        <RegistrarReferente onGuardar={registrarReferente} existentes={referentes} />
+      </h2>
+      <div className="max-w-2xl mx-auto bg-white shadow-md rounded-xl p-6 mb-6">
+        <RegistrarReferente onGuardar={registrarReferente} />
       </div>
-
       <div className="bg-white shadow-md rounded-xl p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Lista de Referentes
-        </h2>
         <ListaReferente
           referentes={referentes}
-          onVer={(ref) => {
-            setReferenteSeleccionado(ref);
-            setEditando(false);
-          }}
+          onVer={setReferenteSeleccionado}
           onEditar={(ref) => {
             setReferenteSeleccionado(ref);
             setEditando(true);
@@ -75,7 +59,6 @@ const ReferentesPage: React.FC = () => {
           onEliminar={eliminarReferente}
         />
       </div>
-
       {referenteSeleccionado && !editando && (
         <VistaReferente
           referente={referenteSeleccionado}
@@ -85,11 +68,10 @@ const ReferentesPage: React.FC = () => {
       {referenteSeleccionado && editando && (
         <EditarReferente
           referente={referenteSeleccionado}
-          existentes={referentes}
           onActualizar={actualizarReferente}
           onCancelar={() => {
-            setReferenteSeleccionado(null);
             setEditando(false);
+            setReferenteSeleccionado(null);
           }}
         />
       )}
