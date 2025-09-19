@@ -8,6 +8,7 @@ export type Noticia = {
 };
 
 export type Encuentro = {
+  fecha: Encuentro | undefined;
   jornada: number;
   grupo: string;
   club1: string;
