@@ -1,38 +1,43 @@
 import React from "react";
+import type { Fixture } from "../types/types";
 import PartidoItem from "./PartidoItem";
-import type { Partido } from "./FormularioPartido";
 
-interface Props {
-  partidos: Partido[];
-  onEditar: (partido: Partido) => void;
-  onEliminar: (id: number) => void;
-}
+type Props = {
+  fixtures: Fixture[];
+  onEdit?: (fixture: Fixture, index: number) => void;
+};
 
-const ListaFixture: React.FC<Props> = ({ partidos, onEditar, onEliminar }) => {
-  if (partidos.length === 0) {
-    return <p>No hay partidos cargados.</p>;
+const ListaFixture: React.FC<Props> = ({ fixtures, onEdit }) => {
+  if (fixtures.length === 0) {
+    return <p className="text-gray-500">No hay fixtures registrados.</p>;
   }
 
-  // Ordenar por jornada y hora
-  const partidosOrdenados = [...partidos].sort((a, b) => {
-    if (a.jornada !== b.jornada) return a.jornada - b.jornada;
-    if (a.hora && b.hora) return a.hora.localeCompare(b.hora);
-    return 0;
-  });
-
   return (
-    <div className="space-y-3 mt-4">
-      {partidosOrdenados.map((p) => (
-        <div key={p.id} className="flex justify-between items-center p-3 bg-gray-50 border rounded">
-          <PartidoItem partido={p} />
-          <div className="space-x-2">
-            <button onClick={() => onEditar(p)} className="px-3 py-1 bg-blue-600 text-white rounded">
-              Editar
-            </button>
-            <button onClick={() => onEliminar(p.id!)} className="px-3 py-1 bg-red-600 text-white rounded">
-              Eliminar
-            </button>
+    <div className="p-4 bg-gray-100 rounded-xl">
+      <h3 className="text-xl font-bold mb-4 text-blue-900">Listado de Fixtures</h3>
+      {fixtures.map((fixture, i) => (
+        <div
+          key={i}
+          className="mb-6 bg-white rounded-xl p-4 shadow"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span>
+              <strong>Fecha:</strong> {fixture.fecha} | <strong>Lugar:</strong> {fixture.lugar}
+            </span>
+            {onEdit && (
+              <button
+                className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                onClick={() => onEdit(fixture, i)}
+              >
+                Editar
+              </button>
+            )}
           </div>
+          <ul className="pl-4 mt-2">
+            {fixture.partidos.map((p, j) => (
+              <PartidoItem key={j} partido={p} />
+            ))}
+          </ul>
         </div>
       ))}
     </div>
