@@ -1,142 +1,63 @@
-import React, { useState } from "react";
+import React from "react";
+import type { Encuentro } from "../types/types";
 
-export interface Partido {
-  id?: number;
-  jornada: number;
-  grupo: string;
-  categoria: "Masculino" | "Femenino";
-  club1: string;
-  club2: string;
-  hora: string;
-  resultado?: string;
-  estado: "Pendiente" | "En juego" | "Finalizado";
-}
-
-interface Props {
-  onSubmit: (partido: Partido) => void;
-  partidoInicial?: Partido;
-}
-
-const FormularioPartido: React.FC<Props> = ({ onSubmit, partidoInicial }) => {
-  const [form, setForm] = useState<Partido>(
-    partidoInicial || {
-      jornada: 1,
-      grupo: "",
-      categoria: "Masculino",
-      club1: "",
-      club2: "",
-      hora: "",
-      resultado: "",
-      estado: "Pendiente",
-    }
-  );
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!form.club1 || !form.club2 || !form.hora) {
-      alert("Todos los campos obligatorios deben completarse.");
-      return;
-    }
-
-    onSubmit(form);
-    setForm({
-      jornada: 1,
-      grupo: "",
-      categoria: "Masculino",
-      club1: "",
-      club2: "",
-      hora: "",
-      resultado: "",
-      estado: "Pendiente",
-    });
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <input
-        type="number"
-        name="jornada"
-        placeholder="Jornada"
-        value={form.jornada}
-        onChange={handleChange}
-        className="w-full p-2 border rounded"
-        required
-      />
-      <input
-        type="text"
-        name="grupo"
-        placeholder="Grupo"
-        value={form.grupo}
-        onChange={handleChange}
-        className="w-full p-2 border rounded"
-      />
-      <select
-        name="categoria"
-        value={form.categoria}
-        onChange={handleChange}
-        className="w-full p-2 border rounded"
-      >
-        <option value="Masculino">Masculino</option>
-        <option value="Femenino">Femenino</option>
-      </select>
-      <input
-        type="text"
-        name="club1"
-        placeholder="Club 1"
-        value={form.club1}
-        onChange={handleChange}
-        className="w-full p-2 border rounded"
-        required
-      />
-      <input
-        type="text"
-        name="club2"
-        placeholder="Club 2"
-        value={form.club2}
-        onChange={handleChange}
-        className="w-full p-2 border rounded"
-        required
-      />
-      <input
-        type="time"
-        name="hora"
-        value={form.hora}
-        onChange={handleChange}
-        className="w-full p-2 border rounded"
-        required
-      />
-      <select
-        name="estado"
-        value={form.estado}
-        onChange={handleChange}
-        className="w-full p-2 border rounded"
-      >
-        <option value="Pendiente">Pendiente</option>
-        <option value="En juego">En juego</option>
-        <option value="Finalizado">Finalizado</option>
-      </select>
-      <input
-        type="text"
-        name="resultado"
-        placeholder="Resultado (opcional)"
-        value={form.resultado}
-        onChange={handleChange}
-        className="w-full p-2 border rounded"
-      />
-
-      <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded">
-        Guardar Partido
-      </button>
-    </form>
-  );
+type Props = {
+  partido: Encuentro;
+  onChange: (campo: keyof Encuentro, valor: string) => void;
+  clubesValidos: string[];
+  gruposValidos: string[];
 };
+
+const FormularioPartido: React.FC<Props> = ({ partido, onChange, clubesValidos, gruposValidos }) => (
+  <div className="flex flex-wrap gap-4 items-center mb-4">
+    <label>
+      Jornada:
+      <input
+        name="jornada"
+        type="number"
+        min={1}
+        value={partido.jornada}
+        onChange={e => onChange("jornada", e.target.value)}
+        className="w-20 p-2 border rounded"
+      />
+    </label>
+    <label>
+      Grupo:
+      <select value={partido.grupo} onChange={e => onChange("grupo", e.target.value)} className="w-24 p-2 border rounded">
+        {gruposValidos.map((g) => (
+          <option key={g} value={g}>Grupo {g}</option>
+        ))}
+      </select>
+    </label>
+    <label>
+      Club 1:
+      <select value={partido.club1} onChange={e => onChange("club1", e.target.value)} className="w-32 p-2 border rounded">
+        <option value="">Selecciona Club 1</option>
+        {clubesValidos.map((club) => (
+          <option key={club} value={club}>{club}</option>
+        ))}
+      </select>
+    </label>
+    <label>
+      Club 2:
+      <select value={partido.club2} onChange={e => onChange("club2", e.target.value)} className="w-32 p-2 border rounded">
+        <option value="">Selecciona Club 2</option>
+        {clubesValidos.map((club) => (
+          <option key={club} value={club}>{club}</option>
+        ))}
+      </select>
+    </label>
+    <label>
+      Resultado:
+      <input
+        name="resultado"
+        placeholder="Ej: 25-21 o -"
+        value={partido.resultado}
+        onChange={e => onChange("resultado", e.target.value)}
+        className="w-24 p-2 border rounded"
+      />
+    </label>
+  </div>
+);
 
 export default FormularioPartido;
