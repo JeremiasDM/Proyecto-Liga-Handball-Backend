@@ -1,32 +1,12 @@
 import React from "react";
-import type { Partido } from "./FormularioPartido";
+import type { Encuentro } from "../types/types";
 
-interface Props {
-  partido: Partido;
-}
+type Props = { partido: Encuentro };
 
-const PartidoItem: React.FC<Props> = ({ partido }) => {
-  return (
-    <div className="p-3 border rounded bg-gray-50">
-      <p>
-        <strong>Jornada:</strong> {partido.jornada || "-"} |{" "}
-        <strong>Grupo:</strong> {partido.grupo || "-"} |{" "}
-        <strong>Categoría:</strong> {partido.categoria || "-"}
-      </p>
-      <p>
-        <strong>{partido.club1 || "Club 1"}</strong> vs{" "}
-        <strong>{partido.club2 || "Club 2"}</strong>
-      </p>
-      <p>
-        <strong>Hora:</strong> {partido.hora || "-"} |{" "}
-        <strong>Estado:</strong> {partido.estado || "Pendiente"}
-      </p>
-      <p>
-        <strong>Resultado:</strong>{" "}
-        {partido.resultado && partido.resultado !== "" ? partido.resultado : "-"}
-      </p>
-    </div>
-  );
-};
+const PartidoItem: React.FC<Props> = ({ partido }) => (
+  <li className="mb-2">
+    <strong>J{partido.jornada}</strong> | Grupo {partido.grupo} | {partido.club1} vs {partido.club2} <span className="text-blue-900">({partido.resultado})</span>
+  </li>
+);
 
 export default PartidoItem;
