@@ -10,6 +10,7 @@ const JugadoresPage: React.FC = () => {
   const [fase, setFase] = useState<1 | 2>(1);
   const [jugadorEnProceso, setJugadorEnProceso] = useState<Jugador | null>(null);
 
+  // Cargar jugadores desde localStorage
   useEffect(() => {
     const data = localStorage.getItem("jugadores");
     if (data) {
@@ -17,10 +18,12 @@ const JugadoresPage: React.FC = () => {
     }
   }, []);
 
+  // Guardar jugadores en localStorage cada vez que cambian
   useEffect(() => {
     localStorage.setItem("jugadores", JSON.stringify(jugadores));
   }, [jugadores]);
 
+  // Paso 1 → Registrar jugador
   const registrarJugador = (nuevo: Jugador) => {
     const existeDni = jugadores.some((j) => j.dni === nuevo.dni);
     if (existeDni) {
@@ -40,6 +43,7 @@ const JugadoresPage: React.FC = () => {
     setFase(2);
   };
 
+  // Paso 2 → Guardar documentación
   const guardarDocumentacion = (jugadorConDocs: Jugador) => {
     const existeDni = jugadores.some((j) => j.dni === jugadorConDocs.dni);
     if (existeDni) {
@@ -62,6 +66,7 @@ const JugadoresPage: React.FC = () => {
     setFase(1);
   };
 
+  // Actualizar jugador ya existente
   const actualizarJugador = (jugadorActualizado: Jugador) => {
     const existeDni = jugadores.some(
       (j) => j.dni === jugadorActualizado.dni && j.id !== jugadorActualizado.id
@@ -90,6 +95,7 @@ const JugadoresPage: React.FC = () => {
     );
   };
 
+  // Eliminar jugador
   const eliminarJugador = (id: number) => {
     if (window.confirm("¿Seguro que quieres eliminar este jugador?")) {
       setJugadores(jugadores.filter((j) => j.id !== id));
@@ -102,6 +108,7 @@ const JugadoresPage: React.FC = () => {
         Gestión de Jugadores
       </h1>
 
+      {/* Registro o documentación */}
       <div className="max-w-2xl mx-auto bg-white shadow-md rounded-xl p-6">
         <BarraProgreso fase={fase} />
         {fase === 1 && <RegistroJugador onRegistrar={registrarJugador} />}
@@ -117,13 +124,14 @@ const JugadoresPage: React.FC = () => {
         )}
       </div>
 
+      {/* Lista de jugadores */}
       <div className="bg-white shadow-md rounded-xl p-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           Lista de Jugadores
         </h2>
         <ListaJugadores
           jugadores={jugadores}
-          onEditar={(j) => actualizarJugador(j)}
+          onEditar={actualizarJugador}
           onEliminar={eliminarJugador}
         />
         {jugadores.map((j) => (
