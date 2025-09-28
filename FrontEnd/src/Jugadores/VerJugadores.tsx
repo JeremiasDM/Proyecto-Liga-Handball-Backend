@@ -1,7 +1,13 @@
 import React, { useState } from "react";
+<<<<<<< HEAD
 import FormularioDatos from "./FormularioDatos";
 import FormularioDocumentacion from "./FormularioDocumentacion";
 import type { Jugador } from "../types/types";
+=======
+import { Jugador } from "./FormularioDatos";
+import FormularioDatos from "./FormularioDatos";
+import FormularioDocumentacion from "./FormularioDocumentacion";
+>>>>>>> c57081d8ff0ae53c8182d9014d4c347b63c18702
 
 type Props = {
   jugador: Jugador;
