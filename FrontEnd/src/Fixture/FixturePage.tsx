@@ -4,123 +4,138 @@ import EditarFixture from "./EditarFixture";
 import ListaFixture from "./ListaFixture";
 import type { Encuentro, Fixture } from "../types/types";
 
-// 1. Mejora estética: Estilos definidos como objetos constantes para un código más limpio.
+// 1. Mejora estética: Estilos definidos como objetos constantes.
 const styles = {
-  pageContainer: {
-    padding: '20px',
-    width: '100%',
-    boxSizing: 'border-box'
-  },
-  fixtureCard: {
-    width: '100%',
-    maxWidth: '900px',
-    margin: '0 auto',
-    fontFamily: 'Arial, sans-serif',
-    backgroundColor: '#f9f9f9',
-    borderRadius: '8px',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-    padding: '20px',
-    boxSizing: 'border-box'
-  },
-  title: {
-    textAlign: 'center',
-    color: '#2c3e50',
-    borderBottom: '2px solid #3498db',
-    paddingBottom: '10px'
-  },
-  divider: {
-    borderTop: '1px solid #ccc',
-    margin: '20px 0'
-  }
+  pageContainer: {
+    padding: '30px 20px', // Más espacio alrededor
+    width: '100%',
+    boxSizing: 'border-box',
+    backgroundColor: '#eef2f6', // Fondo de página gris muy suave
+  },
+  fixtureCard: {
+    width: '100%',
+    maxWidth: '1100px', // Aumento del ancho máximo
+    margin: '0 auto',
+    fontFamily: 'Roboto, "Helvetica Neue", Arial, sans-serif', // Fuente moderna y limpia
+    backgroundColor: '#ffffff', // Fondo blanco nítido
+    borderRadius: '12px', // Bordes suaves
+    boxShadow: '0 10px 30px rgba(0,0,0,0.1)', // Sombra profesional
+    padding: '40px', // Más espacio interno
+    boxSizing: 'border-box'
+  },
+  title: {
+    textAlign: 'center',
+    color: '#1f3c88', // Azul corporativo
+    borderBottom: '3px solid #3498db', // Línea de división gruesa y vibrante
+    paddingBottom: '15px',
+    marginBottom: '30px',
+    fontSize: '2.2rem', // Título grande y dominante
+    fontWeight: 700,
+    letterSpacing: '0.5px', // Pequeño espacio entre letras
+  },
+  divider: {
+    border: 'none',
+    borderTop: '1px solid #e0e0e0', // Divisor sutil
+    margin: '30px 0'
+  },
+  // NUEVO: Estilo para botones contenedores (requiere implementación en Registrar/Editar)
+  buttonContainer: {
+    display: 'flex',
+    justifyContent: 'flex-start', // Alinear a la izquierda para el registro
+    gap: '10px',
+    marginTop: '20px',
+    marginBottom: '10px', // Espacio antes del divisor
+  }
 };
 
 const FixturePage: React.FC = () => {
-  const [fixtures, setFixtures] = useState<Fixture[]>([]);
-  const [fixtureEditando, setFixtureEditando] = useState<Fixture | null>(null);
-  const [indiceEditando, setIndiceEditando] = useState<number | null>(null);
+  const [fixtures, setFixtures] = useState<Fixture[]>([]);
+  const [fixtureEditando, setFixtureEditando] = useState<Fixture | null>(null);
+  const [indiceEditando, setIndiceEditando] = useState<number | null>(null);
 
-  const agregarFixture = (nuevo: Fixture) => {
-    setFixtures([...fixtures, nuevo]);
-  };
+  const agregarFixture = (nuevo: Fixture) => {
+    setFixtures([...fixtures, nuevo]);
+  };
 
-  const editarFixture = (fixture: Fixture, index: number) => {
-    setFixtureEditando(fixture);
-    setIndiceEditando(index);
-  };
+  const editarFixture = (fixture: Fixture, index: number) => {
+    setFixtureEditando(fixture);
+    setIndiceEditando(index);
+  };
 
-  const guardarEdicion = (actualizado: Fixture) => {
-    if (indiceEditando === null) return;
-    const nuevas = [...fixtures];
-    nuevas[indiceEditando] = actualizado;
-    setFixtures(nuevas);
-    cancelarEdicion();
-  };
+  const guardarEdicion = (actualizado: Fixture) => {
+    if (indiceEditando === null) return;
+    const nuevas = [...fixtures];
+    nuevas[indiceEditando] = actualizado;
+    setFixtures(nuevas);
+    cancelarEdicion();
+  };
 
-  const cancelarEdicion = () => {
-    setFixtureEditando(null);
-    setIndiceEditando(null);
-  };
+  const cancelarEdicion = () => {
+    setFixtureEditando(null);
+    setIndiceEditando(null);
+  };
 
-  // 2. Mejora estética: Función refactorizada para evitar duplicación de código.
-  const generarFixtureAutomatico = () => {
-    const clubesA = ["Club A1", "Club A2", "Club A3", "Club A4"];
-    const clubesB = ["Club B1", "Club B2", "Club B3", "Club B4"];
-    const jornada = 1;
+  const generarFixtureAutomatico = () => {
+    // Usaremos 4 equipos para simplificar el ejemplo de la estructura
+    const clubes = ["Filosofía", "Club Unión HG", "Capilla del Monte", "Malagueño"];
+    const jornada = 1;
 
-    // Función auxiliar para crear los partidos
-    const crearPartidosDeGrupo = (clubes: string[], grupo: string) => {
-      const partidos: Encuentro[] = [];
-      clubes.forEach((club, i) => {
-        if (i + 1 < clubes.length) {
-          partidos.push({
-            jornada,
-            grupo,
-            club1: club,
-            club2: clubes[i + 1],
-            resultado: "-"
-          });
-        }
-      });
-      return partidos;
-    };
+    // Algoritmo simple round-robin para generar encuentros
+    const partidos: Encuentro[] = [];
+    for (let i = 0; i < clubes.length; i++) {
+      for (let j = i + 1; j < clubes.length; j++) {
+        partidos.push({
+          jornada,
+          grupo: "Único",
+          club1: clubes[i],
+          club2: clubes[j],
+          resultado: "-"
+        });
+      }
+    }
 
-    const todosLosPartidos = [
-      ...crearPartidosDeGrupo(clubesA, "A"),
-      ...crearPartidosDeGrupo(clubesB, "B")
-    ];
+    const fixtureGenerado: Fixture = {
+      fecha: new Date().toISOString().split("T")[0],
+      lugar: "Generado Automáticamente",
+      partidos: partidos
+    };
 
-    const fixtureGenerado: Fixture = {
-      fecha: new Date().toISOString().split("T")[0],
-      lugar: "Automático",
-      partidos: todosLosPartidos
-    };
+    setFixtures([...fixtures, fixtureGenerado]);
+    alert("Fixture automático generado con " + partidos.length + " encuentros.");
+  };
 
-    setFixtures([...fixtures, fixtureGenerado]);
-    alert("Fixture automático generado ");
-  };
-
-  return (
-    // 3. Mejora estética: El JSX es más limpio y fácil de leer con los objetos de estilo.
-    <div style={styles.pageContainer}>
-      <div style={styles.fixtureCard}>
-        <h2 style={styles.title}>Gestión de Fixture</h2>
-        {fixtureEditando ? (
-          <EditarFixture
-            fixture={fixtureEditando}
-            onGuardar={guardarEdicion}
-            onCancelar={cancelarEdicion}
-          />
-        ) : (
-          <RegistrarFixture
-            onAgregarFixture={agregarFixture}
-            onGenerarAutomatico={generarFixtureAutomatico}
-          />
-        )}
-        <hr style={styles.divider} />
-        <ListaFixture fixtures={fixtures} onEdit={editarFixture} />
-      </div>
-    </div>
-  );
+  return (
+    <div style={styles.pageContainer}>
+      <div style={styles.fixtureCard}>
+        <h2 style={styles.title}>Gestión y Registro de Fixture</h2>
+        {fixtureEditando ? (
+          <EditarFixture
+            fixture={fixtureEditando}
+            onGuardar={guardarEdicion}
+            onCancelar={cancelarEdicion}
+            // Sugerencia: pasar estilos de botones a este componente
+          />
+        ) : (
+          <RegistrarFixture
+            onAgregarFixture={agregarFixture}
+            onGenerarAutomatico={generarFixtureAutomatico}
+            // Sugerencia: pasar estilos de botones a este componente
+            buttonContainerStyle={styles.buttonContainer} 
+          />
+        )}
+        <hr style={styles.divider} />
+        
+        {/* Título de la sección de lista */}
+        <h3 style={{color: '#2c3e50', fontSize: '1.5rem', marginBottom: '20px'}}>Fixtures Existentes</h3>
+        
+        <ListaFixture 
+          fixtures={fixtures} 
+          onEdit={editarFixture} 
+          // Sugerencia: pasar estilos de tarjetas a este componente
+        />
+      </div>
+    </div>
+  );
 };
 
 export default FixturePage;

@@ -2,78 +2,40 @@ import React from 'react';
 
 export default function Autoridades() {
   const autoridades = [
-    {
-      nombre: "Myriam Calderon",
-      cargo: "Presidenta",
-      foto: "./Autoridades/Myriam Calderon.jpeg"
-    },
-    {
-      nombre: "Marcelo Gallardo",
-      cargo: "Tesorero",
-      foto: "./Autoridades/Marcelo Gallardo.jpeg"
-    },
-    {
-      nombre: "Laura Tambe",
-      cargo: "Secretaria",
-      foto: "./Autoridades/Laura Tambe.jpeg"
-    },
-    {
-      nombre: "Jesús Vergara",
-      cargo: "Vocal Titular",
-      foto: "./Autoridades/JesusVergara.jpeg"
-    },
-    {
-      nombre: "Carolina Torres",
-      cargo: "Vocal Titular",
-      foto: "./Autoridades/Carolinatorres.jpeg"
-    },
-    {
-      nombre: "Cristian Seijo",
-      cargo: "Revisor de cuentas",
-      foto: "./Autoridades/Cristian Seijo.jpeg"
-    },
-    {
-      nombre: "Santiago Altamirano",
-      cargo: "Revisor de cuentas",
-      foto: "./Autoridades/Santiago Altamirano.jpeg"
-    }
+    { nombre: "Myriam Calderon", cargo: "Presidenta", foto: "./Myriam Calderon.jpeg" },
+    { nombre: "Marcelo Gallardo", cargo: "Tesorero", foto: "./Marcelo Gallardo.jpeg" },
+    { nombre: "Laura Tambe", cargo: "Secretaria", foto: "./Laura Tambe.jpeg" },
+    { nombre: "Jesús Vergara", cargo: "Vocal Titular", foto: "./JesusVergara.jpeg" },
+    { nombre: "Carolina Torres", cargo: "Vocal Titular", foto: "./Carolinatorres.jpeg" },
+    { nombre: "Cristian Seijo", cargo: "Revisor de cuentas", foto: "./Cristian Seijo.jpeg" },
+    { nombre: "Santiago Altamirano", cargo: "Revisor de cuentas", foto: "./Santiago Altamirano.jpeg" }
   ];
 
   return (
     <>
       <style>{`
-        /* * 1. SOLUCIÓN AL PROBLEMA DE LA ALTURA:
-        * Configura los elementos raíz para que el contenedor ocupe toda la pantalla.
-        */
         html, body {
-          height: 100%;
           margin: 0;
           padding: 0;
           overflow-x: hidden;
         }
 
-        /* * 2. MEJORAS ESTÉTICAS GENERALES
-        */
         .autoridades-container {
-          background: radial-gradient(circle at center, #1a1e2a 0%, #0b0e19 100%);
-          color: #E0E0E0;
-          max-width: 100vw;
-          min-height: 100vh;
-          padding: 3rem 2.5rem;
-          font-family: 'Inter', sans-serif;
+          background: #f9f9f9; /* ✅ fondo claro en vez del negro */
+          color: #333;
           width: 100%;
-          height: 100%;
-          transition: background 0.5s ease;
+          min-height: 100vh;
+          padding: 3rem 2rem;
+          font-family: 'Inter', sans-serif;
         }
         
         .titulo {
-          text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
           text-align: center;
           font-size: 2.5rem;
           font-weight: 700;
           margin-bottom: 3rem;
           letter-spacing: 0.05rem;
-          color: white;
+          color: #222;
         }
         
         .grid {
@@ -84,23 +46,29 @@ export default function Autoridades() {
         }
         
         .card {
-          background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
-          /* ELIMINADO: border: 1px solid rgba(255,255,255,0.1); */
-          border: none; /* Asegura que no haya ningún borde */
+          background: white;
           border-radius: 1.25rem;
           padding: 1.5rem;
           text-align: center;
           width: 100%;
           max-width: 300px;
-          backdrop-filter: blur(8px);
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
           transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
           cursor: pointer;
+
+          /* Animación inicial */
+          opacity: 0;
+          animation: fadeIn 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         
         .card:hover {
           transform: translateY(-10px);
-          box-shadow: 0 15px 45px 0 rgba(0, 0, 0, 0.25), 0 0 20px rgba(255, 255, 255, 0.1);
+          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
         }
         
         .card img {
@@ -109,19 +77,35 @@ export default function Autoridades() {
           object-fit: cover;
           border-radius: 1rem;
           margin-bottom: 1rem;
-          box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
           transition: filter 0.3s ease-in-out;
         }
         
         .card:hover img {
-          filter: brightness(1.1);
+          filter: brightness(1.05);
         }
         
         .nombre {
           font-size: 1.25rem;
           font-weight: 700;
-          color: white;
+          color: #222;
           letter-spacing: 0.02rem;
+          position: relative;
+        }
+
+        /* Efecto subrayado animado */
+        .nombre::after {
+          content: "";
+          position: absolute;
+          bottom: -5px;
+          left: 50%;
+          width: 0;
+          height: 2px;
+          background: #1f3c88;
+          transition: width 0.3s ease, left 0.3s ease;
+        }
+        .card:hover .nombre::after {
+          width: 100%;
+          left: 0;
         }
         
         .cargo {
@@ -139,18 +123,15 @@ export default function Autoridades() {
         .organigrama h2 {
           font-size: 2rem;
           font-weight: 600;
-          color: white;
+          color: #222;
           margin-bottom: 1.5rem;
-          text-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
         }
         
         .organigrama img {
           max-width: 100%;
           height: auto;
-          /* ELIMINADO: border: 1px solid rgba(255,255,255,0.2); */
-          border: none; /* Asegura que no haya ningún borde */
           border-radius: 1rem;
-          box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
           transition: transform 0.3s ease-in-out;
         }
         

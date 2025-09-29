@@ -151,21 +151,57 @@ export default function VerClubes() {
 
   return (
     <div style={{ maxWidth: 900, margin: "2rem auto", fontFamily: "Arial, sans-serif" }}>
-      <h2>Clubes</h2>
+      {/* Header */}
+      <div
+        style={{
+          background: "linear-gradient(90deg, #1f3c88, #3a6ea5)",
+          color: "white",
+          padding: "1.5rem",
+          borderRadius: "8px",
+          marginBottom: "1.5rem",
+          textAlign: "center",
+          boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
+        }}
+      >
+        <h1 style={{ margin: 0, fontSize: "2rem" }}>Gestión de Clubes</h1>
+        <p style={{ margin: "0.5rem 0 0", fontSize: "1rem" }}>
+          Administra y consulta los clubes registrados
+        </p>
+      </div>
 
-      {/* Filtrado */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+      {/* Barra de búsqueda y filtros */}
+      <div
+        style={{
+          display: "flex",
+          gap: "1rem",
+          marginBottom: "1.5rem",
+          padding: "1rem",
+          background: "#f9f9f9",
+          borderRadius: "8px",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+        }}
+      >
         <input
           type="text"
           placeholder="Buscar..."
           value={busqueda}
-          onChange={e => setBusqueda(e.target.value)}
-          style={inputStyle}
+          onChange={(e) => setBusqueda(e.target.value)}
+          style={{
+            flex: 1,
+            padding: "0.6rem",
+            borderRadius: "5px",
+            border: "1px solid #ccc",
+          }}
         />
         <select
           value={categoriaFiltro}
-          onChange={e => setCategoriaFiltro(e.target.value as any)}
-          style={inputStyle}
+          onChange={(e) => setCategoriaFiltro(e.target.value as any)}
+          style={{
+            flex: "0.4",
+            padding: "0.6rem",
+            borderRadius: "5px",
+            border: "1px solid #ccc",
+          }}
         >
           <option value="">Todas</option>
           <option value="masculino">Masculino</option>
@@ -191,7 +227,7 @@ export default function VerClubes() {
               Modificar
             </button>
             <button style={btnCancelStyle} onClick={() => handleDeleteClub(club.id)}>
-              Eliminar
+              Borrar
             </button>
           </div>
         </div>
