@@ -38,16 +38,6 @@ export type Jugador = {
   fichaMedicaUrl?: string;
 };
 
-export type Pago = {
-  id: number;
-  club: string;
-  partidoId: number;
-  monto: number;
-  comprobante: string;
-  comprobanteArchivo?: string;
-  fecha: string;
-  estado: "pendiente" | "validado" | "rechazado";
-};
 
 export type Referente = {
   id: number;
@@ -57,4 +47,19 @@ export type Referente = {
   dni: string;
   correo: string;
   equipo: string;
+};
+
+export type Pago = {
+  id: number;
+  tipo: "cuota" | "arbitraje";
+  club: string;
+  categoria: "Masculino" | "Femenino" | "Ambos";
+  partidoId?: number; 
+  monto: number;
+  comprobante: string;
+  comprobanteArchivo?: string;
+  fecha: string;
+  estado: "pendiente" | "pagado" | "invalido";
+  cantidadJugadores?: number; 
+  sancion?: string; 
 };
