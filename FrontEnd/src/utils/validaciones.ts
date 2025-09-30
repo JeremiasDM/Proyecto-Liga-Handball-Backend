@@ -66,7 +66,7 @@ export function validarReferente(nuevo: Referente, referentes: Referente[]): str
   if (referentes.some(r => r.dni === nuevo.dni && r.id !== nuevo.id)) {
     return "El DNI ya está registrado.";
   }
-  if (!/^[^\s@]+@[^\s@]+\.(com|com\.ar|net|org|edu)$/.test(nuevo.correo)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nuevo.correo)) {
     return "Correo inválido.";
   }
   if (!/^[a-zA-Z0-9\s]{2,}$/.test(nuevo.equipo)) {
@@ -81,7 +81,7 @@ export function validarFixture(
   fixture: Fixture,
   fixtures: Fixture[]
 ): string | null {
-  // Validar que todos los campos estén completos
+
   if (!fixture.fecha || !fixture.lugar) {
     return "Completa la fecha y el lugar del fixture.";
   }
@@ -94,7 +94,7 @@ export function validarFixture(
   if (fechaFixture < hoy) {
     return "La fecha del fixture no puede ser anterior a hoy.";
   }
-  // Validar fechas duplicadas
+
   if (fixtures.some(f => f.fecha === fixture.fecha)) {
     return "Ya existe un fixture para esa fecha.";
   }
@@ -126,6 +126,57 @@ export function validarPartido(partido: Encuentro, partidos: Encuentro[]): strin
   );
   if (partidoDuplicado) {
     return "Este partido ya está registrado para esa jornada y grupo.";
+  }
+  return null;
+}
+
+import type { Pago } from "../types/types";
+
+export function validarPago(
+  nuevo: Pago,
+  montoMinimo: number,
+  partidos: Fixture[],
+  comprobanteArchivo?: File
+): string | null {
+  if (!nuevo.club) {
+    return "Debes seleccionar un club.";
+  }
+  if (!nuevo.partidoId) {
+    return "Debes seleccionar un partido.";
+  }
+  if (!nuevo.comprobante && !nuevo.comprobanteArchivo) {
+    return "Debes ingresar el comprobante o adjuntar el archivo.";
+  }
+  if (nuevo.monto < montoMinimo) {
+    return `El monto debe ser igual o mayor al mínimo ($${montoMinimo}).`;
+  }
+
+  const partido = partidos
+    .flatMap(f => f.partidos)
+    .find(p => p.jornada === nuevo.partidoId);
+  if (partido && (partido as any).fecha) {
+    const fechaLimite = new Date((partido as any).fecha);
+    fechaLimite.setDate(fechaLimite.getDate() + (5 - fechaLimite.getDay())); // viernes
+    fechaLimite.setHours(23, 59, 59, 999);
+    if (new Date(nuevo.fecha) > fechaLimite) {
+      return "La fecha de pago superó el límite permitido.";
+    }
+  }
+ 
+  if (comprobanteArchivo) {
+    if (comprobanteArchivo.size > 5 * 1024 * 1024) {
+      return "El archivo no puede superar los 5MB.";
+    }
+    if (!["image/jpeg", "image/png", "application/pdf"].includes(comprobanteArchivo.type)) {
+      return "Solo se permiten imágenes JPG/PNG o PDF.";
+    }
+  }
+  return null;
+}
+
+export function verificarSancion(pago: Pago): string | null {
+  if (pago.monto < 10000) {
+    return "Monto insuficiente para evitar sanción.";
   }
   return null;
 }

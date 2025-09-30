@@ -2,13 +2,13 @@ import React from 'react';
 
 export default function Autoridades() {
   const autoridades = [
-    { nombre: "Myriam Calderon", cargo: "Presidenta", foto: "./Myriam Calderon.jpeg" },
-    { nombre: "Marcelo Gallardo", cargo: "Tesorero", foto: "./Marcelo Gallardo.jpeg" },
-    { nombre: "Laura Tambe", cargo: "Secretaria", foto: "./Laura Tambe.jpeg" },
-    { nombre: "Jesús Vergara", cargo: "Vocal Titular", foto: "./JesusVergara.jpeg" },
-    { nombre: "Carolina Torres", cargo: "Vocal Titular", foto: "./Carolinatorres.jpeg" },
-    { nombre: "Cristian Seijo", cargo: "Revisor de cuentas", foto: "./Cristian Seijo.jpeg" },
-    { nombre: "Santiago Altamirano", cargo: "Revisor de cuentas", foto: "./Santiago Altamirano.jpeg" }
+    { nombre: "Myriam Calderon", cargo: "Presidenta", foto: "./Autoridades/Myriam Calderon.jpeg" },
+    { nombre: "Marcelo Gallardo", cargo: "Tesorero", foto: "./Autoridades/Marcelo Gallardo.jpeg" },
+    { nombre: "Laura Tambe", cargo: "Secretaria", foto: "./Autoridades/Laura Tambe.jpeg" },
+    { nombre: "Jesús Vergara", cargo: "Vocal Titular", foto: "./Autoridades/JesusVergara.jpeg" },
+    { nombre: "Carolina Torres", cargo: "Vocal Titular", foto: "./Autoridades/Carolinatorres.jpeg" },
+    { nombre: "Cristian Seijo", cargo: "Revisor de cuentas", foto: "./Autoridades/Cristian Seijo.jpeg" },
+    { nombre: "Santiago Altamirano", cargo: "Revisor de cuentas", foto: "./Autoridades/Santiago Altamirano.jpeg" }
   ];
 
   return (

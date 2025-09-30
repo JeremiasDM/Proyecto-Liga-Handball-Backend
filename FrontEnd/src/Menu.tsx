@@ -8,6 +8,7 @@ import Historia from "./Historia/Historia";
 import Estadistica from "./Estadistica/Estadistica";
 import NoticiasPage from "./Noticias/NoticiasPage";
 import Reglamento from "./Reglamento/Reglamento";
+import PagosPage from "./RegistroPagos/PagosPage";
 
 
 export default function App() {
@@ -453,7 +454,7 @@ export default function App() {
                 <div className="dropdown" onClick={stop}>
                   <button className="dropdown-btn" onClick={() => handleLinkClick("autoridades")}>Autoridades</button>
                   <button className="dropdown-btn" onClick={() => handleLinkClick("referentes")}>Referentes</button>
-                  <button className="dropdown-btn" onClick={() => handleLinkClick("pago-arbitros")}>Pago de árbitros</button>
+                  <button className="dropdown-btn" onClick={() => handleLinkClick("Pago de Arbitros")}>Pago de árbitros</button>
                   <button className="dropdown-btn" onClick={() => handleLinkClick("historia")}>Historia</button>
                 </div>
               )}
@@ -546,6 +547,7 @@ export default function App() {
           {vista === "noticias" && <NoticiasPage />}
           {vista === "reglamento" && <Reglamento />}
           {vista === "referentes" && <ReferentesPage />}
+          {vista === "Pago de Arbitros" && <PagosPage />}
         </main>
 
         <footer>

@@ -3,38 +3,38 @@ import React, { useState, useMemo } from "react";
 const eventos = [
   {
     año: 2018,
-    imagen: "/foto1.jpeg",
-    texto: "Texto de relleno para el año 2018. Aquí puedes contar el inicio de la liga y los primeros pasos.",
+    imagen: "./Historia/foto3.jpeg",
+    texto: "15 de mayo Fundación de la liga.",
+  },
+  {
+    año: 2018,
+    imagen: "./Historia/foto2.jpeg",
+    texto: "Primer Logo de la Liga diseñado por los miembros fundadores.",
   },
   {
     año: 2019,
-    imagen: "/foto2.jpeg",
-    texto: "Texto de relleno para el año 2019. Describe los avances y logros de este año.",
+    imagen: "./Historia/foto1.jpeg",
+    texto: "La Liga suma nuevos miembros.",
   },
   {
     año: 2020,
-    imagen: "/foto3.jpeg",
-    texto: "Texto de relleno para el año 2020. Puedes mencionar desafíos y actividades realizadas.",
-  },
-  {
-    año: 2021,
-    imagen: "/foto4.jpeg",
-    texto: "Texto de relleno para el año 2021. Resalta eventos importantes o cambios.",
+    imagen: "./Historia/foto4.jpeg",
+    texto: "Se suman nuevos Clubes a la Liga.",
   },
   {
     año: 2022,
-    imagen: "/foto5.jpeg",
-    texto: "Texto de relleno para el año 2022. Agrega información relevante de este año.",
+    imagen: "./Historia/foto5.jpeg",
+    texto: "Nuevos integrantes se suman a la Liga.",
   },
   {
     año: 2023,
-    imagen: "/foto6.jpeg",
-    texto: "Texto de relleno para el año 2023. Menciona la resolución y el crecimiento.",
+    imagen: "./Historia/foto6.jpeg",
+    texto: "Seleccionado de la liga punilla en el primer torneo de ligas realizado en Alta Gracia.",
   },
   {
-    año: 2024,
-    imagen: "/foto7.jpeg",
-    texto: "Texto de relleno para el año 2024. Habla sobre la actualidad y proyecciones.",
+    año: 2025,
+    imagen: "./Historia/foto7.jpeg",
+    texto: "la liga firma un convenio y tiene sus propios arbitros y ya no depende de los árbitros de la federacións.",
   },
 ];
 
