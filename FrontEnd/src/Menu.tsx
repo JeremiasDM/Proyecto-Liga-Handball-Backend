@@ -5,7 +5,7 @@ import JugadoresPage from "./Jugadores/JugadoresPage";
 import ReferentesPage from "./Referentes/ReferentesPage";
 import FixturePage from "./Fixture/FixturePage";
 import Historia from "./Historia/Historia";
-import Estadistica from "./Estadistica/Estadistica";
+import EstadisticasPage from "./Estadistica/EstadisticasPage";
 import NoticiasPage from "./Noticias/NoticiasPage";
 import Reglamento from "./Reglamento/Reglamento";
 import PagosPage from "./RegistroPagos/PagosPage";
@@ -543,7 +543,7 @@ export default function App() {
           {vista === "jugadores" && <JugadoresPage />}
           {vista === "fixture" && <FixturePage />}
           {vista === "historia" && <Historia />}
-          {vista === "estadisticas" && <Estadistica />}
+          {vista === "estadisticas" && <EstadisticasPage />}
           {vista === "noticias" && <NoticiasPage />}
           {vista === "reglamento" && <Reglamento />}
           {vista === "referentes" && <ReferentesPage />}
