@@ -18,6 +18,7 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar }) => {
     vencimiento: "",
     carnetUrl: undefined,
     fichaMedicaUrl: undefined,
+    estado: "activo"
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -32,7 +33,7 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar }) => {
       alert(error);
       return;
     }
-    onRegistrar({ ...jugador, id: Date.now() });
+    onRegistrar({ ...jugador, id: Date.now(), estado: "activo" });
     setJugador({
       id: Date.now(),
       nombre: "",
@@ -44,6 +45,7 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar }) => {
       vencimiento: "",
       carnetUrl: undefined,
       fichaMedicaUrl: undefined,
+      estado: "activo"
     });
   };
 

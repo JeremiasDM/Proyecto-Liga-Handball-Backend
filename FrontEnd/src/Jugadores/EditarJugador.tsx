@@ -42,6 +42,13 @@ const EditarJugador: React.FC<Props> = ({ jugador, onActualizar, onCancelar, jug
         </select>
         <input name="telefono" placeholder="Teléfono" value={form.telefono} onChange={handleChange} className="w-full p-2 border rounded" />
         <input type="date" name="vencimiento" value={form.vencimiento} onChange={handleChange} className="w-full p-2 border rounded" />
+        <label className="block font-semibold">Estado del jugador</label>
+        <select name="estado" value={form.estado || "activo"} onChange={handleChange} className="w-full p-2 border rounded" required>
+          <option value="activo">Activo</option>
+          <option value="lesionado">Lesionado</option>
+          <option value="sancionado">Sancionado</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
         <div className="flex gap-2 mt-4">
           <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Actualizar</button>
           <button type="button" onClick={onCancelar} className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancelar</button>

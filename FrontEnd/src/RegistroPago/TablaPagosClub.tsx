@@ -19,8 +19,8 @@ const TablaPagosClub: React.FC<Props> = ({ clubes, pagos, onRealizarPago }) => (
       <thead className="bg-blue-900 text-white">
         <tr>
           <th className="p-2">Club</th>
-          <th className="p-2">Cuota Anual</th>
-          <th className="p-2">Pago Arbitraje</th>
+          <th className="p-2">Estado Cuota Anual</th>
+          <th className="p-2">Estado Arbitraje</th>
         </tr>
       </thead>
       <tbody>
@@ -38,8 +38,9 @@ const TablaPagosClub: React.FC<Props> = ({ clubes, pagos, onRealizarPago }) => (
                   className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-xs"
                   onClick={() => onRealizarPago(club, "cuota")}
                   disabled={cuota?.estado === "pagado"}
+                  title="Registrar pago de cuota anual"
                 >
-                  Realizar pago
+                  Registrar cuota
                 </button>
               </td>
               <td className="p-2 flex items-center gap-2">
@@ -50,8 +51,9 @@ const TablaPagosClub: React.FC<Props> = ({ clubes, pagos, onRealizarPago }) => (
                   className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 text-xs"
                   onClick={() => onRealizarPago(club, "arbitraje")}
                   disabled={arbitraje?.estado === "pagado"}
+                  title="Registrar pago de arbitraje"
                 >
-                  Realizar pago
+                  Registrar arbitraje
                 </button>
               </td>
             </tr>

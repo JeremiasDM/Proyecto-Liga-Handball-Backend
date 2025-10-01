@@ -21,6 +21,7 @@ const ListaJugadores: React.FC<Props> = ({ jugadores, onEditar, onEliminar }) =>
             <th className="p-2">Apellido</th>
             <th className="p-2">Club</th>
             <th className="p-2">DNI</th>
+            <th className="p-2">Estado</th>
             <th className="p-2">Acciones</th>
           </tr>
         </thead>
@@ -31,6 +32,7 @@ const ListaJugadores: React.FC<Props> = ({ jugadores, onEditar, onEliminar }) =>
               <td className="p-2">{j.apellido}</td>
               <td className="p-2">{j.club}</td>
               <td className="p-2">{j.dni}</td>
+              <td className="p-2 capitalize">{j.estado || "activo"}</td>
               <td className="p-2 flex gap-2">
                 {onEditar && (
                   <button onClick={() => onEditar(j)} className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">

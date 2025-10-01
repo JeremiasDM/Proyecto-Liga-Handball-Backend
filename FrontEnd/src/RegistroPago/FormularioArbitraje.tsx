@@ -51,10 +51,12 @@ const FormularioArbitraje: React.FC<Props> = ({ club, partidos, montoMinimo, onG
   return (
     <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white shadow-lg rounded-2xl p-6 space-y-4">
       <h2 className="text-xl font-bold mb-4 text-center">Pago de Arbitraje</h2>
-      <select value={categoria} onChange={e => setCategoria(e.target.value)} className="w-full p-2 border rounded" required>
+      <label className="block font-semibold">Categoría</label>
+      <select value={categoria} onChange={e => setCategoria(e.target.value)} className="w-full p-2 border rounded mb-2" required>
         {categorias.map(c => <option key={c} value={c}>{c}</option>)}
       </select>
-      <select value={partidoId} onChange={e => setPartidoId(Number(e.target.value))} className="w-full p-2 border rounded" required>
+      <label className="block font-semibold">Partido</label>
+      <select value={partidoId} onChange={e => setPartidoId(Number(e.target.value))} className="w-full p-2 border rounded mb-2" required>
         <option value="">Seleccione Partido</option>
         {partidos.flatMap(f =>
           f.partidos.map(p => (
@@ -64,28 +66,31 @@ const FormularioArbitraje: React.FC<Props> = ({ club, partidos, montoMinimo, onG
           ))
         )}
       </select>
+      <label className="block font-semibold">Monto a pagar</label>
       <input
         type="number"
         min={montoMinimo}
         value={monto}
         onChange={e => setMonto(Number(e.target.value))}
         placeholder={`Monto mínimo: $${montoMinimo}`}
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded mb-2"
         required
       />
+      <label className="block font-semibold">Número de comprobante</label>
       <input
         type="text"
         value={comprobante}
         onChange={e => setComprobante(e.target.value)}
-        placeholder="Número de comprobante"
-        className="w-full p-2 border rounded"
+        placeholder="Ej: 12345678"
+        className="w-full p-2 border rounded mb-2"
         required
       />
+      <label className="block font-semibold">Adjuntar comprobante (opcional)</label>
       <input
         type="file"
         accept="image/*,application/pdf"
         onChange={handleFileUpload}
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded mb-2"
       />
       <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full">
         Registrar Pago
