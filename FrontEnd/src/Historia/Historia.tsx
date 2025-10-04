@@ -39,14 +39,39 @@ const eventos = [
 ];
 
 export default function Historia() {
-  const [activo, setActivo] = useState(0);
+  // 1. Agrupamos los eventos por año
+  const eventosAgrupados = useMemo(() => {
+    return eventos.reduce((acc, evento) => {
+      // Si el año ya existe en el acumulador, añade el evento
+      if (acc[evento.año]) {
+        acc[evento.año].push(evento);
+      } else {
+        // Si no existe, crea un nuevo array con el evento
+        acc[evento.año] = [evento];
+      }
+      return acc;
+    }, {} as Record<number, typeof eventos>);
+  }, []);
 
-  const eventoActivo = useMemo(() => eventos[activo], [activo]);
+  // Obtenemos una lista de años únicos para la navegación (botones)
+  const añosUnicos = useMemo(
+    () => Object.keys(eventosAgrupados).map(Number).sort(),
+    [eventosAgrupados]
+  );
+
+  // El estado ahora guarda el AÑO activo, no el índice
+  const [añoActivo, setAñoActivo] = useState(añosUnicos[0]);
+
+  // Obtenemos los eventos específicos del año activo
+  const eventosDelAñoActivo = useMemo(
+    () => eventosAgrupados[añoActivo] || [],
+    [eventosAgrupados, añoActivo]
+  );
 
   return (
     <div className="historia-timeline-container">
       <style>{`
-        /* --- Paleta de Colores (ACTUALIZADA A BLANCO) --- */
+        /* ... CSS MANTENIDO ... */
         :root {
           --color-primary: #1a5276; /* Azul Oscuro/Navy */
           --color-secondary: #4a90e2; /* Azul Brillante */
@@ -60,18 +85,17 @@ export default function Historia() {
           padding: 0;
           box-sizing: border-box;
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          background: var(--color-background); /* El body ahora es blanco */
+          background: var(--color-background);
         }
 
         .historia-timeline-container {
-          background: var(--color-background); /* El contenedor ahora es blanco */
+          background: var(--color-background);
           color: var(--color-text);
           width: 90vw;
           max-width: 1200px;
           margin: 2rem auto;
           padding: 3rem 1.5rem;
           border-radius: 12px;
-          /* Mantenemos la sombra para "levantar" el componente del fondo blanco */
           box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05); 
         }
         
@@ -116,7 +140,6 @@ export default function Historia() {
           cursor: pointer;
           padding: 0.6rem 1.3rem;
           border-radius: 25px;
-          /* Fondo de los botones también blanco o muy claro para que se mezcle con la línea */
           background: #ffffff; 
           color: var(--color-primary);
           font-weight: 600;
@@ -129,7 +152,7 @@ export default function Historia() {
         }
         
         .timeline-fecha:hover {
-          background: #e9e9e9; /* Un gris muy sutil al hacer hover */
+          background: #e9e9e9;
           color: var(--color-primary);
           transform: translateY(-2px);
         }
@@ -140,7 +163,7 @@ export default function Historia() {
           border-color: var(--color-primary);
           box-shadow: 0 4px 12px rgba(26, 82, 118, 0.3);
           transform: scale(1.05);
-          background: #ffffff; /* Aseguramos que el activo también tenga fondo blanco */
+          background: #ffffff;
         }
 
         /* Puntos circulares en la línea */
@@ -154,7 +177,7 @@ export default function Historia() {
             height: 12px;
             border-radius: 50%;
             background: var(--color-line);
-            border: 2px solid var(--color-background); /* CLAVE: El borde del punto es blanco */
+            border: 2px solid var(--color-background);
             transition: all 0.3s ease;
             z-index: 3;
         }
@@ -166,24 +189,35 @@ export default function Historia() {
             bottom: -1.2rem;
         }
 
-        /* --- Contenido del Evento (Mantenido) --- */
+        /* --- CONTENEDOR DE EVENTOS AGREGADO --- */
+        .eventos-multiples-container {
+            display: flex;
+            gap: 20px; /* Espacio entre los eventos del mismo año */
+            justify-content: center;
+            flex-wrap: wrap; /* Permite que los eventos salten de línea en pantallas pequeñas */
+            animation: fadeIn 0.5s ease-out;
+        }
+        /* --- Contenido del Evento Individual --- */
         .evento {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 1.5rem; 
+          gap: 1rem; 
           padding: 0 1rem;
-          animation: fadeIn 0.5s ease-out;
+          /* Eliminamos la animación fade-in de aquí, la ponemos en el contenedor */
+          flex-basis: calc(33.33% - 15px); /* Intento de 3 en fila por defecto */
+          min-width: 250px; /* Tamaño mínimo para evitar que se colapsen mucho */
+          max-width: 400px;
         }
         
         .evento img {
           width: 100%;
+          height: 180px; /* Altura más uniforme para el diseño en grilla */
           max-width: 400px; 
-          height: 220px;
           object-fit: cover;
           border-radius: 12px;
           box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
-          border: 4px solid #ffffff; /* Borde blanco para integrarse */
+          border: 4px solid #ffffff;
         }
 
         @keyframes fadeIn {
@@ -193,23 +227,27 @@ export default function Historia() {
         
         .evento-texto {
           background: #ffffff;
-          padding: 1.2rem 1.8rem;
+          padding: 1rem;
           border-radius: 10px;
-          font-size: 1.05rem;
-          line-height: 1.5;
+          font-size: 0.95rem; /* Letra un poco más pequeña */
+          line-height: 1.4;
           text-align: center;
-          max-width: 600px;
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
           border-left: 5px solid var(--color-secondary);
+          width: 100%; /* Ocupa todo el ancho de su contenedor */
         }
 
         /* Estilos Responsive */
         @media (max-width: 768px) {
           .historia-timeline-container {
-            box-shadow: none; /* Quitamos la sombra en móviles para el look "full-width" */
+            box-shadow: none;
             margin: 0;
             padding: 2rem 1rem;
             border-radius: 0;
+          }
+          .evento {
+              flex-basis: 100%; /* Un evento por fila en móvil */
+              max-width: none;
           }
           .evento img {
              height: 180px;
@@ -221,23 +259,29 @@ export default function Historia() {
         <h2>Nuestra Historia 📜</h2>
       </div>
 
+      {/* --- Línea de tiempo (Botones de Año) --- */}
       <div className="timeline">
-        {eventos.map((evento, idx) => (
+        {añosUnicos.map((año) => (
           <div
-            key={evento.año}
-            className={`timeline-fecha${activo === idx ? " activo" : ""}`}
-            onClick={() => setActivo(idx)}
+            key={año}
+            className={`timeline-fecha${añoActivo === año ? " activo" : ""}`}
+            onClick={() => setAñoActivo(año)}
           >
-            {evento.año}
+            {año}
           </div>
         ))}
       </div>
 
-      <div className="evento" key={eventoActivo.año}>
-        <img src={eventoActivo.imagen} alt={`Evento ${eventoActivo.año}`} />
-        <div className="evento-texto">
-          **{eventoActivo.año}:** {eventoActivo.texto}
-        </div>
+      {/* --- Contenido del Año Activo (Múltiples Eventos) --- */}
+      <div className="eventos-multiples-container">
+        {eventosDelAñoActivo.map((evento, index) => (
+          <div className="evento" key={index}>
+            <img src={evento.imagen} alt={`Evento ${evento.año}`} />
+            <div className="evento-texto">
+              **{evento.año}:** {evento.texto}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
