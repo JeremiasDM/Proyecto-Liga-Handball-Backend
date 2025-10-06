@@ -6,20 +6,30 @@ type Props = {
 };
 
 const clubesValidos = [
-  "Club A1", "Club A2", "Club A3", "Club A4",
-  "Club B1", "Club B2", "Club B3", "Club B4"
+  "Club A1",
+  "Club A2",
+  "Club A3",
+  "Club A4",
+  "Club B1",
+  "Club B2",
+  "Club B3",
+  "Club B4",
 ];
 
 const gruposValidos = ["A", "B"];
 
 const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
-  const [fixture, setFixture] = useState<Fixture>({ fecha: "", lugar: "", partidos: [] });
+  const [fixture, setFixture] = useState<Fixture>({
+    fecha: "",
+    lugar: "",
+    partidos: [],
+  });
   const [partidoTemp, setPartidoTemp] = useState<Encuentro>({
     jornada: 1,
     grupo: "A",
     club1: "",
     club2: "",
-    resultado: ""
+    resultado: "",
   });
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -28,14 +38,19 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
     setFixture({ ...fixture, [e.target.name]: e.target.value });
   };
 
-  const handleChangePartido = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChangePartido = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setPartidoTemp({ ...partidoTemp, [name]: name === "jornada" ? Number(value) : value });
+    setPartidoTemp({
+      ...partidoTemp,
+      [name]: name === "jornada" ? Number(value) : value,
+    });
   };
 
   const agregarPartido = () => {
     setError(null);
-    
+
     if (!partidoTemp.club1 || !partidoTemp.club2 || !partidoTemp.resultado) {
       setError("Completa todos los campos del partido.");
       return;
@@ -60,16 +75,18 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
       !/^\d{1,2}-\d{1,2}$/.test(partidoTemp.resultado) &&
       partidoTemp.resultado !== "-"
     ) {
-      setError("El resultado debe tener el formato NN-NN o ser '-' si no se jugó.");
+      setError(
+        "El resultado debe tener el formato NN-NN (ej: 3-2) o ser '-' si no se jugó."
+      );
       return;
     }
-    
+
     const partidoDuplicado = fixture.partidos.some(
       (p) =>
         p.jornada === partidoTemp.jornada &&
         p.grupo === partidoTemp.grupo &&
         ((p.club1 === partidoTemp.club1 && p.club2 === partidoTemp.club2) ||
-         (p.club1 === partidoTemp.club2 && p.club2 === partidoTemp.club1))
+          (p.club1 === partidoTemp.club2 && p.club2 === partidoTemp.club1))
     );
     if (partidoDuplicado) {
       setError("Este partido ya está registrado para esa jornada y grupo.");
@@ -77,7 +94,13 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
     }
 
     setFixture({ ...fixture, partidos: [...fixture.partidos, partidoTemp] });
-    setPartidoTemp({ jornada: 1, grupo: "A", club1: "", club2: "", resultado: "" });
+    setPartidoTemp({
+      jornada: 1,
+      grupo: "A",
+      club1: "",
+      club2: "",
+      resultado: "",
+    });
     setMensaje("Partido agregado correctamente.");
     setTimeout(() => setMensaje(null), 2000);
   };
@@ -85,7 +108,7 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
   const guardarFixture = () => {
     setError(null);
     if (!fixture.fecha || !fixture.lugar || fixture.partidos.length === 0) {
-      setError("Completa todos los campos obligatorios.");
+      setError("Completa la Fecha, el Lugar y agrega al menos un Partido.");
       return;
     }
     onAgregarFixture(fixture);
@@ -99,139 +122,285 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
       { jornada: 1, grupo: "A", club1: "Club A1", club2: "Club A2", resultado: "-" },
       { jornada: 1, grupo: "A", club1: "Club A3", club2: "Club A4", resultado: "-" },
       { jornada: 1, grupo: "B", club1: "Club B1", club2: "Club B2", resultado: "-" },
-      { jornada: 1, grupo: "B", club1: "Club B3", club2: "Club B4", resultado: "-" }
+      { jornada: 1, grupo: "B", club1: "Club B3", club2: "Club B4", resultado: "-" },
     ];
 
     const fixtureAuto: Fixture = {
       fecha: new Date().toISOString().split("T")[0],
-      lugar: "Automático",
-      partidos: partidosAuto
+      lugar: "Generación Automática",
+      partidos: partidosAuto,
     };
 
     onAgregarFixture(fixtureAuto);
-    setMensaje("Fixture automático agregado.");
+    setMensaje("Fixture automático agregado y guardado.");
     setTimeout(() => setMensaje(null), 2000);
+  };
+  
+  // --- Estilos Reutilizables ---
+  const colorPrimary = "#1a5276"; // Azul Marino
+  const colorSecondary = "#4a90e2"; // Azul Brillante
+  const colorSuccess = "#28a745"; // Verde
+  const colorWarning = "#FFD700"; // Amarillo/Oro
+  const colorDanger = "#dc3545"; // Rojo
+  const colorBorder = "#dee2e6"; // Gris claro
+
+  // Estilo base para Inputs y Selects
+  const inputBaseStyle: React.CSSProperties = {
+    padding: "8px 10px",
+    border: `1px solid ${colorBorder}`,
+    borderRadius: 4,
+    boxSizing: "border-box",
+    transition: "border-color 0.3s, box-shadow 0.3s",
+    marginTop: 4,
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: "0.9em",
+    color: "#495057",
+    fontWeight: 500,
+    marginBottom: 4,
+  };
+  
+  const formGroupStyle: React.CSSProperties = {
+      marginBottom: 16, 
+      marginRight: 10
+  };
+
+  const buttonBaseStyle: React.CSSProperties = {
+    padding: "8px 16px",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    transition: "background-color 0.3s, transform 0.1s",
+    whiteSpace: "nowrap",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: "0 auto", background: "#fff", borderRadius: 8, padding: 24, boxShadow: "0 2px 8px #eee" }}>
-      <h3 style={{ color: "#1F3C88", textAlign: "center" }}>Registrar Fixture</h3>
-      <div style={{ marginBottom: 12 }}>
-        <label>
-          Fecha:{" "}
-          <input name="fecha" type="date" value={fixture.fecha} onChange={handleChangeFixture} />
-        </label>
-        <label style={{ marginLeft: 16 }}>
-          Lugar:{" "}
-          <input name="lugar" placeholder="Lugar" value={fixture.lugar} onChange={handleChangeFixture} />
-        </label>
+    <div
+      style={{
+        // TAMAÑO REDUCIDO AQUÍ
+        maxWidth: 600, 
+        margin: "24px auto",
+        background: "#fff",
+        borderRadius: 12,
+        // PADDING REDUCIDO AQUÍ
+        padding: 24, 
+        boxShadow: "0 5px 20px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      {/* Título */}
+      <h2
+        style={{
+          color: colorPrimary,
+          textAlign: "center",
+          marginBottom: 20,
+          borderBottom: `2px solid ${colorSecondary}`,
+          paddingBottom: 8,
+        }}
+      >
+        Registro de Fixture
+      </h2>
+
+      {/* --- Información General del Fixture --- */}
+      <div
+        style={{
+          display: "flex",
+          gap: 20,
+          marginBottom: 24,
+          padding: 16,
+          border: `1px solid ${colorBorder}`,
+          borderRadius: 8,
+          backgroundColor: "#f8f9fa",
+        }}
+      >
+        <div style={{ flexGrow: 1 }}>
+          <label style={labelStyle}>Fecha de Encuentros:</label>
+          <input
+            name="fecha"
+            type="date"
+            value={fixture.fecha}
+            onChange={handleChangeFixture}
+            style={{ ...inputBaseStyle, width: "100%" }}
+          />
+        </div>
+        <div style={{ flexGrow: 1 }}>
+          <label style={labelStyle}>Lugar / Sede:</label>
+          <input
+            name="lugar"
+            placeholder="Ej: Polideportivo Central"
+            value={fixture.lugar}
+            onChange={handleChangeFixture}
+            style={{ ...inputBaseStyle, width: "100%" }}
+          />
+        </div>
       </div>
 
-      <h4 style={{ color: "#1F3C88" }}>Agregar Partido</h4>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-        <label>
-          Jornada:{" "}
+      {/* --- Formulario de Agregación de Partido --- */}
+      <h3 style={{ color: colorPrimary, marginBottom: 16 }}>Agregar Partido</h3>
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          // Se mantiene flexWrap para evitar desbordamiento en anchos menores
+          flexWrap: "wrap", 
+          alignItems: "flex-end",
+          marginBottom: 16,
+          padding: 16,
+          border: `1px dashed ${colorSecondary}`,
+          borderRadius: 8,
+        }}
+      >
+        {/* Jornada */}
+        <div style={formGroupStyle}>
+          <label style={labelStyle}>Jornada</label>
           <input
             name="jornada"
             type="number"
             min={1}
-            placeholder="Jornada"
+            placeholder="Nº"
             value={partidoTemp.jornada}
             onChange={handleChangePartido}
-            style={{ width: 60 }}
+            style={{ ...inputBaseStyle, width: 70 }}
           />
-        </label>
-        <label>
-          Grupo:{" "}
-          <select name="grupo" value={partidoTemp.grupo} onChange={handleChangePartido}>
+        </div>
+
+        {/* Grupo */}
+        <div style={formGroupStyle}>
+          <label style={labelStyle}>Grupo</label>
+          <select
+            name="grupo"
+            value={partidoTemp.grupo}
+            onChange={handleChangePartido}
+            style={{ ...inputBaseStyle, height: 42 }} 
+          >
             {gruposValidos.map((g) => (
-              <option key={g} value={g}>Grupo {g}</option>
+              <option key={g} value={g}>
+                Grupo {g}
+              </option>
             ))}
           </select>
-        </label>
-        <label>
-          Club 1:{" "}
-          <select name="club1" value={partidoTemp.club1} onChange={handleChangePartido}>
-            <option value="">Selecciona Club 1</option>
+        </div>
+
+        {/* Club 1 */}
+        {/* Para un ancho de 600px, mantendremos los anchos mínimos para legibilidad */}
+        <div style={formGroupStyle}>
+          <label style={labelStyle}>Club Local</label>
+          <select
+            name="club1"
+            value={partidoTemp.club1}
+            onChange={handleChangePartido}
+            style={{ ...inputBaseStyle, minWidth: 140, height: 42 }}
+          >
+            <option value="">Selecciona Club</option>
             {clubesValidos.map((club) => (
-              <option key={club} value={club}>{club}</option>
+              <option key={club} value={club}>
+                {club}
+              </option>
             ))}
           </select>
-        </label>
-        <label>
-          Club 2:{" "}
-          <select name="club2" value={partidoTemp.club2} onChange={handleChangePartido}>
-            <option value="">Selecciona Club 2</option>
+        </div>
+
+        {/* Club 2 */}
+        <div style={formGroupStyle}>
+          <label style={labelStyle}>Club Visitante</label>
+          <select
+            name="club2"
+            value={partidoTemp.club2}
+            onChange={handleChangePartido}
+            style={{ ...inputBaseStyle, minWidth: 140, height: 42 }}
+          >
+            <option value="">Selecciona Club</option>
             {clubesValidos.map((club) => (
-              <option key={club} value={club}>{club}</option>
+              <option key={club} value={club}>
+                {club}
+              </option>
             ))}
           </select>
-        </label>
-        <label>
-          Resultado:{" "}
+        </div>
+
+        {/* Resultado */}
+        <div style={formGroupStyle}>
+          <label style={labelStyle}>Resultado</label>
           <input
             name="resultado"
             placeholder="Ej: 25-21 o -"
             value={partidoTemp.resultado}
             onChange={handleChangePartido}
-            style={{ width: 80 }}
+            style={{ ...inputBaseStyle, width: 120 }}
           />
-        </label>
+        </div>
+
+        {/* Botón Agregar Partido */}
         <button
           style={{
-            backgroundColor: "#1F3C88",
+            ...buttonBaseStyle,
+            backgroundColor: colorSecondary,
             color: "#fff",
-            padding: "0.5rem 1rem",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer"
+            height: 42, 
+            marginBottom: 0
           }}
           onClick={agregarPartido}
           type="button"
         >
-          Agregar Partido
+          Agregar
         </button>
       </div>
-      {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
-      {mensaje && <div style={{ color: "green", marginTop: 8 }}>{mensaje}</div>}
+      
+      {/* Mensajes de Alerta */}
+      {error && <div style={{ color: colorDanger, background: "#f8d7da", padding: 8, borderRadius: 4, marginTop: 8 }}>{error}</div>}
+      {mensaje && <div style={{ color: colorSuccess, background: "#d4edda", padding: 8, borderRadius: 4, marginTop: 8 }}>{mensaje}</div>}
 
-      <ul style={{ marginTop: 16 }}>
-        {fixture.partidos.map((p, i) => (
-          <li key={i}>
-            Jornada {p.jornada} | Grupo {p.grupo}: {p.club1} vs {p.club2} ({p.resultado})
-          </li>
-        ))}
-      </ul>
-      <button
-        onClick={guardarFixture}
-        style={{
-          backgroundColor: "#28a745",
-          color: "#fff",
-          padding: "0.5rem 1rem",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          marginTop: 16,
-          marginRight: 8
-        }}
-      >
-        Guardar Fixture
-      </button>
-      <button
-        type="button"
-        onClick={generarFixtureAutomatico}
-        style={{
-          backgroundColor: "#FFD700",
-          color: "#000",
-          padding: "0.5rem 1rem",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          marginTop: 16
-        }}
-      >
-        Generar Automático
-      </button>
+      {/* --- Lista de Partidos Agregados --- */}
+      {fixture.partidos.length > 0 && (
+        <>
+        <h4 style={{ color: colorPrimary, marginTop: 20 }}>Partidos para guardar ({fixture.partidos.length})</h4>
+        <ul style={{ marginTop: 10, listStyleType: "none", padding: 0 }}>
+          {fixture.partidos.map((p, i) => (
+            <li
+              key={i}
+              style={{
+                background: i % 2 === 0 ? "#f8f9fa" : "#fff",
+                padding: "8px 12px",
+                borderBottom: `1px solid ${colorBorder}`,
+                borderRadius: 4,
+                fontSize: "0.95em",
+              }}
+            >
+              <strong style={{ color: colorSecondary }}>Jornada {p.jornada}</strong> | G.{p.grupo}: {p.club1} vs {p.club2} ({p.resultado})
+            </li>
+          ))}
+        </ul>
+        </>
+      )}
+
+      {/* --- Botones de Acción Final --- */}
+      <div style={{ marginTop: 24, borderTop: `1px solid ${colorBorder}`, paddingTop: 16, textAlign: "right" }}>
+        <button
+          onClick={guardarFixture}
+          style={{
+            ...buttonBaseStyle,
+            backgroundColor: colorSuccess,
+            color: "#fff",
+            marginRight: 8,
+          }}
+        >
+          Guardar Fixture Completo
+        </button>
+        <button
+          type="button"
+          onClick={generarFixtureAutomatico}
+          style={{
+            ...buttonBaseStyle,
+            backgroundColor: colorWarning,
+            color: "#000",
+          }}
+        >
+          Generar Automático
+        </button>
+      </div>
     </div>
   );
 };

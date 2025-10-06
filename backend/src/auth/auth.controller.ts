@@ -1,5 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { CreateUsuarioDto } from './create-usuario.dto';
 
 @Controller('api')
 export class AuthController {
@@ -16,5 +17,16 @@ export class AuthController {
       return { success: true };
     }
     return { success: false };
+  }
+
+  @Post('register')
+  async register(@Body() dto: CreateUsuarioDto) {
+    try {
+      await this.authService.register(dto);
+      return { success: true };
+    } catch (err) {
+      const message = err.response?.message || err.message || 'Error al registrar';
+      return { success: false, message };
+    }
   }
 }

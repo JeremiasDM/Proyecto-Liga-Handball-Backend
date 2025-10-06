@@ -22,7 +22,7 @@ import { LocalidadesModule } from './localidades/localidades.module';
       password: '',
       database: 'ligahandball',
       autoLoadEntities: true, // carga entidades automáticamente
-      synchronize: false,      // crea tablas a partir de entidades (solo en dev)
+      synchronize: true,      // crea/actualiza tablas a partir de entidades (solo en dev)
     }),
 
     JugadoresModule,

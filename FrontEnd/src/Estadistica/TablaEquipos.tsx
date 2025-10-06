@@ -36,39 +36,56 @@ const TablaEquipos: React.FC = () => {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        margin: "0 auto",
+        maxWidth: "1000px",
+      }}
+    >
       <EquipoForm onAgregar={agregarEquipo} />
 
       <table
         style={{
           width: "100%",
-          borderCollapse: "collapse",
+          borderCollapse: "separate", // Cambiado a separate para bordes redondeados
+          borderSpacing: 0,
           marginTop: "20px",
           backgroundColor: "#fff",
-          borderRadius: "8px",
+          borderRadius: "12px", // Bordes más grandes
           overflow: "hidden",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Sombra elegante
         }}
       >
-        <thead style={{ backgroundColor: "#1F3C88", color: "white" }}>
+        <thead
+          style={{
+            backgroundColor: "#007bff", // Azul Primario
+            color: "white",
+            fontSize: "0.95em",
+            fontWeight: 700,
+            textTransform: "uppercase",
+          }}
+        >
           <tr>
-            <th style={{ padding: 8 }}>Equipo</th>
-            <th style={{ padding: 8 }}>PG</th>
-            <th style={{ padding: 8 }}>PE</th>
-            <th style={{ padding: 8 }}>PP</th>
-            <th style={{ padding: 8 }}>Goles</th>
-            <th style={{ padding: 8 }}>Puntos</th>
-            <th style={{ padding: 8 }}>Acciones</th>
+            <th style={{ padding: 12, textAlign: "left" }}>Equipo</th>
+            <th style={{ padding: 12 }}>PG</th>
+            <th style={{ padding: 12 }}>PE</th>
+            <th style={{ padding: 12 }}>PP</th>
+            <th style={{ padding: 12 }}>Goles</th>
+            <th style={{ padding: 12 }}>Puntos</th>
+            <th style={{ padding: 12 }}>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {equipos
             .sort((a, b) => b.puntos - a.puntos)
-            .map((equipo) => (
+            .map((equipo, index) => (
               <EquipoItem
                 key={equipo.id}
                 equipo={equipo}
                 onActualizar={actualizarEquipo}
                 onEliminar={eliminarEquipo}
+                // Añadimos estilo para filas impares/pares (estilo cebra)
+                rowStyle={index % 2 === 1 ? { backgroundColor: "#f8f9fa" } : {}}
               />
             ))}
         </tbody>

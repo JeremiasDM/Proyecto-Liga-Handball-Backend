@@ -5,13 +5,28 @@ const EstadisticasPage: React.FC = () => {
   return (
     <div
       style={{
-        padding: "20px",
-        backgroundColor: "#f0f2f5",
+        padding: "40px 20px",
+        backgroundColor: "#f4f7f6", // Fondo suave
         minHeight: "100vh",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
       }}
     >
-      <h2 style={{ color: "#1F3C88", marginBottom: "20px" }}>
-        Estadísticas Generales
+      <h2
+        style={{
+          color: "#007bff", // Azul primario
+          marginBottom: "30px",
+          textAlign: "center",
+          fontSize: "2.5em",
+          fontWeight: 600,
+          borderBottom: "3px solid #007bff",
+          display: "inline-block",
+          paddingBottom: "5px",
+          margin: "0 auto 30px auto", // Centrar el título
+          display: "block",
+          width: "fit-content"
+        }}
+      >
+        Estadísticas Generales 
       </h2>
       <TablaEquipos />
     </div>
@@ -19,4 +34,3 @@ const EstadisticasPage: React.FC = () => {
 };
 
 export default EstadisticasPage;
-

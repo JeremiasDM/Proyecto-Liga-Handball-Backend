@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Club } from '../clubes/clubes.entity';
 
 @Entity('usuarios') // nombre de la tabla en MySQL
 export class Usuario {
@@ -6,8 +7,24 @@ export class Usuario {
   id: number;
 
   @Column({ unique: true })
-  username: string;
+  correo: string;
 
   @Column()
   password: string;
+
+  @Column()
+  nombre: string;
+
+  @Column()
+  apellido: string;
+
+  @Column()
+  categoria: string;
+
+  @Column()
+  dni: string;
+
+  @ManyToOne(() => Club, club => club.referentes)
+  @JoinColumn({ name: 'club_id' })
+  club: Club;
 }

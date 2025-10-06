@@ -1,65 +1,216 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { Referente } from "../types/types";
 import { validarReferente } from "../utils/validaciones";
+// 🛑 Importamos los estilos del archivo principal
+import { styles } from "./ReferentesPage"; 
 
 type Props = {
-  onGuardar: (referente: Referente) => void;
+  onGuardar: (referente: Referente) => void;
 };
 
 const categorias = ["Masculino", "Femenino"];
 
 const RegistrarReferente: React.FC<Props> = ({ onGuardar }) => {
-  const [form, setForm] = useState<Referente>({
-    id: Date.now(),
-    nombre: "",
-    apellido: "",
-    categoria: "Masculino",
-    dni: "",
-    correo: "",
-    equipo: "",
-  });
+  interface FormData {
+    nombre: string;
+    apellido: string;
+    categoria: string;
+    dni: string;
+    correo: string;
+    equipoId: number;
+  }
+  const [form, setForm] = useState<FormData>({
+    nombre: "",
+    apellido: "",
+    categoria: "Masculino",
+    dni: "",
+    correo: "",
+    equipoId: 0,
+  });
+  const [clubs, setClubs] = useState<Array<{ id: number; nombre: string }>>([]);
+  const [loading, setLoading] = useState(false);
+  const [mensaje, setMensaje] = useState<{ tipo: 'error' | 'exito', texto: string } | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
+  useEffect(() => {
+    fetch('http://localhost:3000/clubes')
+      .then(res => res.json())
+      .then(data => setClubs(data));
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const error = validarReferente(form, []);
-    if (error) {
-      alert(error);
-      return;
-    }
-    onGuardar({ ...form, id: Date.now() });
-    setForm({
-      id: Date.now(),
-      nombre: "",
-      apellido: "",
-      categoria: "Masculino",
-      dni: "",
-      correo: "",
-      equipo: "",
-    });
-  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm({
+      ...form,
+      [name]: name === 'equipoId' ? Number(value) : value,
+    } as any);
+    if (mensaje) setMensaje(null); 
+  };
 
-  return (
-    <div className="max-w-lg mx-auto bg-white shadow-lg rounded-2xl p-6">
-      <h2 className="text-xl font-bold mb-4 text-center">Registrar Referente</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input name="nombre" placeholder="Nombre" value={form.nombre} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="apellido" placeholder="Apellido" value={form.apellido} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <select name="categoria" value={form.categoria} onChange={handleChange} className="w-full p-2 border rounded" required>
-          <option value="">Seleccione Categoría</option>
-          {categorias.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
-        <input name="dni" placeholder="DNI" value={form.dni} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="correo" placeholder="Correo" value={form.correo} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="equipo" placeholder="Equipo" value={form.equipo} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">Guardar</button>
-      </form>
-    </div>
-  );
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    // NOTA: 'validarReferente(form, [])' solo valida el formato, no la unicidad.
+    const error = validarReferente({
+      id: Date.now(),
+      equipo: clubs.find(c => c.id === form.equipoId)?.nombre || '',
+      ...form,
+    }, []); 
+
+    if (error) {
+      setMensaje({ tipo: 'error', texto: error });
+      setLoading(false);
+      return;
+    }
+    try {
+      const response = await fetch('http://localhost:3000/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: form.nombre,
+          apellido: form.apellido,
+          categoria: form.categoria,
+          dni: form.dni,
+          correo: form.correo,
+          equipoId: form.equipoId,
+        }),
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Registro failed:', response.status, errorText);
+        setMensaje({ tipo: 'error', texto: errorText || 'Error al registrar referente.' });
+        return;
+      }
+      const data = await response.json();
+      if (data.success) {
+        setMensaje({ tipo: 'exito', texto: `Referente ${form.nombre} registrado exitosamente. Revisa tu correo.` });
+        // Resetear formulario
+        setForm({ nombre: '', apellido: '', categoria: 'Masculino', dni: '', correo: '', equipoId: 0 });
+      } else {
+        setMensaje({ tipo: 'error', texto: data.message || 'Error al registrar referente.' });
+      }
+    } catch (err) {
+      setMensaje({ tipo: 'error', texto: 'Error de conexión con el servidor.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <h2 style={styles.formTitulo}>
+        Registro de Referente
+      </h2>
+
+      {/* Mensajes de Validación/Éxito - Usando estilos en línea centralizados */}
+      {mensaje && (
+        <div 
+          style={{
+            ...styles.mensajeAlerta,
+            ...(mensaje.tipo === 'error' ? styles.mensajeError : styles.mensajeExito),
+          }}
+        >
+          {mensaje.texto}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4"> 
+        
+        {/* Agrupación Nombre y Apellido */}
+        <div 
+            style={{ 
+                display: 'flex', 
+                gap: '16px',
+                // 🚀 CAMBIO: Agregar margen inferior para separarlo del siguiente campo (Categoría)
+                marginBottom: '16px' 
+            }}
+        > 
+          <input 
+            name="nombre" 
+            placeholder="Nombre" 
+            value={form.nombre} 
+            onChange={handleChange} 
+            // 🛑 APLICACIÓN DEL ESTILO OSCURO
+            style={{ ...styles.inputOscuro, flex: 1, marginBottom: 0 }} // Ajuste de marginBottom
+            required 
+          />
+          <input 
+            name="apellido" 
+            placeholder="Apellido" 
+            value={form.apellido} 
+            onChange={handleChange} 
+            // 🛑 APLICACIÓN DEL ESTILO OSCURO
+            style={{ ...styles.inputOscuro, flex: 1, marginBottom: 0 }} // Ajuste de marginBottom
+            required 
+          />
+        </div>
+
+        {/* Categoria */}
+        <div>
+          <select 
+            name="categoria" 
+            value={form.categoria} 
+            onChange={handleChange} 
+            // 🛑 APLICACIÓN DEL ESTILO OSCURO
+            style={styles.inputOscuro}
+            required
+          >
+            <option value="" disabled>— Seleccione Categoría —</option>
+            {categorias.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+
+        {/* DNI */}
+        <input 
+          name="dni" 
+          type="text" 
+          placeholder="DNI (sin puntos)" 
+          value={form.dni} 
+          onChange={handleChange} 
+          // 🛑 APLICACIÓN DEL ESTILO OSCURO
+          style={styles.inputOscuro}
+          required 
+        />
+        
+        {/* Correo */}
+        <input 
+          name="correo" 
+          type="email" 
+          placeholder="Correo Electrónico" 
+          value={form.correo} 
+          onChange={handleChange} 
+          // 🛑 APLICACIÓN DEL ESTILO OSCURO
+          style={styles.inputOscuro}
+          required 
+        />
+        
+        {/* Equipo */}
+        <div>
+          <select
+            name="equipoId"
+            value={form.equipoId}
+            onChange={handleChange}
+            style={styles.inputOscuro}
+            required
+          >
+            <option value={0} disabled>— Seleccione Equipo —</option>
+            {clubs.map(c => (
+              <option key={c.id} value={c.id}>{c.nombre}</option>
+            ))}
+          </select>
+        </div>
+        
+        {/* Botón de Enviar */}
+        <button 
+          type="submit" 
+          // 🛑 APLICACIÓN DEL ESTILO PRIMARIO
+          style={styles.botonPrimario}
+          disabled={loading}
+        >
+          {loading ? 'Registrando...' : 'Guardar Referente'}
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default RegistrarReferente;
