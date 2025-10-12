@@ -3,10 +3,14 @@ import type { Equipo } from "./TablaEquipos";
 
 type Props = {
   onAgregar: (equipo: Equipo) => void;
+  equipos: Equipo[];
 };
 
-const EquipoForm: React.FC<Props> = ({ onAgregar }) => {
+const categorias = ["Masculino", "Femenino"] as const;
+
+const EquipoForm: React.FC<Props> = ({ onAgregar, equipos }) => {
   const [nombre, setNombre] = useState("");
+  const [categoria, setCategoria] = useState<"Masculino" | "Femenino">("Masculino");
   const [pg, setPg] = useState(0);
   const [pe, setPe] = useState(0);
   const [pp, setPp] = useState(0);
@@ -23,10 +27,22 @@ const EquipoForm: React.FC<Props> = ({ onAgregar }) => {
       alert("Los valores deben ser mayores o iguales a 0.");
       return;
     }
+    // Validación de unicidad por nombre y categoría
+    if (
+      equipos.some(
+        eq =>
+          eq.nombre.trim().toLowerCase() === nombre.trim().toLowerCase() &&
+          eq.categoria === categoria
+      )
+    ) {
+      alert("Ya existe un equipo con ese nombre en la misma categoría.");
+      return;
+    }
 
     const nuevo: Equipo = {
       id: Date.now(),
       nombre,
+      categoria,
       pg,
       pe,
       pp,
@@ -37,6 +53,7 @@ const EquipoForm: React.FC<Props> = ({ onAgregar }) => {
     onAgregar(nuevo);
 
     setNombre("");
+    setCategoria("Masculino");
     setPg(0);
     setPe(0);
     setPp(0);
@@ -44,7 +61,6 @@ const EquipoForm: React.FC<Props> = ({ onAgregar }) => {
   };
 
   // --- Estilos Actualizados ---
-
   const formStyle: React.CSSProperties = {
     display: "flex",
     gap: "10px",
@@ -54,26 +70,26 @@ const EquipoForm: React.FC<Props> = ({ onAgregar }) => {
     borderRadius: "8px",
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
     flexWrap: "wrap",
-    alignItems: "flex-start", // Alineado arriba para que el label no estire
+    alignItems: "flex-start",
     marginBottom: 20,
   };
 
   const inputStyle: React.CSSProperties = {
-    padding: "8px 10px", // Reducido ligeramente para acomodar el label
+    padding: "8px 10px",
     border: "1px solid #ced4da",
     borderRadius: 4,
     width: "100%",
     boxSizing: "border-box",
     transition: "border-color 0.3s",
-    marginTop: 4, // Espacio entre label e input
+    marginTop: 4,
   };
-  
+
   const labelStyle: React.CSSProperties = {
-      fontSize: "0.8em", // Etiqueta más pequeña
-      color: "#6c757d", // Color gris suave
-      fontWeight: 600,
-      display: "block",
-      marginBottom: 2,
+    fontSize: "0.8em",
+    color: "#6c757d",
+    fontWeight: 600,
+    display: "block",
+    marginBottom: 2,
   };
 
   const buttonStyle: React.CSSProperties = {
@@ -87,11 +103,10 @@ const EquipoForm: React.FC<Props> = ({ onAgregar }) => {
     transition: "background-color 0.3s",
     flexShrink: 0,
     minWidth: "150px",
-    alignSelf: "center", // Centra el botón verticalmente con los campos
+    alignSelf: "center",
   };
-  
-  // --- Renderizado con Etiquetas ---
 
+  // --- Renderizado con Etiquetas ---
   return (
     <form onSubmit={handleSubmit} style={formStyle}>
       {/* Campo: Nombre */}
@@ -107,6 +122,24 @@ const EquipoForm: React.FC<Props> = ({ onAgregar }) => {
           onChange={(e) => setNombre(e.target.value)}
           required
         />
+      </div>
+
+      {/* Campo: Categoría */}
+      <div style={{ flexGrow: 1, minWidth: "120px" }}>
+        <label htmlFor="categoria-equipo" style={labelStyle}>
+          Categoría
+        </label>
+        <select
+          id="categoria-equipo"
+          style={inputStyle}
+          value={categoria}
+          onChange={e => setCategoria(e.target.value as "Masculino" | "Femenino")}
+          required
+        >
+          {categorias.map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
       </div>
 
       {/* Campo: PG (Partidos Ganados) */}
