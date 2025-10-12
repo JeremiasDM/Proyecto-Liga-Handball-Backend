@@ -1,5 +1,5 @@
 import React from "react";
-import type { Jugador } from "./FormularioDatos";
+import type { Jugador } from "../types/types";
 
 type Props = {
   jugadores: Jugador[];
