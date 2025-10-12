@@ -26,6 +26,7 @@ export type Fixture = {
 export type Rol = "Presidenta" | "Referente" | "Otro";
 
 export type Jugador = {
+  estado: string;
   id: number;
   nombre: string;
   apellido: string;
@@ -49,17 +50,20 @@ export type Referente = {
   equipo: string;
 };
 
+export type TipoPago = "cuota" | "arbitraje" | "multa" | "otro";
+
 export type Pago = {
   id: number;
-  tipo: "cuota" | "arbitraje";
+  tipo: TipoPago;
   club: string;
-  categoria: "Masculino" | "Femenino" | "Ambos";
-  partidoId?: number; 
   monto: number;
   comprobante: string;
   comprobanteArchivo?: string;
   fecha: string;
-  estado: "pendiente" | "pagado" | "invalido";
-  cantidadJugadores?: number; 
-  sancion?: string; 
+  estado: "pendiente" | "pagado" | "validado" | "invalido";
+  categoria?: "Masculino" | "Femenino" | "Ambos";
+  partidoId?: number;
+  cantidadJugadores?: number;
+  motivo?: string; 
+  sancion?: string;
 };
