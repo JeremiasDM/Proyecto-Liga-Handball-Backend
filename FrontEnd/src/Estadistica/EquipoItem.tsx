@@ -8,6 +8,8 @@ type Props = {
   rowStyle?: React.CSSProperties; // Agregado para estilo de fila
 };
 
+const categorias = ["Masculino", "Femenino"] as const;
+
 const EquipoItem: React.FC<Props> = ({
   equipo,
   onActualizar,
@@ -17,17 +19,26 @@ const EquipoItem: React.FC<Props> = ({
   const [editando, setEditando] = useState(false);
   const [temp, setTemp] = useState<Equipo>(equipo);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    // Manejar el cálculo de puntos al cambiar PG/PE
-    const updatedTemp = {
-      ...temp,
-      [name]: name === "nombre" ? value : Number(value),
-    };
-    
+    let updatedTemp = { ...temp };
+
+    if (name === "categoria") {
+      updatedTemp.categoria = value as "Masculino" | "Femenino";
+    } else if (name === "nombre") {
+      updatedTemp.nombre = value;
+    } else {
+      updatedTemp = {
+        ...updatedTemp,
+        [name]: Number(value),
+      };
+    }
+
     // Recalcular puntos inmediatamente si cambiamos PG o PE
-    if (name === 'pg' || name === 'pe') {
-        updatedTemp.puntos = updatedTemp.pg * 3 + updatedTemp.pe;
+    if (name === "pg" || name === "pe") {
+      updatedTemp.puntos = updatedTemp.pg * 3 + updatedTemp.pe;
     }
 
     setTemp(updatedTemp);
@@ -42,20 +53,18 @@ const EquipoItem: React.FC<Props> = ({
       alert("Los valores numéricos deben ser mayores o iguales a 0.");
       return;
     }
-    
     // El cálculo ya se realiza en handleChange, pero lo aseguramos
     const newPuntos = temp.pg * 3 + temp.pe;
     onActualizar(equipo.id, { ...temp, puntos: newPuntos });
     setEditando(false);
   };
-  
+
   // Estilo base de la fila
   const combinedRowStyle: React.CSSProperties = {
-      ...rowStyle,
-      transition: 'background-color 0.3s',
-      ...(editando ? { backgroundColor: '#fff3cd' } : {}), // Fondo de edición
+    ...rowStyle,
+    transition: "background-color 0.3s",
+    ...(editando ? { backgroundColor: "#fff3cd" } : {}), // Fondo de edición
   };
-
 
   // Estilos compartidos para celdas
   const cellStyle: React.CSSProperties = {
@@ -74,12 +83,13 @@ const EquipoItem: React.FC<Props> = ({
   return (
     <tr
       style={combinedRowStyle}
-      // Hover effect usando onMouseEnter/onMouseLeave (opcional, mejor con CSS)
       onMouseEnter={(e) => {
         if (!editando) e.currentTarget.style.backgroundColor = "#e9ecef";
       }}
       onMouseLeave={(e) => {
-        if (!editando) e.currentTarget.style.backgroundColor = rowStyle.backgroundColor || 'white';
+        if (!editando)
+          e.currentTarget.style.backgroundColor =
+            rowStyle.backgroundColor || "white";
       }}
     >
       {editando ? (
@@ -91,6 +101,20 @@ const EquipoItem: React.FC<Props> = ({
               onChange={handleChange}
               style={{ ...inputStyle, width: "120px" }}
             />
+          </td>
+          <td style={cellStyle}>
+            <select
+              name="categoria"
+              value={temp.categoria}
+              onChange={handleChange}
+              style={inputStyle}
+            >
+              {categorias.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
           </td>
           <td style={cellStyle}>
             <input
@@ -167,6 +191,7 @@ const EquipoItem: React.FC<Props> = ({
       ) : (
         <>
           <td style={{ ...cellStyle, textAlign: "left" }}>{equipo.nombre}</td>
+          <td style={cellStyle}>{equipo.categoria}</td>
           <td style={cellStyle}>{equipo.pg}</td>
           <td style={cellStyle}>{equipo.pe}</td>
           <td style={cellStyle}>{equipo.pp}</td>
