@@ -4,7 +4,7 @@ import type { Pago } from "../types/types";
 type Props = {
     clubes: string[];
     pagos: Pago[];
-    onRealizarPago: (club: string, tipo: "cuota" | "arbitraje") => void;
+    onRealizarPago: (club: string, tipo: "cuota" | "arbitraje" | "multa" | "otro") => void;
 };
 
 // Clases CSS específicas para el estado del pago (Estas sí deben ser definidas)
@@ -185,69 +185,57 @@ const globalStyles = `
 `;
 // ============================================
 
+
+// Tipos de pago a mostrar en la tabla principal
+const tiposTabla: Array<{ tipo: "cuota" | "arbitraje" | "multa", label: string, buttonClass: string }> = [
+    { tipo: "cuota", label: "Cuota Anual", buttonClass: styleConfig.cuotaButton },
+    { tipo: "arbitraje", label: "Pago Arbitraje", buttonClass: styleConfig.arbitrajeButton },
+    { tipo: "multa", label: "Pago Multa", buttonClass: styleConfig.arbitrajeButton }, // reutiliza el estilo de arbitraje
+];
+
 const TablaPagosClub: React.FC<Props> = ({ clubes, pagos, onRealizarPago }) => (
     <>
         {/* ⚠️ INYECCIÓN DE ESTILOS CSS PLANOS ⚠️ */}
         <style>{globalStyles}</style>
-        
+
         <div className={styleConfig.tableWrapper}>
-            <table className={styleConfig.table}> 
+            <table className={styleConfig.table}>
                 <thead className={styleConfig.tableHeader}>
                     <tr className={styleConfig.tableHeaderRow}>
                         <th className={styleConfig.tableHeaderCellClub}>Club</th>
-                        <th className={styleConfig.tableHeaderCellOther}>Cuota Anual</th>
-                        <th className={styleConfig.tableHeaderCellArbitraje}>Pago Arbitraje</th>
+                        {tiposTabla.map(t => (
+                            <th key={t.tipo} className={styleConfig.tableHeaderCellOther}>{t.label}</th>
+                        ))}
                     </tr>
                 </thead>
                 <tbody className={styleConfig.tableBody}>
-                    {clubes.map(club => {
-                        // Busca el pago más reciente o relevante
-                        const cuota = pagos.filter(p => p.club === club && p.tipo === "cuota").sort((a,b) => b.id - a.id)[0];
-                        const arbitraje = pagos.filter(p => p.club === club && p.tipo === "arbitraje").sort((a,b) => b.id - a.id)[0];
-                        
-                        // Estado por defecto es "pendiente" si no hay pago
-                        const cuotaEstado = cuota?.estado || "pendiente";
-                        const arbitrajeEstado = arbitraje?.estado || "pendiente";
-
-                        return (
-                            <tr key={club} className={styleConfig.tableRow}>
-                                {/* Celda de Club */}
-                                <td className={styleConfig.clubNameCell}>{club}</td>
-                                
-                                {/* Celda de Cuota */}
-                                <td className={styleConfig.paymentCell}>
-                                    <div className={styleConfig.paymentInfoContainer}>
-                                        <span className={`${styleConfig.statusBadge} ${estadosColor[cuotaEstado as keyof typeof estadosColor]}`}>
-                                            {cuotaEstado.toUpperCase()}
-                                        </span>
-                                        <button
-                                            className={styleConfig.cuotaButton}
-                                            onClick={() => onRealizarPago(club, "cuota")}
-                                            disabled={cuotaEstado === "pagado" || cuotaEstado === "validado"}
-                                        >
-                                            Realizar Pago
-                                        </button>
-                                    </div>
-                                </td>
-                                
-                                {/* Celda de Arbitraje */}
-                                <td className={styleConfig.paymentCellArbitraje}>
-                                    <div className={styleConfig.paymentInfoContainer}>
-                                        <span className={`${styleConfig.statusBadge} ${estadosColor[arbitrajeEstado as keyof typeof estadosColor]}`}>
-                                            {arbitrajeEstado.toUpperCase()}
-                                        </span>
-                                        <button
-                                            className={styleConfig.arbitrajeButton}
-                                            onClick={() => onRealizarPago(club, "arbitraje")}
-                                            disabled={arbitrajeEstado === "pagado" || arbitrajeEstado === "validado"}
-                                        >
-                                            Realizar Pago
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        );
-                    })}
+                    {clubes.map(club => (
+                        <tr key={club} className={styleConfig.tableRow}>
+                            {/* Celda de Club */}
+                            <td className={styleConfig.clubNameCell}>{club}</td>
+                            {/* Celdas dinámicas por tipo de pago */}
+                            {tiposTabla.map(t => {
+                                const pago = pagos.filter(p => p.club === club && p.tipo === t.tipo).sort((a, b) => b.id - a.id)[0];
+                                const estado = pago?.estado || "pendiente";
+                                return (
+                                    <td key={t.tipo} className={styleConfig.paymentCell}>
+                                        <div className={styleConfig.paymentInfoContainer}>
+                                            <span className={`${styleConfig.statusBadge} ${estadosColor[estado as keyof typeof estadosColor]}`}>
+                                                {estado.toUpperCase()}
+                                            </span>
+                                            <button
+                                                className={t.buttonClass}
+                                                onClick={() => onRealizarPago(club, t.tipo)}
+                                                disabled={estado === "pagado" || estado === "validado"}
+                                            >
+                                                Realizar Pago
+                                            </button>
+                                        </div>
+                                    </td>
+                                );
+                            })}
+                        </tr>
+                    ))}
                 </tbody>
             </table>
         </div>
