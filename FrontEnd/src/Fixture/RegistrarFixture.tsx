@@ -3,6 +3,8 @@ import type { Encuentro, Fixture } from "../types/types";
 
 type Props = {
   onAgregarFixture: (fixture: Fixture) => void;
+  onGenerarAutomatico?: () => void;
+  buttonContainerStyle?: React.CSSProperties;
 };
 
 const clubesValidos = [
@@ -18,7 +20,7 @@ const clubesValidos = [
 
 const gruposValidos = ["A", "B"];
 
-const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
+const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture, onGenerarAutomatico, buttonContainerStyle }) => {
   const [fixture, setFixture] = useState<Fixture>({
     fecha: "",
     lugar: "",
@@ -181,12 +183,10 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
   return (
     <div
       style={{
-        // TAMAÑO REDUCIDO AQUÍ
         maxWidth: 600, 
         margin: "24px auto",
         background: "#fff",
         borderRadius: 12,
-        // PADDING REDUCIDO AQUÍ
         padding: 24, 
         boxShadow: "0 5px 20px rgba(0, 0, 0, 0.1)",
       }}
@@ -377,7 +377,7 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
       )}
 
       {/* --- Botones de Acción Final --- */}
-      <div style={{ marginTop: 24, borderTop: `1px solid ${colorBorder}`, paddingTop: 16, textAlign: "right" }}>
+      <div style={buttonContainerStyle ? buttonContainerStyle : { marginTop: 24, borderTop: `1px solid ${colorBorder}`, paddingTop: 16, textAlign: "right" }}>
         <button
           onClick={guardarFixture}
           style={{
@@ -391,7 +391,7 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
         </button>
         <button
           type="button"
-          onClick={generarFixtureAutomatico}
+          onClick={onGenerarAutomatico ? onGenerarAutomatico : generarFixtureAutomatico}
           style={{
             ...buttonBaseStyle,
             backgroundColor: colorWarning,
