@@ -22,35 +22,11 @@ const FormularioDatos: React.FC<Props> = ({ jugador, onGuardar, onCancelar, juga
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!form.nombre.trim() || !form.apellido.trim() || !form.dni.trim() || !form.club.trim()) {
-      alert("Todos los campos son obligatorios.");
+    const error = validarJugador(form, jugadores);
+    if (error) {
+      alert(error);
       return;
     }
-
-    if (form.nombre.trim().length < 2 || form.apellido.trim().length < 2) {
-      alert("El nombre y apellido deben tener al menos 2 caracteres.");
-      return;
-    }
-
-    if (!/^\d{7,8}$/.test(form.dni)) {
-      alert("El DNI debe tener 7 u 8 dígitos.");
-      return;
-    }
-
-    if (form.telefono && !/^\d{7,15}$/.test(form.telefono)) {
-      alert("El teléfono debe tener entre 7 y 15 dígitos numéricos.");
-      return;
-    }
-
-    if (form.vencimiento) {
-      const fecha = new Date(form.vencimiento);
-      if (isNaN(fecha.getTime()) || fecha <= new Date()) {
-        alert("La fecha de vencimiento debe ser válida y futura.");
-        return;
-      }
-    }
-
     onGuardar(form);
     onCancelar();
   };
