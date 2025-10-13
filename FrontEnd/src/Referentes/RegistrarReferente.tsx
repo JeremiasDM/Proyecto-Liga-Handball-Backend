@@ -42,20 +42,25 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar }) => {
     setForm({
       ...form,
       [name]: name === 'equipoId' ? Number(value) : value,
-    } as any);
+    });
     if (mensaje) setMensaje(null); 
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // NOTA: 'validarReferente(form, [])' solo valida el formato, no la unicidad.
-    const error = validarReferente({
+    // Construir el objeto Referente correctamente
+    const referente: Referente = {
       id: Date.now(),
-      equipo: clubs.find(c => c.id === form.equipoId)?.nombre || '',
-      ...form,
-    }, []); 
+      nombre: form.nombre,
+      apellido: form.apellido,
+      categoria: form.categoria as "Masculino" | "Femenino",
+      dni: form.dni,
+      correo: form.correo,
+      equipo: clubs.find(c => c.id === form.equipoId)?.nombre || "",
+    };
 
+    const error = validarReferente(referente, []);
     if (error) {
       setMensaje({ tipo: 'error', texto: error });
       setLoading(false);
@@ -66,11 +71,12 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nombre: form.nombre,
-          apellido: form.apellido,
-          categoria: form.categoria,
-          dni: form.dni,
-          correo: form.correo,
+          nombre: referente.nombre,
+          apellido: referente.apellido,
+          categoria: referente.categoria,
+          dni: referente.dni,
+          correo: referente.correo,
+          equipo: referente.equipo,
           equipoId: form.equipoId,
         }),
       });
@@ -82,9 +88,10 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar }) => {
       }
       const data = await response.json();
       if (data.success) {
-        setMensaje({ tipo: 'exito', texto: `Referente ${form.nombre} registrado exitosamente. Revisa tu correo.` });
+        setMensaje({ tipo: 'exito', texto: `Referente ${referente.nombre} registrado exitosamente. Revisa tu correo.` });
         // Resetear formulario
         setForm({ nombre: '', apellido: '', categoria: 'Masculino', dni: '', correo: '', equipoId: 0 });
+        onGuardar(referente);
       } else {
         setMensaje({ tipo: 'error', texto: data.message || 'Error al registrar referente.' });
       }
