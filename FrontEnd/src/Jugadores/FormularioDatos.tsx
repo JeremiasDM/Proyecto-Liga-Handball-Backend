@@ -1,47 +1,27 @@
 import React, { useState } from "react";
-<<<<<<< HEAD
 import type { Jugador } from "../types/types";
 import { validarJugador } from "../utils/validaciones";
-=======
-import { Jugador } from "./RegistroJugador";
->>>>>>> c57081d8ff0ae53c8182d9014d4c347b63c18702
 
 type Props = {
   jugador: Jugador;
   onGuardar: (jugador: Jugador) => void;
   onCancelar: () => void;
-<<<<<<< HEAD
-  jugadores?: Jugador[]; // Opcional, para validar duplicados si lo necesitas
+  jugadores?: Jugador[];
 };
 
 const FormularioDatos: React.FC<Props> = ({ jugador, onGuardar, onCancelar, jugadores = [] }) => {
-=======
-};
-
-const FormularioDatos: React.FC<Props> = ({ jugador, onGuardar, onCancelar }) => {
->>>>>>> c57081d8ff0ae53c8182d9014d4c347b63c18702
   const [form, setForm] = useState<Jugador>({ ...jugador });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-<<<<<<< HEAD
-=======
     if ((name === "nombre" || name === "apellido") && !/^[A-Za-z\s]*$/.test(value)) return;
     if (name === "dni" && !/^\d{0,8}$/.test(value)) return;
     if (name === "telefono" && !/^\d{0,15}$/.test(value)) return;
->>>>>>> c57081d8ff0ae53c8182d9014d4c347b63c18702
     setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-<<<<<<< HEAD
-    const error = validarJugador(form, jugadores);
-    if (error) {
-      alert(error);
-      return;
-    }
-=======
 
     if (!form.nombre.trim() || !form.apellido.trim() || !form.dni.trim() || !form.club.trim()) {
       alert("Todos los campos son obligatorios.");
@@ -71,7 +51,6 @@ const FormularioDatos: React.FC<Props> = ({ jugador, onGuardar, onCancelar }) =>
       }
     }
 
->>>>>>> c57081d8ff0ae53c8182d9014d4c347b63c18702
     onGuardar(form);
     onCancelar();
   };
