@@ -20,15 +20,26 @@ type Props = {
 
 // --- SECCIÓN DE ESTILOS MEJORADA ---
 
+// 🎯 Nuevo estilo para los inputs con fondo negro y letra blanca 🎯
+const inputStylesNegro = {
+  color: 'white', // Color del texto (letras) en blanco
+  backgroundColor: '#333', // Fondo gris oscuro/negro
+  border: '1px solid #555', // Borde gris más oscuro
+  padding: '8px 12px',
+  borderRadius: '4px',
+  fontSize: '1em',
+};
+
+
 const styles = {
   // Contenedor principal
   container: {
-    maxWidth: '850px', // Aumentado para más espacio horizontal para los campos del partido
+    maxWidth: '850px', 
     margin: '40px auto',
     padding: '30px',
     border: 'none',
     borderRadius: '12px',
-    boxShadow: '0 6px 25px rgba(0,0,0,0.15)', // Sombra más profunda
+    boxShadow: '0 6px 25px rgba(0,0,0,0.15)', 
     backgroundColor: '#fefefe',
     fontFamily: 'Arial, sans-serif',
   },
@@ -36,7 +47,7 @@ const styles = {
   form: {
     display: 'flex',
     flexDirection: 'column' as 'column',
-    gap: '20px', // Espacio ajustado
+    gap: '20px', 
   },
   // Encabezados
   heading: {
@@ -45,7 +56,7 @@ const styles = {
     paddingBottom: '15px',
     marginBottom: '35px',
     textAlign: 'left' as 'left',
-    fontSize: '2.2em', // Ligeramente más grande
+    fontSize: '2.2em', 
   },
   subHeading: {
     color: '#333',
@@ -57,7 +68,6 @@ const styles = {
     fontSize: '1.4em',
     letterSpacing: '0.5px',
   },
-  // El estilo 'input' ha sido eliminado ya que los inputs de fecha/lugar se han quitado.
   // Contenedor de botones
   buttonContainer: {
     display: 'flex',
@@ -85,7 +95,7 @@ const styles = {
     borderRadius: '8px',
     border: '1px solid #c8d0d9',
     backgroundColor: '#f1f4f8',
-    color: '#495057',
+    color: '#036edaff',
     cursor: 'pointer',
     fontSize: '1em',
     transition: 'background-color 0.3s, border-color 0.3s',
@@ -100,8 +110,6 @@ const EditarFixture: React.FC<Props> = ({ fixture, onGuardar, onCancelar }) => {
   useEffect(() => {
     setFormData(fixture);
   }, [fixture]);
-
-  // Se eliminó la función handleChange ya que los inputs de fecha y lugar ya no están.
 
   const handlePartidoChange = (index: number, campo: keyof Encuentro, valor: string) => {
     const partidosActualizados = [...formData.partidos];
@@ -126,13 +134,14 @@ const EditarFixture: React.FC<Props> = ({ fixture, onGuardar, onCancelar }) => {
         {/* Partidos */}
         <h3 style={styles.subHeading}>Partidos del Fixture</h3>
         {formData.partidos.map((partido, i) => (
-          // El componente FormularioPartido ahora necesita los estilos actualizados.
           <FormularioPartido
             key={i}
             partido={partido}
             onChange={(campo, valor) => handlePartidoChange(i, campo, valor)}
             clubesValidos={clubesValidos}
             gruposValidos={gruposValidos}
+            // 💡 Pasamos el nuevo estilo de input con fondo oscuro
+            inputStyle={inputStylesNegro} 
           />
         ))}
 
@@ -142,7 +151,6 @@ const EditarFixture: React.FC<Props> = ({ fixture, onGuardar, onCancelar }) => {
             type="button" 
             onClick={onCancelar} 
             style={styles.buttonSecondary}
-            // Simulación de :hover
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e9ecef'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = styles.buttonSecondary.backgroundColor}
           >
@@ -151,7 +159,6 @@ const EditarFixture: React.FC<Props> = ({ fixture, onGuardar, onCancelar }) => {
           <button 
             type="submit" 
             style={styles.buttonPrimary}
-            // Simulación de :hover
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0056b3'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = styles.buttonPrimary.backgroundColor}
           >
