@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import { usePagos } from "../hooks/usePagos";
 import TablaPagosClub from "./TablaPagosClub";
-import FormularioCuota from "./FormularioCuota";
-import FormularioArbitraje from "./FormularioArbitraje";
-import type { Pago } from "../types/types";
+import type { Pago, TipoPago } from "../types/types";
 import { verificarSancion } from "../utils/validaciones";
-
+import FormularioPago from "./FormularioPago";
 const clubes = [
   "Club A1", "Club A2", "Club A3", "Club A4",
   "Club B1", "Club B2", "Club B3", "Club B4"
@@ -198,11 +196,12 @@ const globalStyles = `
 `;
 // ============================================
 
-const PagosPage: React.FC = () => {
-  const { pagos, agregar} = usePagos();
-  const [modal, setModal] = useState<{ tipo: "cuota" | "arbitraje"; club: string } | null>(null);
 
-  const handleRealizarPago = (club: string, tipo: "cuota" | "arbitraje") => {
+const PagosPage: React.FC = () => {
+  const { pagos, agregar } = usePagos();
+  const [modal, setModal] = useState<{ tipo: TipoPago; club: string } | null>(null);
+
+  const handleRealizarPago = (club: string, tipo: TipoPago) => {
     setModal({ tipo, club });
   };
 
@@ -210,53 +209,33 @@ const PagosPage: React.FC = () => {
     agregar(pago);
     setModal(null);
   };
-  
+
   const handleCerrarModal = () => {
     setModal(null);
-  }
-  
-  // Asumiendo que verificarSancion devuelve una cadena de texto o un valor truthy si hay sanción
+  };
+
+  // Sanciones
   const sanciones = pagos.filter(p => verificarSancion(p));
-  
+
   return (
     <>
-      {/* ⚠️ INYECCIÓN DE ESTILOS CSS PLANOS ⚠️ */}
-      {/* Esto asegura que las clases como .pagos-container tengan estilos definidos */}
       <style>{globalStyles}</style>
-
       <div className={styleConfig.container}>
         <div className={styleConfig.contentWrapper}>
-          
-          {/* Título */}
-          <h2 className={styleConfig.title}>
-            Gestión de Pagos de Clubes
-          </h2>
-          
+          <h2 className={styleConfig.title}>Gestión de Pagos de Clubes</h2>
           <TablaPagosClub clubes={clubes} pagos={pagos} onRealizarPago={handleRealizarPago} />
-          
-          {/* Modales de Formulario */}
-          {(modal?.tipo === "cuota" || modal?.tipo === "arbitraje") && (
+          {/* Modal de FormularioPago unificado */}
+          {modal && (
             <div className={styleConfig.modalBackdrop}>
-              {modal.tipo === "cuota" && (
-                <FormularioCuota
-                  club={modal.club}
-                  montoMinimo={montoMinimoCuota}
-                  onGuardar={handleGuardarPago}
-                  onCerrar={handleCerrarModal} 
-                />
-              )}
-              {modal.tipo === "arbitraje" && (
-                <FormularioArbitraje
-                  club={modal.club}
-                  partidos={[]}
-                  montoMinimo={montoMinimoArbitraje}
-                  onGuardar={handleGuardarPago}
-                  onCerrar={handleCerrarModal} 
-                />
-              )}
+              <FormularioPago
+                tipo={modal.tipo}
+                club={modal.club}
+                montoMinimo={modal.tipo === "cuota" ? montoMinimoCuota : modal.tipo === "arbitraje" ? montoMinimoArbitraje : 5000}
+                onGuardar={handleGuardarPago}
+                onCerrar={handleCerrarModal}
+              />
             </div>
           )}
-
           {/* Sección de Sanciones */}
           <div className={styleConfig.sancionesSectionWrapper}>
             <div className={styleConfig.sancionesHeader}>
@@ -264,31 +243,20 @@ const PagosPage: React.FC = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
-                ⚠️ Aviso de Sanciones Pendientes
+                 Aviso de Sanciones Pendientes
               </h3>
             </div>
-            
             <div className={styleConfig.sancionesBody}>
               <ul className={styleConfig.sancionesList}>
                 {sanciones.map(p => {
-                  // Asumiendo que verificarSancion(p) devuelve el texto de la sanción si existe
-                  const sancion = verificarSancion(p); 
+                  const sancion = verificarSancion(p);
                   return (
-                    <li 
-                      key={p.id} 
-                      className={styleConfig.sancionItem}
-                    >
-                      <span className={styleConfig.sancionIcon}>
-                        🛑
-                      </span>
+                    <li key={p.id} className={styleConfig.sancionItem}>
+                      <span className={styleConfig.sancionIcon}>🛑</span>
                       <div className="flex-1">
-                        <p className={styleConfig.sancionClub}>
-                          {p.club}
-                        </p>
+                        <p className={styleConfig.sancionClub}>{p.club}</p>
                         <p className={styleConfig.sancionDescription}>
-                          <span className={styleConfig.sancionTypeBadge}>
-                            {p.tipo}
-                          </span>
+                          <span className={styleConfig.sancionTypeBadge}>{p.tipo}</span>
                           {sancion}
                         </p>
                         <p className={styleConfig.sancionMetadata}>
@@ -298,17 +266,14 @@ const PagosPage: React.FC = () => {
                     </li>
                   );
                 })}
-
-                {/* Mensaje si no hay sanciones */}
                 {sanciones.length === 0 && (
                   <p className={styleConfig.noSancionesMessage}>
-                    ✅ No hay sanciones o pagos inválidos registrados actualmente.
+                     No hay sanciones o pagos inválidos registrados actualmente.
                   </p>
                 )}
               </ul>
             </div>
           </div>
-          
         </div>
       </div>
     </>

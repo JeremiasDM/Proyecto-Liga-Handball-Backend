@@ -83,6 +83,16 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar }) => {
       const data = await response.json();
       if (data.success) {
         setMensaje({ tipo: 'exito', texto: `Referente ${form.nombre} registrado exitosamente. Revisa tu correo.` });
+        // Agregar al listado local
+        onGuardar({
+          id: Date.now(),
+          nombre: form.nombre,
+          apellido: form.apellido,
+          categoria: form.categoria as 'Masculino' | 'Femenino',
+          dni: form.dni,
+          correo: form.correo,
+          equipo: clubs.find(c => c.id === form.equipoId)?.nombre || ''
+        });
         // Resetear formulario
         setForm({ nombre: '', apellido: '', categoria: 'Masculino', dni: '', correo: '', equipoId: 0 });
       } else {

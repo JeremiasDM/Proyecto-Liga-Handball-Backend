@@ -11,12 +11,11 @@ type Noticia = {
 type Props = {
   noticias: Noticia[];
   onEliminar: (id: number) => void;
-  onEditar: (noticia: Noticia) => void; // Nuevo prop
+  onEditar: (noticia: Noticia) => void; 
 };
 
 // Estilos convertidos a objeto para su uso en línea
 const styles = {
-    // ... (Estilos de NoticiasLista se mantienen sin cambios)
     listContainer: {
         maxHeight: '600px', 
         overflowY: 'auto',

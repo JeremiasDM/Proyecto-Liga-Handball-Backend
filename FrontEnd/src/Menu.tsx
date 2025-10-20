@@ -11,6 +11,8 @@ import Reglamento from "./Reglamento/Reglamento";
 import PagosPage from "./RegistroPagos/PagosPage";
 
 
+
+
 export default function App() {
   const [vista, setVista] = useState(
     () => (localStorage.getItem("vista") as any) || "inicio"
@@ -553,10 +555,10 @@ export default function App() {
         <footer>
           <div className="footer-contact">
             <div>
-              <img src="/whatsapp.webp" alt="WhatsApp" /> +54 9 351 273 6990 (Atención Lun a Vie de 09:30 a 12:30 y 16:30 a 21:30, salvo días de partido)
+              <img src="/whatsapp.png" alt="WhatsApp" /> +54 9 351 273 6990 (Atención Lun a Vie de 09:30 a 12:30 y 16:30 a 21:30, salvo días de partido)
             </div>
             <div>
-              <img src="/instagram.webp" alt="Instagram" /> Visitanos tambien en nuestro Instagram <a href="https://www.instagram.com/ligapunillahandball/?igsh=MWdreWJwdmN0NjFtMg%3D%3D#" target="_blank" rel="noopener noreferrer">@ligapunillahandball</a>
+              <img src="/Instagram.png" alt="Instagram" /> Visitanos tambien en nuestro Instagram <a href="https://www.instagram.com/ligapunillahandball/?igsh=MWdreWJwdmN0NjFtMg%3D%3D#" target="_blank" rel="noopener noreferrer">@ligapunillahandball</a>
             </div>
             <div>&copy; 2025 Liga Recreativa Handball Punilla - Todos los derechos reservados.</div>
           </div>

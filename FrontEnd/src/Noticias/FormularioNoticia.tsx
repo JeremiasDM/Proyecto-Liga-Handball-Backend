@@ -173,7 +173,7 @@ const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAE
     } else {
         // GUARDAR NUEVA
         onGuardar({ ...form, id: Date.now() } as Noticia);
-        alert("✅ Noticia guardada correctamente.");
+        alert(" Noticia guardada correctamente.");
     }
     
     // Limpiar formulario si se está creando, o simplemente salir del modo edición si se está actualizando.
@@ -244,7 +244,7 @@ const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAE
             type="submit" 
             style={{...styles.buttonBase, ...styles.saveButton}}
         >
-            {form.id ? '💾 Actualizar Noticia' : '🚀 Publicar Noticia'}
+            {form.id ? ' Actualizar Noticia' : ' Publicar Noticia'}
         </button>
         
         {form.id && ( // Botón de cancelar solo en modo edición
@@ -253,7 +253,7 @@ const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAE
                 onClick={onCancelEdit}
                 style={{...styles.buttonBase, ...styles.cancelButton}}
             >
-                ❌ Cancelar Edición
+                 Cancelar Edición
             </button>
         )}
       </div>
