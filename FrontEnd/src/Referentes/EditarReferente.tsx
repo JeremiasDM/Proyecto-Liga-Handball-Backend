@@ -1,6 +1,48 @@
 import React, { useState } from "react";
-import type { Referente } from "../types/types";
-import { validarReferente } from "../utils/validaciones";
+
+// Inlined Referente type
+type Referente = {
+  id: number;
+  nombre: string;
+  apellido: string;
+  categoria: "Masculino" | "Femenino";
+  dni: string;
+  correo: string;
+  equipo: string;
+};
+
+// Inlined validarReferente
+function validarReferente(nuevo: Referente, referentes: Referente[]): string | null {
+  if (
+    !nuevo.nombre.trim() ||
+    !nuevo.apellido.trim() ||
+    !nuevo.categoria ||
+    !nuevo.dni.trim() ||
+    !nuevo.correo.trim() ||
+    !nuevo.equipo.trim()
+  ) {
+    return "Todos los campos son obligatorios.";
+  }
+  if (!/^[a-zA-Z\s]{2,}$/.test(nuevo.nombre)) {
+    return "El nombre debe tener solo letras y al menos 2 caracteres.";
+  }
+  if (!/^[a-zA-Z\s]{2,}$/.test(nuevo.apellido)) {
+    return "El apellido debe tener solo letras y al menos 2 caracteres.";
+  }
+  if (!/^\d{7,10}$/.test(nuevo.dni)) {
+    return "El DNI debe tener entre 7 y 10 números.";
+  }
+  if (referentes.some(r => r.dni === nuevo.dni && r.id !== nuevo.id)) {
+    return "El DNI ya está registrado.";
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nuevo.correo)) {
+    return "Correo inválido.";
+  }
+  if (!/^[a-zA-Z0-9\s]{2,}$/.test(nuevo.equipo)) {
+    return "El equipo debe contener solo letras, números y espacios.";
+  }
+  return null;
+}
 // 🛑 Importamos los estilos del archivo principal
 import { styles } from "./ReferentesPage"; 
 

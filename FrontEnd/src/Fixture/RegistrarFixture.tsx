@@ -1,5 +1,20 @@
 import { useState } from "react";
-import type { Encuentro, Fixture } from "../types/types";
+
+// Inlined Encuentro and Fixture types
+type Encuentro = {
+  fecha?: string;
+  jornada: number;
+  grupo: string;
+  club1: string;
+  club2: string;
+  resultado: string;
+};
+
+type Fixture = {
+  fecha: string;
+  lugar: string;
+  partidos: Encuentro[];
+};
 
 type Props = {
   onAgregarFixture: (fixture: Fixture) => void;

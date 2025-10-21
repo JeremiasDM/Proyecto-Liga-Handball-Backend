@@ -1,4 +1,17 @@
-import type { Fixture } from "../types/types";
+// Inlined Fixture type
+type Encuentro = {
+  fecha?: string;
+  jornada: number;
+  grupo: string;
+  club1: string;
+  club2: string;
+  resultado: string;
+};
+type Fixture = {
+  fecha: string;
+  lugar: string;
+  partidos: Encuentro[];
+};
 import PartidoItem from "./PartidoItem";
 
 type Props = {

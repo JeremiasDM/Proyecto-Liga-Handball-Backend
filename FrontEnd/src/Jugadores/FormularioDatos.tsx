@@ -1,6 +1,60 @@
 import React, { useState } from "react";
-import type { Jugador } from "../types/types";
-import { validarJugador } from "../utils/validaciones";
+
+// Inlined Jugador type
+type Jugador = {
+  estado?: string;
+  id: number;
+  nombre: string;
+  apellido: string;
+  dni: string;
+  club: string;
+  categoria: string;
+  telefono?: string;
+  vencimiento?: string;
+  carnetUrl?: string;
+  fichaMedicaUrl?: string;
+};
+
+// Inlined validarJugador
+function validarJugador(nuevo: Jugador, jugadores: Jugador[]): string | null {
+  if (jugadores.some(j => j.dni === nuevo.dni && j.id !== nuevo.id)) {
+    return "El DNI ingresado ya pertenece a otro jugador.";
+  }
+
+  if (nuevo.telefono && jugadores.some(j => j.telefono === nuevo.telefono && j.id !== nuevo.id)) {
+    return "El teléfono ingresado ya pertenece a otro jugador.";
+  }
+
+  if (
+    !nuevo.nombre.trim() ||
+    !nuevo.apellido.trim() ||
+    !nuevo.dni.trim() ||
+    !nuevo.club.trim() ||
+    !nuevo.categoria
+  ) {
+    return "Todos los campos son obligatorios.";
+  }
+
+  if (nuevo.nombre.trim().length < 2 || nuevo.apellido.trim().length < 2) {
+    return "El nombre y apellido deben tener al menos 2 caracteres.";
+  }
+
+  if (!/^\d{7,8}$/.test(nuevo.dni)) {
+    return "El DNI debe tener 7 u 8 dígitos numéricos.";
+  }
+
+  if (nuevo.telefono && !/^\d{7,15}$/.test(nuevo.telefono)) {
+    return "El teléfono debe tener entre 7 y 15 dígitos numéricos.";
+  }
+
+  if (nuevo.vencimiento) {
+    const fecha = new Date(nuevo.vencimiento);
+    if (isNaN(fecha.getTime()) || fecha <= new Date()) {
+      return "La fecha de vencimiento debe ser válida y posterior a hoy.";
+    }
+  }
+  return null;
+}
 
 type Props = {
   jugador: Jugador;

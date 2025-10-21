@@ -1,5 +1,19 @@
-import React, { useState } from "react";
-import type { Jugador } from "./FormularioDatos";
+import React from "react";
+
+// Inlined Jugador type (was incorrectly imported from FormularioDatos)
+type Jugador = {
+  estado?: string;
+  id: number;
+  nombre: string;
+  apellido: string;
+  dni: string;
+  club: string;
+  categoria: string;
+  telefono?: string;
+  vencimiento?: string;
+  carnetUrl?: string;
+  fichaMedicaUrl?: string;
+};
 
 type Props = {
   jugadores: Jugador[];

@@ -1,10 +1,26 @@
 import React from "react";
-import type { Pago } from "../types/types";
+
+// Inlined Pago type (canonical)
+type Pago = {
+    motivo: string;
+    id: number;
+    tipo: "cuota" | "arbitraje";
+    club: string;
+    categoria: "Masculino" | "Femenino" | "Ambos";
+    partidoId?: number;
+    monto: number;
+    comprobante: string;
+    comprobanteArchivo?: string;
+    fecha: string;
+    estado: "pendiente" | "pagado" | "invalido";
+    cantidadJugadores?: number;
+    sancion?: string;
+};
 
 type Props = {
     clubes: string[];
     pagos: Pago[];
-    onRealizarPago: (club: string, tipo: "cuota" | "arbitraje" | "multa" | "otro") => void;
+    onRealizarPago: (club: string, tipo: "cuota" | "arbitraje") => void;
 };
 
 // Clases CSS específicas para el estado del pago (Estas sí deben ser definidas)
@@ -186,11 +202,10 @@ const globalStyles = `
 // ============================================
 
 
-// Tipos de pago a mostrar en la tabla principal
-const tiposTabla: Array<{ tipo: "cuota" | "arbitraje" | "multa", label: string, buttonClass: string }> = [
+// Tipos de pago a mostrar en la tabla principal (canonical)
+const tiposTabla: Array<{ tipo: "cuota" | "arbitraje", label: string, buttonClass: string }> = [
     { tipo: "cuota", label: "Cuota Anual", buttonClass: styleConfig.cuotaButton },
     { tipo: "arbitraje", label: "Pago Arbitraje", buttonClass: styleConfig.arbitrajeButton },
-    { tipo: "multa", label: "Pago Multa", buttonClass: styleConfig.arbitrajeButton }, // reutiliza el estilo de arbitraje
 ];
 
 const TablaPagosClub: React.FC<Props> = ({ clubes, pagos, onRealizarPago }) => (
@@ -226,7 +241,7 @@ const TablaPagosClub: React.FC<Props> = ({ clubes, pagos, onRealizarPago }) => (
                                             <button
                                                 className={t.buttonClass}
                                                 onClick={() => onRealizarPago(club, t.tipo)}
-                                                disabled={estado === "pagado" || estado === "validado"}
+                                                disabled={estado === "pagado" || estado === "invalido"}
                                             >
                                                 Realizar Pago
                                             </button>

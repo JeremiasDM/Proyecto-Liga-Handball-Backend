@@ -2,7 +2,22 @@ import { useState } from "react";
 import RegistrarFixture from "./RegistrarFixture";
 import EditarFixture from "./EditarFixture";
 import ListaFixture from "./ListaFixture";
-import type { Encuentro, Fixture } from "../types/types";
+
+// Inlined Encuentro and Fixture types
+type Encuentro = {
+	fecha?: string;
+	jornada: number;
+	grupo: string;
+	club1: string;
+	club2: string;
+	resultado: string;
+};
+
+type Fixture = {
+	fecha: string;
+	lugar: string;
+	partidos: Encuentro[];
+};
 
 // 1. Mejora estética: Estilos definidos como objetos constantes.
 const styles = {

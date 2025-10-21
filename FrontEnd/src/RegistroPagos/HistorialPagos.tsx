@@ -1,5 +1,21 @@
 import React, { useState } from "react";
-import type { Pago } from "../types/types";
+
+// Inlined Pago type
+type Pago = {
+  motivo: string;
+  id: number;
+  tipo: "cuota" | "arbitraje";
+  club: string;
+  categoria: "Masculino" | "Femenino" | "Ambos";
+  partidoId?: number;
+  monto: number;
+  comprobante: string;
+  comprobanteArchivo?: string;
+  fecha: string;
+  estado: "pendiente" | "pagado" | "invalido";
+  cantidadJugadores?: number;
+  sancion?: string;
+};
 
 type TipoPago = "cuota" | "arbitraje" | "multa" | "otro";
 

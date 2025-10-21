@@ -1,5 +1,20 @@
 import { useState, useEffect, type ChangeEvent } from "react";
-import type { Encuentro, Fixture } from "../types/types";
+
+// Inlined Fixture and Encuentro types
+type Encuentro = {
+  fecha?: string;
+  jornada: number;
+  grupo: string;
+  club1: string;
+  club2: string;
+  resultado: string;
+};
+
+type Fixture = {
+  fecha: string;
+  lugar: string;
+  partidos: Encuentro[];
+};
 import FormularioPartido from "./FormularioPartido";
 
 const clubesValidos = [
