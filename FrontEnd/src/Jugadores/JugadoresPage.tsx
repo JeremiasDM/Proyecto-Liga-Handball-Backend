@@ -100,7 +100,6 @@ const JugadoresPage: React.FC = () => {
             jugadores={jugadores}
             onEditar={actualizarJugador} 
             onEliminar={eliminarJugador}
-            onVerDetalles={() => { /* TODO: implementar ver detalles */ }}
           />
           
           {/* BOTÓN PARA VOLVER AL REGISTRO */}
