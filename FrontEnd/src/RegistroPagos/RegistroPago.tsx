@@ -157,15 +157,16 @@ const RegistroPago: React.FC<Props> = ({ clubes, partidos, montoMinimo }) => {
         const pago: Pago = {
             id: Date.now(),
             // Asumiendo 'arbitraje'. Idealmente, el tipo debería ser un campo del formulario.
-            tipo: "arbitraje" as any, 
+            tipo: "arbitraje" as any,
             club,
             // Convertir a número al crear el objeto Pago
-            partidoId: Number(partidoId), 
+            partidoId: Number(partidoId),
             monto,
             comprobante,
             comprobanteArchivo,
             fecha: new Date().toISOString(),
-            estado: "pendiente"
+            estado: "pendiente",
+            categoria: "Masculino"
         };
         
         agregar(pago);
