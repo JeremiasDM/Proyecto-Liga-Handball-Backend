@@ -1,4 +1,3 @@
-import React from "react";
 import type { Encuentro } from "../types/types";
 
 type Props = { partido: Encuentro };

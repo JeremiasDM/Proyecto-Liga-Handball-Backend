@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { Encuentro, Fixture } from "../types/types";
 
 type Props = {

@@ -1,4 +1,3 @@
-import React from "react";
 import type { Fixture } from "../types/types";
 import PartidoItem from "./PartidoItem";
 
@@ -16,7 +15,7 @@ const ListaFixture: React.FC<Props> = ({ fixtures, onEdit }) => {
     <div style={{ padding: "1rem", backgroundColor: "#f0f2f5", borderRadius: "8px" }}>
       <h3 style={{ color: "#b0b3bbff" }}>Listado de Fixtures</h3>
 
-      {fixtures.map((fixture, i) => (
+  {fixtures.map((fixture: Fixture, i: number) => (
         <div
           key={i}
           style={{ marginBottom: 16, background: "#fff", borderRadius: 8, padding: 12 }}
@@ -30,7 +29,7 @@ const ListaFixture: React.FC<Props> = ({ fixtures, onEdit }) => {
             )}
           </div>
           <ul style={{ paddingLeft: 18, marginTop: 8 }}>
-            {fixture.partidos.map((p, j) => (
+            {fixture.partidos.map((p: any, j: number) => (
               <PartidoItem key={j} partido={p} />
             ))}
           </ul>

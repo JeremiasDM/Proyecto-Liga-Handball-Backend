@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import RegistrarFixture from "./RegistrarFixture";
 import EditarFixture from "./EditarFixture";
 import ListaFixture from "./ListaFixture";

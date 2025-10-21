@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, type ChangeEvent } from "react";
 import type { Encuentro, Fixture } from "../types/types";
 import FormularioPartido from "./FormularioPartido";
 
@@ -21,7 +21,7 @@ const EditarFixture: React.FC<Props> = ({ fixture, onGuardar, onCancelar }) => {
     setFormData(fixture);
   }, [fixture]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -46,7 +46,7 @@ const EditarFixture: React.FC<Props> = ({ fixture, onGuardar, onCancelar }) => {
         <input name="lugar" value={formData.lugar} onChange={handleChange} />
 
         <h4>Editar Partidos</h4>
-        {formData.partidos.map((partido, i) => (
+        {formData.partidos.map((partido: Encuentro, i: number) => (
           <FormularioPartido
             key={i}
             partido={partido}
