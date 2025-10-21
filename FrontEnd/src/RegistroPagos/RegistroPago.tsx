@@ -166,7 +166,8 @@ const RegistroPago: React.FC<Props> = ({ clubes, partidos, montoMinimo }) => {
             comprobanteArchivo,
             fecha: new Date().toISOString(),
             estado: "pendiente",
-            categoria: "Masculino"
+            categoria: "Masculino",
+            motivo: ""
         };
         
         agregar(pago);
