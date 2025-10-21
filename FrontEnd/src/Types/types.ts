@@ -51,6 +51,7 @@ export type Referente = {
 };
 
 export type Pago = {
+  motivo: string;
   id: number;
   tipo: "cuota" | "arbitraje";
   club: string;
