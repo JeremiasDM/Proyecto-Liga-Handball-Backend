@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import type { Pago, TipoPago } from "../types/types";
+import type { Pago } from "../types/types";
+
+type TipoPago = "cuota" | "arbitraje" | "multa" | "otro";
 
 type Props = {
   tipo: TipoPago;
@@ -69,7 +71,7 @@ const FormularioPago: React.FC<Props> = ({ tipo, club, montoMinimo, partidos = [
     
     const pago: Pago = {
       id: Date.now(),
-      tipo,
+      tipo: tipo as Pago["tipo"],
       club,
       monto,
       comprobante,
@@ -79,7 +81,7 @@ const FormularioPago: React.FC<Props> = ({ tipo, club, montoMinimo, partidos = [
       categoria: tipo === "cuota" || tipo === "arbitraje" ? categoria as any : undefined,
       partidoId: tipo === "arbitraje" ? Number(partidoId) : undefined,
       cantidadJugadores: tipo === "cuota" ? cantidadJugadores : undefined,
-      motivo: tipo === "multa" ? motivo : undefined
+      motivo: tipo === "multa" ? motivo : ""
     };
     onGuardar(pago);
   };
