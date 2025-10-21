@@ -1,5 +1,12 @@
-import React from "react";
-import type { Encuentro } from "../types/types";
+// Inlined Encuentro type
+type Encuentro = {
+  fecha?: string;
+  jornada: number;
+  grupo: string;
+  club1: string;
+  club2: string;
+  resultado: string;
+};
 
 type Props = { partido: Encuentro };
 

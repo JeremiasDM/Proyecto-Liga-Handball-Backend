@@ -1,5 +1,28 @@
 import React, { useState } from "react";
-import type { Pago, Fixture } from "../types/types";
+
+// Inlined Pago type (used by this file)
+type Pago = {
+    motivo: string;
+    id: number;
+    tipo: "cuota" | "arbitraje";
+    club: string;
+    categoria: "Masculino" | "Femenino" | "Ambos";
+    partidoId?: number;
+    monto: number;
+    comprobante: string;
+    comprobanteArchivo?: string;
+    fecha: string;
+    estado: "pendiente" | "pagado" | "invalido";
+    cantidadJugadores?: number;
+    sancion?: string;
+};
+
+// Inlined Fixture type (minimal shape used here)
+type Fixture = {
+    fecha: string;
+    lugar: string;
+    partidos: any[];
+};
 import { usePagos } from "../hooks/usePagos";
 
 // Definición de tipos para las props (invariante)
@@ -157,15 +180,17 @@ const RegistroPago: React.FC<Props> = ({ clubes, partidos, montoMinimo }) => {
         const pago: Pago = {
             id: Date.now(),
             // Asumiendo 'arbitraje'. Idealmente, el tipo debería ser un campo del formulario.
-            tipo: "arbitraje" as any, 
+            tipo: "arbitraje" as any,
             club,
             // Convertir a número al crear el objeto Pago
-            partidoId: Number(partidoId), 
+            partidoId: Number(partidoId),
             monto,
             comprobante,
             comprobanteArchivo,
             fecha: new Date().toISOString(),
-            estado: "pendiente"
+            estado: "pendiente",
+            categoria: "Masculino",
+            motivo: ""
         };
         
         agregar(pago);

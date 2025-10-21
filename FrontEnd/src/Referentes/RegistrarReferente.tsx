@@ -1,6 +1,48 @@
 import React, { useState, useEffect } from "react";
-import type { Referente } from "../types/types";
-import { validarReferente } from "../utils/validaciones";
+
+// Inlined Referente type
+type Referente = {
+	id: number;
+	nombre: string;
+	apellido: string;
+	categoria: "Masculino" | "Femenino";
+	dni: string;
+	correo: string;
+	equipo: string;
+};
+
+// Inlined validarReferente
+function validarReferente(nuevo: Referente, referentes: Referente[]): string | null {
+	if (
+		!nuevo.nombre.trim() ||
+		!nuevo.apellido.trim() ||
+		!nuevo.categoria ||
+		!nuevo.dni.trim() ||
+		!nuevo.correo.trim() ||
+		!nuevo.equipo.trim()
+	) {
+		return "Todos los campos son obligatorios.";
+	}
+	if (!/^[a-zA-Z\s]{2,}$/.test(nuevo.nombre)) {
+		return "El nombre debe tener solo letras y al menos 2 caracteres.";
+	}
+	if (!/^[a-zA-Z\s]{2,}$/.test(nuevo.apellido)) {
+		return "El apellido debe tener solo letras y al menos 2 caracteres.";
+	}
+	if (!/^\d{7,10}$/.test(nuevo.dni)) {
+		return "El DNI debe tener entre 7 y 10 números.";
+	}
+	if (referentes.some(r => r.dni === nuevo.dni && r.id !== nuevo.id)) {
+		return "El DNI ya está registrado.";
+	}
+	if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nuevo.correo)) {
+		return "Correo inválido.";
+	}
+	if (!/^[a-zA-Z0-9\s]{2,}$/.test(nuevo.equipo)) {
+		return "El equipo debe contener solo letras, números y espacios.";
+	}
+	return null;
+}
 // 🛑 Importamos los estilos del archivo principal
 import { styles } from "./ReferentesPage"; 
 
@@ -42,20 +84,25 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar }) => {
     setForm({
       ...form,
       [name]: name === 'equipoId' ? Number(value) : value,
-    } as any);
+    });
     if (mensaje) setMensaje(null); 
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // NOTA: 'validarReferente(form, [])' solo valida el formato, no la unicidad.
-    const error = validarReferente({
+    // Construir el objeto Referente correctamente
+    const referente: Referente = {
       id: Date.now(),
-      equipo: clubs.find(c => c.id === form.equipoId)?.nombre || '',
-      ...form,
-    }, []); 
+      nombre: form.nombre,
+      apellido: form.apellido,
+      categoria: form.categoria as "Masculino" | "Femenino",
+      dni: form.dni,
+      correo: form.correo,
+      equipo: clubs.find(c => c.id === form.equipoId)?.nombre || "",
+    };
 
+    const error = validarReferente(referente, []);
     if (error) {
       setMensaje({ tipo: 'error', texto: error });
       setLoading(false);
@@ -66,11 +113,12 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nombre: form.nombre,
-          apellido: form.apellido,
-          categoria: form.categoria,
-          dni: form.dni,
-          correo: form.correo,
+          nombre: referente.nombre,
+          apellido: referente.apellido,
+          categoria: referente.categoria,
+          dni: referente.dni,
+          correo: referente.correo,
+          equipo: referente.equipo,
           equipoId: form.equipoId,
         }),
       });
@@ -82,19 +130,10 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar }) => {
       }
       const data = await response.json();
       if (data.success) {
-        setMensaje({ tipo: 'exito', texto: `Referente ${form.nombre} registrado exitosamente. Revisa tu correo.` });
-        // Agregar al listado local
-        onGuardar({
-          id: Date.now(),
-          nombre: form.nombre,
-          apellido: form.apellido,
-          categoria: form.categoria as 'Masculino' | 'Femenino',
-          dni: form.dni,
-          correo: form.correo,
-          equipo: clubs.find(c => c.id === form.equipoId)?.nombre || ''
-        });
+        setMensaje({ tipo: 'exito', texto: `Referente ${referente.nombre} registrado exitosamente. Revisa tu correo.` });
         // Resetear formulario
         setForm({ nombre: '', apellido: '', categoria: 'Masculino', dni: '', correo: '', equipoId: 0 });
+        onGuardar(referente);
       } else {
         setMensaje({ tipo: 'error', texto: data.message || 'Error al registrar referente.' });
       }

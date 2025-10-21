@@ -1,51 +1,65 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import RegistrarFixture from "./RegistrarFixture";
 import EditarFixture from "./EditarFixture";
 import ListaFixture from "./ListaFixture";
-import type { Encuentro, Fixture } from "../types/types";
+
+// Inlined Encuentro and Fixture types
+type Encuentro = {
+	fecha?: string;
+	jornada: number;
+	grupo: string;
+	club1: string;
+	club2: string;
+	resultado: string;
+};
+
+type Fixture = {
+	fecha: string;
+	lugar: string;
+	partidos: Encuentro[];
+};
 
 // 1. Mejora estética: Estilos definidos como objetos constantes.
 const styles = {
   pageContainer: {
-    padding: '30px 20px', // Más espacio alrededor
+    padding: '30px 20px',
     width: '100%',
-    boxSizing: 'border-box',
-    backgroundColor: '#eef2f6', // Fondo de página gris muy suave
-  },
+    boxSizing: 'border-box' as React.CSSProperties['boxSizing'],
+    backgroundColor: '#eef2f6',
+  } as React.CSSProperties,
   fixtureCard: {
     width: '100%',
-    maxWidth: '1100px', // Aumento del ancho máximo
+    maxWidth: '1100px',
     margin: '0 auto',
-    fontFamily: 'Roboto, "Helvetica Neue", Arial, sans-serif', // Fuente moderna y limpia
-    backgroundColor: '#ffffff', // Fondo blanco nítido
-    borderRadius: '12px', // Bordes suaves
-    boxShadow: '0 10px 30px rgba(0,0,0,0.1)', // Sombra profesional
-    padding: '40px', // Más espacio interno
-    boxSizing: 'border-box'
-  },
+    fontFamily: 'Roboto, "Helvetica Neue", Arial, sans-serif',
+    backgroundColor: '#ffffff',
+    borderRadius: '12px',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+    padding: '40px',
+    boxSizing: 'border-box' as React.CSSProperties['boxSizing'],
+  } as React.CSSProperties,
   title: {
-    textAlign: 'center',
-    color: '#1f3c88', // Azul corporativo
-    borderBottom: '3px solid #3498db', // Línea de división gruesa y vibrante
+    textAlign: 'center' as React.CSSProperties['textAlign'],
+    color: '#1f3c88',
+    borderBottom: '3px solid #3498db',
     paddingBottom: '15px',
     marginBottom: '30px',
-    fontSize: '2.2rem', // Título grande y dominante
+    fontSize: '2.2rem',
     fontWeight: 700,
-    letterSpacing: '0.5px', // Pequeño espacio entre letras
-  },
+    letterSpacing: '0.5px',
+  } as React.CSSProperties,
   divider: {
     border: 'none',
-    borderTop: '1px solid #e0e0e0', // Divisor sutil
+    borderTop: '1px solid #e0e0e0',
     margin: '30px 0'
-  },
-  // NUEVO: Estilo para botones contenedores (requiere implementación en Registrar/Editar)
+  } as React.CSSProperties,
   buttonContainer: {
     display: 'flex',
-    justifyContent: 'flex-start', // Alinear a la izquierda para el registro
+    justifyContent: 'flex-start' as React.CSSProperties['justifyContent'],
     gap: '10px',
     marginTop: '20px',
-    marginBottom: '10px', // Espacio antes del divisor
-  }
+    marginBottom: '10px',
+  } as React.CSSProperties
 };
 
 const FixturePage: React.FC = () => {
@@ -76,33 +90,33 @@ const FixturePage: React.FC = () => {
   };
 
   const generarFixtureAutomatico = () => {
-    // Usaremos 4 equipos para simplificar el ejemplo de la estructura
-    const clubes = ["Filosofía", "Club Unión HG", "Capilla del Monte", "Malagueño"];
-    const jornada = 1;
+		const clubes = ["Filosofía", "Club Unión HG", "Capilla del Monte", "Malagueño"];
+		const jornada = 1;
+		const fechaHoy = new Date().toISOString().split("T")[0];
 
-    // Algoritmo simple round-robin para generar encuentros
-    const partidos: Encuentro[] = [];
-    for (let i = 0; i < clubes.length; i++) {
-      for (let j = i + 1; j < clubes.length; j++) {
-        partidos.push({
-          jornada,
-          grupo: "Único",
-          club1: clubes[i],
-          club2: clubes[j],
-          resultado: "-"
-        });
-      }
-    }
+		const partidos: Encuentro[] = [];
+		for (let i = 0; i < clubes.length; i++) {
+			for (let j = i + 1; j < clubes.length; j++) {
+				partidos.push({
+					fecha: fechaHoy,
+					jornada,
+					grupo: "Único",
+					club1: clubes[i],
+					club2: clubes[j],
+					resultado: "-"
+				});
+			}
+		}
 
-    const fixtureGenerado: Fixture = {
-      fecha: new Date().toISOString().split("T")[0],
-      lugar: "Generado Automáticamente",
-      partidos: partidos
-    };
+		const fixtureGenerado: Fixture = {
+			fecha: fechaHoy,
+			lugar: "Generado Automáticamente",
+			partidos: partidos
+		};
 
-    setFixtures([...fixtures, fixtureGenerado]);
-    alert("Fixture automático generado con " + partidos.length + " encuentros.");
-  };
+		setFixtures([...fixtures, fixtureGenerado]);
+		alert("Fixture automático generado con " + partidos.length + " encuentros.");
+	};
 
   return (
     <div style={styles.pageContainer}>

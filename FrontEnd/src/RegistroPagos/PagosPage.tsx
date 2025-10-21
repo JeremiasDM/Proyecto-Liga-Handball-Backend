@@ -1,8 +1,32 @@
 import React, { useState } from "react";
 import { usePagos } from "../hooks/usePagos";
 import TablaPagosClub from "./TablaPagosClub";
-import type { Pago, TipoPago } from "../types/types";
-import { verificarSancion } from "../utils/validaciones";
+
+// Inlined Pago type and TipoPago (canonical)
+type TipoPago = "cuota" | "arbitraje";
+type Pago = {
+  motivo: string;
+  id: number;
+  tipo: "cuota" | "arbitraje";
+  club: string;
+  categoria: "Masculino" | "Femenino" | "Ambos";
+  partidoId?: number;
+  monto: number;
+  comprobante: string;
+  comprobanteArchivo?: string;
+  fecha: string;
+  estado: "pendiente" | "pagado" | "invalido";
+  cantidadJugadores?: number;
+  sancion?: string;
+};
+
+// Inlined verificarSancion
+function verificarSancion(pago: Pago): string | null {
+  if (pago.monto < 10000) {
+    return "Monto insuficiente para evitar sanción.";
+  }
+  return null;
+}
 import FormularioPago from "./FormularioPago";
 const clubes = [
   "Club A1", "Club A2", "Club A3", "Club A4",

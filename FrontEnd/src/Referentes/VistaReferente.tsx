@@ -1,5 +1,15 @@
 import React from "react";
-import type { Referente } from "../types/types";
+
+// Inlined Referente type
+type Referente = {
+    id: number;
+    nombre: string;
+    apellido: string;
+    categoria: "Masculino" | "Femenino";
+    dni: string;
+    correo: string;
+    equipo: string;
+};
 // 🛑 Importamos los estilos del archivo principal
 import { styles } from "./ReferentesPage"; 
 import type { CSSProperties } from "react";

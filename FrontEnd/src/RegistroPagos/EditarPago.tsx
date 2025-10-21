@@ -1,6 +1,65 @@
 import React, { useState } from "react";
-import type { Pago } from "../types/types";
-import { validarPago } from "../utils/validaciones";
+
+// Inlined Pago type (canonical shape)
+type Pago = {
+    motivo: string;
+    id: number;
+    tipo: "cuota" | "arbitraje";
+    club: string;
+    categoria: "Masculino" | "Femenino" | "Ambos";
+    partidoId?: number;
+    monto: number;
+    comprobante: string;
+    comprobanteArchivo?: string;
+    fecha: string;
+    estado: "pendiente" | "pagado" | "invalido";
+    cantidadJugadores?: number;
+    sancion?: string;
+};
+
+// Inlined validarPago (simplified, uses partidos only as provided)
+function validarPago(
+    nuevo: Pago,
+    montoMinimo: number,
+    partidos: any[],
+    comprobanteArchivo?: File
+): string | null {
+    if (!nuevo.club) {
+        return "Debes seleccionar un club.";
+    }
+    if (!nuevo.partidoId && nuevo.tipo === "arbitraje") {
+        return "Debes seleccionar un partido.";
+    }
+    if (!nuevo.comprobante && !nuevo.comprobanteArchivo) {
+        return "Debes ingresar el comprobante o adjuntar el archivo.";
+    }
+    if (nuevo.monto < montoMinimo) {
+        return `El monto debe ser igual o mayor al mínimo ($${montoMinimo}).`;
+    }
+
+    // fecha límite sencilla: si partido tiene fecha, valida que pago no sea posterior al viernes siguiente
+    const partido = partidos
+        .flatMap((f: any) => f.partidos)
+        .find((p: any) => p.jornada === nuevo.partidoId);
+    if (partido && (partido as any).fecha) {
+        const fechaLimite = new Date((partido as any).fecha);
+        fechaLimite.setDate(fechaLimite.getDate() + (5 - fechaLimite.getDay()));
+        fechaLimite.setHours(23, 59, 59, 999);
+        if (new Date(nuevo.fecha) > fechaLimite) {
+            return "La fecha de pago superó el límite permitido.";
+        }
+    }
+
+    if (comprobanteArchivo) {
+        if (comprobanteArchivo.size > 5 * 1024 * 1024) {
+            return "El archivo no puede superar los 5MB.";
+        }
+        if (!["image/jpeg", "image/png", "application/pdf"].includes(comprobanteArchivo.type)) {
+            return "Solo se permiten imágenes JPG/PNG o PDF.";
+        }
+    }
+    return null;
+}
 
 type Props = {
     pago: Pago;

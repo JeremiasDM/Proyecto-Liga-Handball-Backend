@@ -1,8 +1,25 @@
-import React, { useState } from "react";
-import type { Encuentro, Fixture } from "../types/types";
+import { useState } from "react";
+
+// Inlined Encuentro and Fixture types
+type Encuentro = {
+  fecha?: string;
+  jornada: number;
+  grupo: string;
+  club1: string;
+  club2: string;
+  resultado: string;
+};
+
+type Fixture = {
+  fecha: string;
+  lugar: string;
+  partidos: Encuentro[];
+};
 
 type Props = {
   onAgregarFixture: (fixture: Fixture) => void;
+  onGenerarAutomatico?: () => void;
+  buttonContainerStyle?: React.CSSProperties;
 };
 
 const clubesValidos = [
@@ -18,14 +35,13 @@ const clubesValidos = [
 
 const gruposValidos = ["A", "B"];
 
-const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
+const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture, onGenerarAutomatico, buttonContainerStyle }) => {
   const [fixture, setFixture] = useState<Fixture>({
     fecha: "",
     lugar: "",
     partidos: [],
   });
   const [partidoTemp, setPartidoTemp] = useState<Encuentro>({
-    fecha: undefined,
     jornada: 1,
     grupo: "A",
     club1: "",
@@ -52,8 +68,8 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
   const agregarPartido = () => {
     setError(null);
 
-    if (!partidoTemp.club1 || !partidoTemp.club2) {
-      setError("Completa la selección de ambos clubes.");
+    if (!partidoTemp.club1 || !partidoTemp.club2 || !partidoTemp.resultado) {
+      setError("Completa todos los campos del partido.");
       return;
     }
     if (partidoTemp.club1 === partidoTemp.club2) {
@@ -71,19 +87,16 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
       setError("Selecciona un grupo válido.");
       return;
     }
-    // La validación de resultado ahora es más flexible, ya que el resultado es opcional al agregar.
-    // Solo validamos el formato si NO está vacío o es '-'
     if (
-      partidoTemp.resultado && 
-      partidoTemp.resultado !== "-" &&
-      !/^\d{1,2}-\d{1,2}$/.test(partidoTemp.resultado)
+      partidoTemp.resultado &&
+      !/^\d{1,2}-\d{1,2}$/.test(partidoTemp.resultado) &&
+      partidoTemp.resultado !== "-"
     ) {
       setError(
         "El resultado debe tener el formato NN-NN (ej: 3-2) o ser '-' si no se jugó."
       );
       return;
     }
-
 
     const partidoDuplicado = fixture.partidos.some(
       (p) =>
@@ -99,7 +112,6 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
 
     setFixture({ ...fixture, partidos: [...fixture.partidos, partidoTemp] });
     setPartidoTemp({
-      fecha: undefined,
       jornada: 1,
       grupo: "A",
       club1: "",
@@ -124,10 +136,10 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
 
   const generarFixtureAutomatico = () => {
     const partidosAuto: Encuentro[] = [
-      { fecha: undefined, jornada: 1, grupo: "A", club1: "Club A1", club2: "Club A2", resultado: "-" },
-      { fecha: undefined, jornada: 1, grupo: "A", club1: "Club A3", club2: "Club A4", resultado: "-" },
-      { fecha: undefined, jornada: 1, grupo: "B", club1: "Club B1", club2: "Club B2", resultado: "-" },
-      { fecha: undefined, jornada: 1, grupo: "B", club1: "Club B3", club2: "Club B4", resultado: "-" },
+      { jornada: 1, grupo: "A", club1: "Club A1", club2: "Club A2", resultado: "-" },
+      { jornada: 1, grupo: "A", club1: "Club A3", club2: "Club A4", resultado: "-" },
+      { jornada: 1, grupo: "B", club1: "Club B1", club2: "Club B2", resultado: "-" },
+      { jornada: 1, grupo: "B", club1: "Club B3", club2: "Club B4", resultado: "-" },
     ];
 
     const fixtureAuto: Fixture = {
@@ -141,74 +153,57 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
     setTimeout(() => setMensaje(null), 2000);
   };
   
-  // --- Estilos Reutilizables y Mejorados ---
+  // --- Estilos Reutilizables ---
   const colorPrimary = "#1a5276"; // Azul Marino
-  const colorSecondary = "#4a90e2"; // Azul Brillante (Botón Agregar)
-  const colorSuccess = "#28a745"; // Verde (Guardar)
-  const colorWarning = "#FFD700"; // Amarillo/Oro (Generar Automático)
+  const colorSecondary = "#4a90e2"; // Azul Brillante
+  const colorSuccess = "#28a745"; // Verde
+  const colorWarning = "#FFD700"; // Amarillo/Oro
   const colorDanger = "#dc3545"; // Rojo
-  const colorBorder = "#ced4da"; // Gris claro para bordes (más oscuro que dee2e6)
-  const elementHeight = 42; // Altura estándar para campos y botón
+  const colorBorder = "#dee2e6"; // Gris claro
 
   // Estilo base para Inputs y Selects
   const inputBaseStyle: React.CSSProperties = {
-    // Aumentamos padding para mayor altura y mejor estética
-    padding: "8px 12px", 
+    padding: "8px 10px",
     border: `1px solid ${colorBorder}`,
-    borderRadius: 6, // Ligeramente más redondeado
+    borderRadius: 4,
     boxSizing: "border-box",
     transition: "border-color 0.3s, box-shadow 0.3s",
     marginTop: 4,
-    height: elementHeight, // Altura fija para coherencia
-    fontSize: "1em",
   };
-
-  // Función para simular :focus en inputs y selects
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
-    e.currentTarget.style.borderColor = colorSecondary;
-    e.currentTarget.style.boxShadow = `0 0 0 0.2rem rgba(74, 144, 226, 0.25)`;
-  };
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
-    e.currentTarget.style.borderColor = colorBorder;
-    e.currentTarget.style.boxShadow = "none";
-  };
-
 
   const labelStyle: React.CSSProperties = {
     display: "block",
-    fontSize: "0.95em", // Ligeramente más grande
-    color: "#343a40", // Gris oscuro
-    fontWeight: 600, // Más negrita
+    fontSize: "0.9em",
+    color: "#495057",
+    fontWeight: 500,
     marginBottom: 4,
   };
   
   const formGroupStyle: React.CSSProperties = {
-    // Eliminamos el marginRight si usamos flexbox gap
-    marginBottom: 16, 
+      marginBottom: 16, 
+      marginRight: 10
   };
 
   const buttonBaseStyle: React.CSSProperties = {
-    padding: "10px 20px", // Aumentado para mejor tacto
+    padding: "8px 16px",
     border: "none",
     borderRadius: "6px",
     cursor: "pointer",
     fontWeight: "bold",
     transition: "background-color 0.3s, transform 0.1s",
     whiteSpace: "nowrap",
-    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-    height: elementHeight, // Altura fija para coherencia
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   };
 
   return (
     <div
       style={{
-        maxWidth: 700, // Aumentamos ligeramente el ancho total
-        margin: "30px auto",
+        maxWidth: 600, 
+        margin: "24px auto",
         background: "#fff",
         borderRadius: 12,
-        padding: 30, // Aumentamos el padding
-        boxShadow: "0 8px 30px rgba(0, 0, 0, 0.1)", // Sombra más suave
-        fontFamily: "Arial, sans-serif",
+        padding: 24, 
+        boxShadow: "0 5px 20px rgba(0, 0, 0, 0.1)",
       }}
     >
       {/* Título */}
@@ -216,21 +211,20 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
         style={{
           color: colorPrimary,
           textAlign: "center",
-          marginBottom: 25,
-          borderBottom: `3px solid ${colorSecondary}`, // Borde más grueso
-          paddingBottom: 10,
-          fontSize: "1.8em",
+          marginBottom: 20,
+          borderBottom: `2px solid ${colorSecondary}`,
+          paddingBottom: 8,
         }}
       >
         Registro de Fixture
       </h2>
 
-      {/* --- Información General del Fixture (Fecha/Lugar) --- */}
+      {/* --- Información General del Fixture --- */}
       <div
         style={{
           display: "flex",
           gap: 20,
-          marginBottom: 30, // Más espacio debajo
+          marginBottom: 24,
           padding: 16,
           border: `1px solid ${colorBorder}`,
           borderRadius: 8,
@@ -244,8 +238,6 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
             type="date"
             value={fixture.fecha}
             onChange={handleChangeFixture}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
             style={{ ...inputBaseStyle, width: "100%" }}
           />
         </div>
@@ -256,27 +248,24 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
             placeholder="Ej: Polideportivo Central"
             value={fixture.lugar}
             onChange={handleChangeFixture}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
             style={{ ...inputBaseStyle, width: "100%" }}
           />
         </div>
       </div>
 
       {/* --- Formulario de Agregación de Partido --- */}
-      <h3 style={{ color: colorPrimary, marginBottom: 20 }}>Agregar Partido</h3>
+      <h3 style={{ color: colorPrimary, marginBottom: 16 }}>Agregar Partido</h3>
       <div
         style={{
           display: "flex",
-          gap: 15, // Reducimos ligeramente el gap y usamos flex-wrap
-          flexWrap: "wrap",
+          gap: 10,
+          // Se mantiene flexWrap para evitar desbordamiento en anchos menores
+          flexWrap: "wrap", 
           alignItems: "flex-end",
           marginBottom: 16,
-          padding: 20, // Más padding interno
-          border: `1px solid ${colorBorder}`,
-          borderRadius: 10,
-          backgroundColor: "#fff", // Fondo blanco para destacarse
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          padding: 16,
+          border: `1px dashed ${colorSecondary}`,
+          borderRadius: 8,
         }}
       >
         {/* Jornada */}
@@ -289,9 +278,7 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
             placeholder="Nº"
             value={partidoTemp.jornada}
             onChange={handleChangePartido}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            style={{ ...inputBaseStyle, width: 70, textAlign: "center" }}
+            style={{ ...inputBaseStyle, width: 70 }}
           />
         </div>
 
@@ -302,9 +289,7 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
             name="grupo"
             value={partidoTemp.grupo}
             onChange={handleChangePartido}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            style={{ ...inputBaseStyle, minWidth: 100 }}
+            style={{ ...inputBaseStyle, height: 42 }} 
           >
             {gruposValidos.map((g) => (
               <option key={g} value={g}>
@@ -315,15 +300,14 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
         </div>
 
         {/* Club 1 */}
+        {/* Para un ancho de 600px, mantendremos los anchos mínimos para legibilidad */}
         <div style={formGroupStyle}>
           <label style={labelStyle}>Club Local</label>
           <select
             name="club1"
             value={partidoTemp.club1}
             onChange={handleChangePartido}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            style={{ ...inputBaseStyle, minWidth: 140, flexGrow: 1 }}
+            style={{ ...inputBaseStyle, minWidth: 140, height: 42 }}
           >
             <option value="">Selecciona Club</option>
             {clubesValidos.map((club) => (
@@ -341,9 +325,7 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
             name="club2"
             value={partidoTemp.club2}
             onChange={handleChangePartido}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            style={{ ...inputBaseStyle, minWidth: 140, flexGrow: 1 }}
+            style={{ ...inputBaseStyle, minWidth: 140, height: 42 }}
           >
             <option value="">Selecciona Club</option>
             {clubesValidos.map((club) => (
@@ -362,25 +344,19 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
             placeholder="Ej: 25-21 o -"
             value={partidoTemp.resultado}
             onChange={handleChangePartido}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            style={{ ...inputBaseStyle, width: 90, textAlign: "center" }}
+            style={{ ...inputBaseStyle, width: 120 }}
           />
         </div>
 
         {/* Botón Agregar Partido */}
-        {/* El botón ahora tiene la misma altura que los campos */}
         <button
           style={{
             ...buttonBaseStyle,
             backgroundColor: colorSecondary,
             color: "#fff",
-            // Ajustamos el margin-bottom para alinearlo con los campos
-            marginBottom: 4, 
+            height: 42, 
+            marginBottom: 0
           }}
-          // Simulación de hover
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3a7fcf'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colorSecondary}
           onClick={agregarPartido}
           type="button"
         >
@@ -389,33 +365,26 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
       </div>
       
       {/* Mensajes de Alerta */}
-      {error && <div style={{ color: colorDanger, background: "#f8d7da", padding: 10, borderRadius: 6, marginTop: 15, fontWeight: "bold" }}>{error}</div>}
-      {mensaje && <div style={{ color: colorSuccess, background: "#d4edda", padding: 10, borderRadius: 6, marginTop: 15, fontWeight: "bold" }}>{mensaje}</div>}
+      {error && <div style={{ color: colorDanger, background: "#f8d7da", padding: 8, borderRadius: 4, marginTop: 8 }}>{error}</div>}
+      {mensaje && <div style={{ color: colorSuccess, background: "#d4edda", padding: 8, borderRadius: 4, marginTop: 8 }}>{mensaje}</div>}
 
       {/* --- Lista de Partidos Agregados --- */}
       {fixture.partidos.length > 0 && (
         <>
-        <h4 style={{ color: colorPrimary, marginTop: 25, borderBottom: `1px solid ${colorBorder}`, paddingBottom: 5 }}>Partidos para guardar ({fixture.partidos.length})</h4>
+        <h4 style={{ color: colorPrimary, marginTop: 20 }}>Partidos para guardar ({fixture.partidos.length})</h4>
         <ul style={{ marginTop: 10, listStyleType: "none", padding: 0 }}>
           {fixture.partidos.map((p, i) => (
             <li
               key={i}
               style={{
-                background: i % 2 === 0 ? "#f0f0f5" : "#fff", // Colores de fila alternos más claros
-                padding: "10px 15px",
+                background: i % 2 === 0 ? "#f8f9fa" : "#fff",
+                padding: "8px 12px",
                 borderBottom: `1px solid ${colorBorder}`,
                 borderRadius: 4,
                 fontSize: "0.95em",
-                display: "flex",
-                justifyContent: "space-between"
               }}
             >
-              <span>
-                <strong style={{ color: colorSecondary }}>J. {p.jornada}</strong> | G.{p.grupo}: {p.club1} vs {p.club2} 
-              </span>
-              <span style={{ fontWeight: "bold", color: p.resultado === "-" ? "#6c757d" : colorPrimary }}>
-                Resultado: {p.resultado}
-              </span>
+              <strong style={{ color: colorSecondary }}>Jornada {p.jornada}</strong> | G.{p.grupo}: {p.club1} vs {p.club2} ({p.resultado})
             </li>
           ))}
         </ul>
@@ -423,33 +392,26 @@ const RegistrarFixture: React.FC<Props> = ({ onAgregarFixture }) => {
       )}
 
       {/* --- Botones de Acción Final --- */}
-      <div style={{ marginTop: 30, borderTop: `1px solid ${colorBorder}`, paddingTop: 20, textAlign: "center" }}>
+      <div style={buttonContainerStyle ? buttonContainerStyle : { marginTop: 24, borderTop: `1px solid ${colorBorder}`, paddingTop: 16, textAlign: "right" }}>
         <button
           onClick={guardarFixture}
           style={{
             ...buttonBaseStyle,
             backgroundColor: colorSuccess,
             color: "#fff",
-            marginRight: 15,
+            marginRight: 8,
           }}
-          // Simulación de hover
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1e7e34'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colorSuccess}
-          disabled={!fixture.fecha || !fixture.lugar || fixture.partidos.length === 0}
         >
           Guardar Fixture Completo
         </button>
         <button
           type="button"
-          onClick={generarFixtureAutomatico}
+          onClick={onGenerarAutomatico ? onGenerarAutomatico : generarFixtureAutomatico}
           style={{
             ...buttonBaseStyle,
             backgroundColor: colorWarning,
             color: "#000",
           }}
-          // Simulación de hover
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ccaa00'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colorWarning}
         >
           Generar Automático
         </button>

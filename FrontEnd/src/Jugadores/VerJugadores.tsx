@@ -3,7 +3,20 @@ import React, { useState } from "react";
 import FormularioDatos from "./FormularioDatos"; 
 import FormularioDocumentacion from "./FormularioDocumentacion";
 // Usamos el tipo Jugador de los archivos de tu proyecto
-import type { Jugador } from "../types/types"; 
+// Inlined Jugador type
+type Jugador = {
+    estado?: string;
+    id: number;
+    nombre: string;
+    apellido: string;
+    dni: string;
+    club: string;
+    categoria: string;
+    telefono?: string;
+    vencimiento?: string;
+    carnetUrl?: string;
+    fichaMedicaUrl?: string;
+};
 // El import de Jugador puede variar según la ruta final en tu proyecto
 // import type { Jugador } from "./FormularioDatos"; // Si está en el mismo archivo de tipos
 
