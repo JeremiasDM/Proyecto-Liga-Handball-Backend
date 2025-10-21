@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import type { Pago, TipoPago } from "../types/types";
+import type { Pago } from "../types/types";
+
+type TipoPago = "cuota" | "arbitraje" | "multa" | "otro";
 
 
 interface Props {
