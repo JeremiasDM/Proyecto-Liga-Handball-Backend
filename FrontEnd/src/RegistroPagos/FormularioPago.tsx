@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 // Inlined Pago type (canonical)
 type Pago = {
-  motivo: string;
   id: number;
   tipo: "cuota" | "arbitraje";
   club: string;
