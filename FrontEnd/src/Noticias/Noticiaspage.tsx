@@ -3,6 +3,9 @@ import FormularioNoticia from "./FormularioNoticia";
 import NoticiasLista from "./NoticiasLista";
 import CarrouselNoticias from "./CarruselNoticias";
 
+// Uso temporal de 'as any' para evitar un error de tipado si CarrouselNoticias no está tipado
+const CarrouselNoticiasTyped = CarrouselNoticias as React.FC<{ noticias: Noticia[] }>;
+
 type Noticia = {
   id: number;
   titulo: string;
@@ -14,128 +17,116 @@ type Noticia = {
 // ====================================================================
 // SECCIÓN DE ESTILOS EN LÍNEA (STYLE OBJECTS)
 // ====================================================================
-// Definimos un color azul primario uniforme
-const PRIMARY_BLUE = '#1d4ed8'; // Azul oscuro para acciones primarias
-const LIGHT_BLUE = '#bfdbfe'; // Azul claro para bordes inactivos
+const PRIMARY_BLUE = '#1d4ed8'; 
+const LIGHT_BLUE = '#bfdbfe'; 
+const PRIMARY_INDIGO = '#4f46e5'; 
 
 const styles = {
     pageContainer: {
-        padding: '1.5rem', 
+        minHeight: '100vh', 
+        backgroundColor: '#f9fafb',
+        padding: '1.5rem 2rem',  
         display: 'flex',
         flexDirection: 'column' as const,
-        gap: '2rem', 
-        backgroundColor: '#f9fafb', 
-        minHeight: '100vh',
-        minwidth: '400px',
-        fontFamily: 'sans-serif' 
+        gap: '2rem', 
+        fontFamily: 'sans-serif',
+        width: '100%', 
     },
     contentWrapper: {
-        maxWidth: '800px', 
-        margin: '0 auto', 
-        width: '100%', 
+        margin: '0 auto', 
+        width: '100%', 
+        maxWidth: '1000px', 
     },
     mainTitle: {
-        fontSize: '2.5rem', 
-        fontWeight: '800', 
-        textAlign: 'center' as const, 
-        color: '#4338ca', 
-        marginBottom: '2rem', 
-        borderBottom: '4px solid #c7d2fe', 
-        paddingBottom: '1rem', 
-        letterSpacing: '-0.025em', 
+        fontSize: '2.5rem', 
+        fontWeight: '800', 
+        textAlign: 'center' as const, 
+        color: '#4338ca', 
+        marginBottom: '2rem', 
+        borderBottom: '4px solid #c7d2fe', 
+        paddingBottom: '1rem', 
+        letterSpacing: '-0.025em', 
     },
     carrouselSection: {
-        marginBottom: '2rem', 
-        padding: '1.5rem', 
-        backgroundColor: 'white', 
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', 
-        borderRadius: '1rem', 
-        border: '1px solid #e0e7ff', 
+        marginBottom: '2rem', 
+        padding: '1.5rem', 
+        backgroundColor: 'white', 
+        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', 
+        borderRadius: '1rem', 
+        border: '1px solid #e0e7ff', 
     },
     carrouselTitle: {
-        fontSize: '1.5rem', 
-        fontWeight: '700', 
-        color: '#1f2937', 
-        marginBottom: '1rem', 
-        borderLeft: '4px solid #4f46e5', 
-        paddingLeft: '0.75rem', 
+        fontSize: '1.5rem', 
+        fontWeight: '700', 
+        color: '#1f2937', 
+        marginBottom: '1rem', 
+        borderLeft: `4px solid ${PRIMARY_INDIGO}`, 
+        paddingLeft: '0.75rem', 
     },
-    toggleCarruselButton: {
-        display: 'block',
-        margin: '0 auto 2rem auto',
-        padding: '0.75rem 2rem',
-        backgroundColor: '#4f46e5', 
-        color: 'white',
-        fontWeight: '600',
-        borderRadius: '0.5rem',
-        border: 'none',
-        cursor: 'pointer',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-        transition: 'background-color 0.2s',
-        minWidth: '250px',
-        textAlign: 'center' as const,
-    },
-    managementSection: {
-        padding: '2rem', 
-        backgroundColor: 'white', 
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', 
-        borderRadius: '1.5rem', 
-        border: '1px solid #d1fae5', 
-        width: '100%', 
-        margin: '0 auto', 
+    // ❌ ESTE ESTILO SE HA ELIMINADO/DEJADO OBSOLETO ya que vamos a usar toggleButton con condicionales.
+    // carrouselToggleButton: { ... }, 
+    
+    managementSection: { 
+        padding: '2rem', 
+        backgroundColor: 'white', 
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', 
+        borderRadius: '1.5rem', 
+        border: '1px solid #d1fae5', 
+        width: '100%', 
+        margin: '0 auto', 
     },
     formTitle: {
-        fontSize: '1.875rem', 
-        fontWeight: '700', 
-        color: PRIMARY_BLUE, // USADO: Color azul uniforme
-        marginBottom: '1.5rem', 
-        textAlign: 'center' as const, 
-        borderBottom: `1px solid ${LIGHT_BLUE}`, // USADO: Borde azul claro
-        paddingBottom: '0.75rem', 
+        fontSize: '1.875rem', 
+        fontWeight: '700', 
+        color: PRIMARY_BLUE, 
+        marginBottom: '1.5rem', 
+        textAlign: 'center' as const, 
+        borderBottom: `1px solid ${LIGHT_BLUE}`, 
+        paddingBottom: '0.75rem', 
     },
     listTitle: {
-        fontSize: '1.875rem', 
-        fontWeight: '700', 
-        color: PRIMARY_BLUE, // USADO: Color azul uniforme
-        marginBottom: '1.5rem', 
-        textAlign: 'center' as const, 
-        borderBottom: `1px solid ${LIGHT_BLUE}`, // USADO: Borde azul claro
-        paddingBottom: '0.75rem', 
+        fontSize: '1.875rem', 
+        fontWeight: '700', 
+        color: PRIMARY_BLUE, 
+        marginBottom: '1.5rem', 
+        textAlign: 'center' as const, 
+        borderBottom: `1px solid ${LIGHT_BLUE}`, 
+        paddingBottom: '0.75rem', 
     },
-    toggleButtonContainer: {
-        display: 'flex', 
-        gap: '0.5rem', 
-        marginBottom: '2rem', 
+    // ✅ Estilo unificado para el contenedor de los 3 botones
+    threeButtonContainer: { 
+        display: 'flex', 
+        flexDirection: 'row' as const, 
+        gap: '0.5rem', 
+        marginBottom: '2rem', 
         width: '100%',
-        maxWidth: '800px', 
-        margin: '0 auto 2rem auto', 
+        margin: '0 auto 2rem auto', 
     },
+    // ✅ Estilo base para los 3 botones
     toggleButton: {
       padding: '0.75rem 1.5rem',
       borderRadius: '0.5rem',
       fontWeight: '600',
       cursor: 'pointer',
-      border: '2px solid', 
+      border: '2px solid', 
       transition: 'all 0.2s',
-      flex: 1, 
-      minWidth: '150px',
+      flex: 1, 
+      minWidth: '100px', 
       textAlign: 'center' as const,
       boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
     },
-    // ESTILOS AZULES UNIFORMES
     activeButton: {
-      backgroundColor: PRIMARY_BLUE, 
+      backgroundColor: PRIMARY_BLUE, 
       color: 'white',
       borderColor: PRIMARY_BLUE,
     },
     inactiveButton: {
       backgroundColor: 'white',
-      color: PRIMARY_BLUE, 
-      borderColor: PRIMARY_BLUE, 
+      color: PRIMARY_BLUE, 
+      borderColor: PRIMARY_BLUE, 
     },
 };
 
-// Definir el tipo de vista
 type View = 'formulario' | 'lista';
 
 const NoticiasPage: React.FC = () => {
@@ -143,7 +134,7 @@ const NoticiasPage: React.FC = () => {
   const [noticiaAEditar, setNoticiaAEditar] = useState<Noticia | null>(null);
   const [activeView, setActiveView] = useState<View>('formulario');
   const [mostrarCarrusel, setMostrarCarrusel] = useState(false);
-  
+  
   useEffect(() => {
     const guardadas = localStorage.getItem("noticias");
     if (guardadas) setNoticias(JSON.parse(guardadas));
@@ -155,16 +146,15 @@ const NoticiasPage: React.FC = () => {
 
   const handleGuardar = (nueva: Noticia) => {
     setNoticias([...noticias, nueva]);
-    setActiveView('lista');
-    setNoticiaAEditar(null); 
+    setNoticiaAEditar(null); 
+    alert("Noticia guardada correctamente.");
   };
 
   const handleActualizar = (noticiaActualizada: Noticia) => {
-    setNoticias(noticias.map(n => 
+    setNoticias(noticias.map(n => 
         n.id === noticiaActualizada.id ? noticiaActualizada : n
     ));
-    setNoticiaAEditar(null); 
-    setActiveView('lista'); 
+    setNoticiaAEditar(null); 
     alert("Noticia actualizada correctamente.");
   };
 
@@ -178,113 +168,127 @@ const NoticiasPage: React.FC = () => {
 
   const handleEditar = (noticia: Noticia) => {
     setNoticiaAEditar(noticia);
-    setActiveView('formulario'); 
+    setActiveView('formulario'); 
   };
 
   const handleVistaToggle = (view: View) => {
-    if (view === 'lista') {
-        setNoticiaAEditar(null);
-    }
+    // Limpiamos la noticia a editar siempre que cambiamos de vista
+    setNoticiaAEditar(null); 
     setActiveView(view);
+  };
+    
+  const handleToggleCarrusel = () => {
+      setMostrarCarrusel(!mostrarCarrusel);
+      setNoticiaAEditar(null); 
   };
 
   const handleCancelEdit = () => {
     setNoticiaAEditar(null);
-    setActiveView('formulario'); 
+    setActiveView('formulario'); 
   };
 
 
   return (
     <div style={styles.pageContainer as React.CSSProperties}>
-      <div style={styles.contentWrapper}>
+      <div style={styles.contentWrapper}> 
         <h2 style={styles.mainTitle as React.CSSProperties}>
            Portal de Noticias y Anuncios
         </h2>
 
-        {/* Botón para alternar la visibilidad del carrusel */}
-        <button
-            onClick={() => setMostrarCarrusel(!mostrarCarrusel)}
-            style={styles.toggleCarruselButton}
-        >
-            {mostrarCarrusel ? 'Ocultar Últimas Novedades' : 'Ver Últimas Novedades'}
-        </button>
-{/* ------------------------------------------------------------------ */}
-        {/* Sección de Últimas Noticias (Carrusel) */}
-        {mostrarCarrusel && (
-        <section style={styles.carrouselSection}>
-          <h3 style={styles.carrouselTitle}>
-            Últimas Novedades
-          </h3>
-          <CarrouselNoticias noticias={noticias} />
-        </section>
-        )}
-{/* ------------------------------------------------------------------ */}
-        {/* Botones de Navegación entre secciones (AZULES UNIFORMES) */}
-        <div style={styles.toggleButtonContainer}>
+        {/* CONTENEDOR DE TRES BOTONES UNIFICADO */}
+        <div style={styles.threeButtonContainer}> 
             <button
                 onClick={() => handleVistaToggle('formulario')}
                 style={{
                     ...styles.toggleButton,
+                    // Estilo activo/inactivo para el formulario
                     ...(activeView === 'formulario' ? styles.activeButton : styles.inactiveButton)
                 }}
             >
                  Gestión de Noticias
             </button>
+
+            {/* ✅ BOTÓN CENTRAL (CARRUSEL) AHORA CON ESTILO CONDICIONAL */}
+            <button
+                onClick={handleToggleCarrusel} 
+                style={{
+                    ...styles.toggleButton, // Usamos la base de los otros botones
+                    // Estilo activo/inactivo basado en si el carrusel está visible
+                    ...(mostrarCarrusel ? styles.activeButton : styles.inactiveButton)
+                }}
+            >
+                  {mostrarCarrusel ? 'Ocultar Novedades' : 'Ver Últimas Novedades'}
+            </button>
+        
             <button
                 onClick={() => handleVistaToggle('lista')}
                 style={{
                     ...styles.toggleButton,
+                    // Estilo activo/inactivo para la lista
                     ...(activeView === 'lista' ? styles.activeButton : styles.inactiveButton)
                 }}
             >
                  Ver Listado
             </button>
         </div>
-{/* ------------------------------------------------------------------ */}
+
+        {/* Sección de Últimas Noticias (Carrusel) */}
+        {mostrarCarrusel && (
+        <section style={styles.carrouselSection}>
+          <h3 style={styles.carrouselTitle}>
+            Últimas Novedades
+          </h3>
+          <CarrouselNoticiasTyped noticias={noticias} />
+        </section>
+        )}
+
         {/* SECCIÓN ACTIVA (SOLO UNA VISIBLE) */}
-        <section style={styles.managementSection}> 
-          
-          {/* Contenido del Formulario */}
-          {activeView === 'formulario' && (
-            <div>
-              <h3 style={styles.formTitle as React.CSSProperties}>
-                {noticiaAEditar ? 'Editar Noticia Existente' : 'Crear Nueva Noticia'}
-              </h3>
-              <FormularioNoticia 
-                onGuardar={handleGuardar} 
+        
+        {/* Contenido del Formulario */}
+        {activeView === 'formulario' && (
+          <section style={styles.managementSection}> 
+            <h3 style={styles.formTitle as React.CSSProperties}>
+              {noticiaAEditar ? 'Editar Noticia Existente' : 'Crear Nueva Noticia'}
+            </h3>
+            <FormularioNoticia 
+                key={noticiaAEditar ? noticiaAEditar.id : 0} 
+                onGuardar={handleGuardar} 
                 onActualizar={handleActualizar}
                 noticiaAEditar={noticiaAEditar}
                 onCancelEdit={handleCancelEdit}
-              />
-            </div>
-          )}
+            />
+          </section>
+        )}
 
-          {/* Contenido de la Lista */}
-          {activeView === 'lista' && (
-            <div>
-              <h3 style={styles.listTitle as React.CSSProperties}>
-                 Noticias Publicadas
-              </h3>
-              <NoticiasLista 
-                noticias={noticias} 
-                onEliminar={handleEliminar} 
-                onEditar={handleEditar}
-              />
-            </div>
-          )}
-        </section>
+        {/* Contenido de la Lista */}
+        {activeView === 'lista' && (
+          <section style={styles.managementSection}> 
+            <h3 style={styles.listTitle as React.CSSProperties}>
+               Noticias Publicadas
+            </h3>
+            <NoticiasLista 
+              noticias={noticias} 
+              onEliminar={handleEliminar} 
+              onEditar={handleEditar}
+            />
+          </section>
+        )}
       </div>
       <style>{`
-        /* Estilos para la barra de desplazamiento en la lista para un toque más moderno */
+        /* Estilos para la barra de desplazamiento en la lista */
         .list-scroll-container::-webkit-scrollbar {
             width: 8px;
         }
         .list-scroll-container::-webkit-scrollbar-thumb {
-            background-color: #d1d5db; 
+            background-color: #d1d5db; 
             border-radius: 10px;
         }
         .list-scroll-container::-webkit-scrollbar-thumb:hover {
-            background-color: #9ca3af; 
+            background-color: #9ca3af; 
+        }
+        /* Asegura que el fondo de la página sea el deseado */
+        body, html, #root {
+            background-color: #f9fafb !important;
         }
       `}</style>
     </div>
