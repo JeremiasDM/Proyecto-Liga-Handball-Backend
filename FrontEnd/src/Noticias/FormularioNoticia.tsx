@@ -1,6 +1,9 @@
+// FormularioNoticia.tsx
+
 import React, { useState, useEffect } from "react";
 
 type Noticia = {
+// ... Omitido por brevedad
   id: number;
   titulo: string;
   contenido: string;
@@ -12,75 +15,83 @@ type Noticia = {
 type FormNoticia = Omit<Noticia, 'id'> & { id?: number };
 
 type Props = {
+// ... Omitido por brevedad
   onGuardar: (noticia: Noticia) => void;
-  onActualizar: (noticia: Noticia) => void; // Nuevo prop
-  noticiaAEditar: Noticia | null; // Nuevo prop
-  onCancelEdit: () => void; // Nuevo prop para cancelar edición
+  onActualizar: (noticia: Noticia) => void; 
+  noticiaAEditar: Noticia | null; 
+  onCancelEdit: () => void; 
 };
+
+// Definimos los colores primarios para usar en el foco y botones
+const PRIMARY_BLUE = '#1d4ed8'; // Azul oscuro para el anillo de foco y botón principal
+const LIGHT_BLUE = '#bfdbfe'; 
+const RED_COLOR = '#ef4444'; // Rojo para el botón cancelar
 
 // Estilos convertidos a objeto para su uso en línea
 const styles = {
-    // ... (Estilos de FormularioNoticia se mantienen sin cambios)
+// ... Estilos de label, inputBase, textarea, etc. (sin cambios importantes)
     formContainer: {
         display: 'flex' as React.CSSProperties['display'],
         flexDirection: 'column' as React.CSSProperties['flexDirection'],
         gap: '1rem',
     } as React.CSSProperties,
-    inputGroup: {
-        marginBottom: '1rem',
-    } as React.CSSProperties,
     label: {
         display: 'block',
         fontSize: '0.875rem',
-        fontWeight: '500',
-        color: '#4b5563',
-        marginBottom: '0.25rem',
+        fontWeight: '600', 
+        color: '#1f2937', 
+        marginBottom: '0.35rem', 
     } as React.CSSProperties,
     inputBase: {
         width: '100%',
         padding: '0.75rem',
         border: '1px solid #d1d5db',
         borderRadius: '0.5rem',
-        transition: 'border-color 0.15s ease-in-out',
+        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        transition: 'all 0.2s ease-in-out', 
+        resize: 'none', 
     } as React.CSSProperties,
     textarea: {
         width: '100%',
         padding: '0.75rem',
         border: '1px solid #d1d5db',
         borderRadius: '0.5rem',
-        transition: 'border-color 0.15s ease-in-out',
+        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        transition: 'all 0.2s ease-in-out', 
+        resize: 'vertical' as 'vertical', 
     } as React.CSSProperties,
     fileInput: {
         width: '100%',
         padding: '0.75rem',
         border: '1px solid #d1d5db',
         borderRadius: '0.5rem',
+        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
     } as React.CSSProperties,
     successText: {
         marginTop: '0.5rem',
         fontSize: '0.875rem',
         color: '#059669',
     } as React.CSSProperties,
-    buttonBase: { // Nuevo estilo base para botones
+    buttonBase: { 
         padding: '0.75rem 1rem',
         fontWeight: '700',
         borderRadius: '0.5rem',
-        transition: 'background-color 0.2s ease',
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        transition: 'background-color 0.2s ease, transform 0.1s ease', 
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06)',
         cursor: 'pointer',
         border: 'none',
         width: '100%',
     } as React.CSSProperties,
     saveButton: {
-      backgroundColor: '#4f46e5', // indigo-600
+      backgroundColor: PRIMARY_BLUE, // CAMBIO: Usar PRIMARY_BLUE para el botón principal
       color: 'white',
       marginTop: '1.25rem',
-    } as React.CSSProperties,
+    },
     cancelButton: {
-      backgroundColor: '#ef4444', // red-500
+      backgroundColor: RED_COLOR, 
       color: 'white',
       marginTop: '0.5rem',
-    } as React.CSSProperties,
+    },
     buttonGroup: {
       display: 'flex',
       flexDirection: 'column' as const,
@@ -91,6 +102,7 @@ const styles = {
 
 
 const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAEditar, onCancelEdit }) => {
+// ... Lógica del componente (sin cambios)
   const initialState: FormNoticia = {
     titulo: "",
     contenido: "",
@@ -100,7 +112,6 @@ const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAE
 
   const [form, setForm] = useState<FormNoticia>(initialState);
 
-  // Efecto para precargar los datos si estamos editando
   useEffect(() => {
     if (noticiaAEditar) {
         setForm(noticiaAEditar);
@@ -115,17 +126,15 @@ const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAE
     setForm({ ...form, [name]: value });
   };
 
-  // Función para manejar la carga de archivos
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
-      setForm({ ...form, imagenUrl: form.imagenUrl || "" }); // Mantener la URL existente si cancela
+      setForm({ ...form, imagenUrl: form.imagenUrl || "" }); 
       return;
     }
 
     if (!file.type.startsWith("image/")) {
       alert("La imagen debe ser un archivo válido (jpg, png, etc).");
-      // Limpiar input de archivo sin borrar la imagenUrl existente
       e.target.value = ''; 
       return;
     }
@@ -144,7 +153,6 @@ const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAE
     reader.readAsDataURL(file);
   };
 
-  // Función de validación de formulario
   const validateForm = (data: FormNoticia): boolean => {
     if (!data.titulo || data.titulo.length < 5) {
       alert("El título debe tener al menos 5 caracteres.");
@@ -166,25 +174,52 @@ const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAE
 
     if (!validateForm(form)) return;
 
-    // Lógica para AÑADIR o ACTUALIZAR
     if (form.id) {
-        // ACTUALIZAR
         onActualizar(form as Noticia);
     } else {
-        // GUARDAR NUEVA
         onGuardar({ ...form, id: Date.now() } as Noticia);
         alert(" Noticia guardada correctamente.");
     }
     
-    // Limpiar formulario si se está creando, o simplemente salir del modo edición si se está actualizando.
     setForm(initialState);
   };
 
   return (
     <form onSubmit={handleSubmit} style={styles.formContainer}>
+        {/* INYECCIÓN DE ESTILOS CSS PARA PSEUDO-SELECTORES (:focus, :hover, :active) */}
+        <style>{`
+            .form-input-base {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+            }
+
+            /* 1. Estilo para el estado :focus (Anillo de enfoque azul) */
+            .form-input-base:focus {
+                outline: none;
+                border-color: ${PRIMARY_BLUE};
+                box-shadow: 0 0 0 3px ${LIGHT_BLUE}; /* Sutilmente más pequeño */
+            }
+
+            /* 2. Estilo para el estado :hover y :active en botones (Usando ahora PRIMARY_BLUE) */
+            .button-save:hover {
+                background-color: #1e40af; /* dark blue */
+            }
+            .button-save:active {
+                transform: scale(0.99);
+            }
+            .button-cancel:hover {
+                background-color: #dc2626; /* red-600 */
+            }
+            .button-cancel:active {
+                transform: scale(0.99);
+            }
+        `}</style>
+
       <div>
         <label htmlFor="titulo" style={styles.label}>Título</label>
         <input
+// ... inputs y textarea (sin cambios importantes)
             id="titulo"
             type="text"
             name="titulo"
@@ -192,6 +227,7 @@ const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAE
             value={form.titulo}
             onChange={handleChange}
             style={styles.inputBase}
+            className="form-input-base" 
             required
         />
       </div>
@@ -206,6 +242,7 @@ const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAE
             onChange={handleChange}
             rows={5}
             style={styles.textarea}
+            className="form-input-base" 
             required
         />
       </div>
@@ -219,6 +256,7 @@ const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAE
             value={form.fecha}
             onChange={handleChange}
             style={styles.inputBase}
+            className="form-input-base" 
             required
         />
       </div>
@@ -231,6 +269,7 @@ const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAE
             accept="image/*" 
             onChange={handleFileUpload} 
             style={styles.fileInput}
+            className="form-input-base" 
         />
         {form.imagenUrl && (
             <p style={styles.successText}>
@@ -243,17 +282,19 @@ const FormularioNoticia: React.FC<Props> = ({ onGuardar, onActualizar, noticiaAE
         <button 
             type="submit" 
             style={{...styles.buttonBase, ...styles.saveButton}}
+            className="button-save" 
         >
             {form.id ? ' Actualizar Noticia' : ' Publicar Noticia'}
         </button>
         
-        {form.id && ( // Botón de cancelar solo en modo edición
+        {form.id && ( 
             <button
                 type="button"
                 onClick={onCancelEdit}
                 style={{...styles.buttonBase, ...styles.cancelButton}}
+                className="button-cancel" 
             >
-                 Cancelar Edición
+                 Cancelar Edición
             </button>
         )}
       </div>
