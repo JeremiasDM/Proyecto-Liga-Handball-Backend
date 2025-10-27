@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Localidad } from './localidad.entity';
-import { LocalidadesService } from './localidades.service';
+import { Localidad } from './entities/localidad.entity';
 import { LocalidadesController } from './localidades.controller';
+import { LocalidadesService } from './localidades.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Localidad])],
-  providers: [LocalidadesService],
   controllers: [LocalidadesController],
+  providers: [LocalidadesService],
 })
 export class LocalidadesModule {}

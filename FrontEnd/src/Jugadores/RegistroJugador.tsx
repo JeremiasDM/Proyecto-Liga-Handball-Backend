@@ -1,124 +1,157 @@
 import React, { useState } from "react";
 
-// Inlined Jugador type (previously from src/Types/types.ts)
-type Jugador = {
-  estado?: string;
+// (Pega aquí la función 'validarJugador' de tu archivo)
+// ...
+
+// --- Tipos ---
+interface Club {
   id: number;
+  nombre: string;
+}
+
+// DTO para Fase 1
+interface CreateJugadorFase1Dto {
   nombre: string;
   apellido: string;
   dni: string;
-  club: string;
+  clubId: number;
   categoria: string;
   telefono?: string;
   vencimiento?: string;
-  carnetUrl?: string;
-  fichaMedicaUrl?: string;
-};
-
-// Inlined validarJugador (previously from src/utils/validaciones.ts)
-function validarJugador(nuevo: Jugador, jugadores: Jugador[]): string | null {
-  if (jugadores.some(j => j.dni === nuevo.dni && j.id !== nuevo.id)) {
-    return "El DNI ingresado ya pertenece a otro jugador.";
-  }
-
-  if (nuevo.telefono && jugadores.some(j => j.telefono === nuevo.telefono && j.id !== nuevo.id)) {
-    return "El teléfono ingresado ya pertenece a otro jugador.";
-  }
-
-  if (
-    !nuevo.nombre.trim() ||
-    !nuevo.apellido.trim() ||
-    !nuevo.dni.trim() ||
-    !nuevo.club.trim() ||
-    !nuevo.categoria
-  ) {
-    return "Todos los campos son obligatorios.";
-  }
-
-  if (nuevo.nombre.trim().length < 2 || nuevo.apellido.trim().length < 2) {
-    return "El nombre y apellido deben tener al menos 2 caracteres.";
-  }
-
-  if (!/^\d{7,8}$/.test(nuevo.dni)) {
-    return "El DNI debe tener 7 u 8 dígitos numéricos.";
-  }
-
-  if (nuevo.telefono && !/^\d{7,15}$/.test(nuevo.telefono)) {
-    return "El teléfono debe tener entre 7 y 15 dígitos numéricos.";
-  }
-
-  if (nuevo.vencimiento) {
-    const fecha = new Date(nuevo.vencimiento);
-    if (isNaN(fecha.getTime()) || fecha <= new Date()) {
-      return "La fecha de vencimiento debe ser válida y posterior a hoy.";
-    }
-  }
-  return null;
+  estado: string;
 }
 
+// Props que recibe
 type Props = {
-  onRegistrar: (jugador: Jugador) => void;
+  onRegistrar: (dto: CreateJugadorFase1Dto) => void;
+  clubes: Club[];
 };
 
-const RegistroJugador: React.FC<Props> = ({ onRegistrar }) => {
-  const [jugador, setJugador] = useState<Jugador>({
-    id: Date.now(),
+const RegistroJugador: React.FC<Props> = ({ onRegistrar, clubes }) => {
+  const [form, setForm] = useState<CreateJugadorFase1Dto>({
     nombre: "",
     apellido: "",
     dni: "",
-    club: "",
+    clubId: 0, // <-- CAMBIO
     categoria: "",
     telefono: "",
     vencimiento: "",
-    carnetUrl: undefined,
-    fichaMedicaUrl: undefined,
-    estado: "activo"
+    estado: "activo",
   });
+  const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    setJugador({ ...jugador, [name]: value });
+    setError(null);
+    setForm({
+      ...form,
+      [name]: name === "clubId" ? Number(value) : value, // <-- CAMBIO
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const error = validarJugador(jugador, []);
-    if (error) {
-      alert(error);
+    setError(null);
+
+    // Validación simple de campos (la validación de DNI se hará en el backend)
+    if (
+      !form.nombre || !form.apellido || !form.dni ||
+      !form.clubId || !form.categoria
+    ) {
+      setError("Todos los campos marcados con * son obligatorios.");
       return;
     }
-    onRegistrar({ ...jugador, id: Date.now(), estado: "activo" });
-    setJugador({
-      id: Date.now(),
-      nombre: "",
-      apellido: "",
-      dni: "",
-      club: "",
-      categoria: "",
-      telefono: "",
-      vencimiento: "",
-      carnetUrl: undefined,
-      fichaMedicaUrl: undefined,
-      estado: "activo"
-    });
+    
+    // (Puedes añadir validación de formato de DNI/Teléfono aquí si lo deseas)
+
+    onRegistrar(form); // Pasa el DTO de Fase 1 al padre
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-white shadow-lg rounded-2xl p-6">
-      <h2 className="text-xl font-bold mb-4 text-center">Registro de Jugador</h2>
+    <div className="max-w-lg mx-auto">
+      <h2 className="text-xl font-bold mb-4 text-center">
+        Paso 1: Datos del Jugador
+      </h2>
+      {error && <div style={{ color: "red", textAlign: "center", marginBottom: "1rem" }}>{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input name="nombre" placeholder="Nombre" value={jugador.nombre} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="apellido" placeholder="Apellido" value={jugador.apellido} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="dni" placeholder="DNI" value={jugador.dni} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="club" placeholder="Club" value={jugador.club} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <select name="categoria" value={jugador.categoria} onChange={handleChange} className="w-full p-2 border rounded" required>
-          <option value="">Seleccione Categoría</option>
+        <input
+          name="nombre"
+          placeholder="Nombre *"
+          value={form.nombre}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          name="apellido"
+          placeholder="Apellido *"
+          value={form.apellido}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          name="dni"
+          placeholder="DNI *"
+          value={form.dni}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        />
+
+        {/* --- CAMBIO: Input a Select --- */}
+        <select
+          name="clubId"
+          value={form.clubId}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        >
+          <option value={0} disabled>
+            Seleccione Club *
+          </option>
+          {clubes.map((club) => (
+            <option key={club.id} value={club.id}>
+              {club.nombre}
+            </option>
+          ))}
+        </select>
+        {/* --- FIN DEL CAMBIO --- */}
+
+        <select
+          name="categoria"
+          value={form.categoria}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        >
+          <option value="">Seleccione Categoría *</option>
           <option value="Femenino">Femenino</option>
           <option value="Masculino">Masculino</option>
         </select>
-        <input name="telefono" placeholder="Teléfono" value={jugador.telefono} onChange={handleChange} className="w-full p-2 border rounded" />
-        <input type="date" name="vencimiento" value={jugador.vencimiento} onChange={handleChange} className="w-full p-2 border rounded" />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">Guardar</button>
+        <input
+          name="telefono"
+          placeholder="Teléfono (Opcional)"
+          value={form.telefono}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="date"
+          name="vencimiento"
+          value={form.vencimiento}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+        />
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+        >
+          Siguiente (Documentación)
+        </button>
       </form>
     </div>
   );

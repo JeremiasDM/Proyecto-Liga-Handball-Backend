@@ -1,179 +1,266 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import RegistroJugador from "./RegistroJugador";
 import ListaJugadores from "./ListaJugadores";
 import FormularioDocumentacion from "./FormularioDocumentacion";
 import BarraProgreso from "./BarraProgreso";
-import { useJugadores } from "../hooks/useJugadores";
+import EditarJugador from "./EditarJugador"; // <-- AÑADIR
+// import { useJugadores } from "../hooks/useJugadores"; // <-- ELIMINAR
 
-// Inlined Jugador type
-type Jugador = {
-  estado?: string;
+// --- NUEVOS TIPOS (DE LA API) ---
+interface Club {
+  id: number;
+  nombre: string;
+}
+
+interface Jugador {
   id: number;
   nombre: string;
   apellido: string;
   dni: string;
-  club: string;
+  clubId: number;
+  club: Club; // <-- Objeto anidado
   categoria: string;
   telefono?: string;
   vencimiento?: string;
   carnetUrl?: string;
   fichaMedicaUrl?: string;
-};
-
-// Inlined validarJugador (subset used by this page)
-function validarJugador(nuevo: Jugador, jugadores: Jugador[]): string | null {
-  if (jugadores.some(j => j.dni === nuevo.dni && j.id !== nuevo.id)) {
-    return "El DNI ingresado ya pertenece a otro jugador.";
-  }
-
-  if (nuevo.telefono && jugadores.some(j => j.telefono === nuevo.telefono && j.id !== nuevo.id)) {
-    return "El teléfono ingresado ya pertenece a otro jugador.";
-  }
-
-  if (
-    !nuevo.nombre.trim() ||
-    !nuevo.apellido.trim() ||
-    !nuevo.dni.trim() ||
-    !nuevo.club.trim() ||
-    !nuevo.categoria
-  ) {
-    return "Todos los campos son obligatorios.";
-  }
-
-  if (nuevo.nombre.trim().length < 2 || nuevo.apellido.trim().length < 2) {
-    return "El nombre y apellido deben tener al menos 2 caracteres.";
-  }
-
-  if (!/^\d{7,8}$/.test(nuevo.dni)) {
-    return "El DNI debe tener 7 u 8 dígitos numéricos.";
-  }
-
-  if (nuevo.telefono && !/^\d{7,15}$/.test(nuevo.telefono)) {
-    return "El teléfono debe tener entre 7 y 15 dígitos numéricos.";
-  }
-
-  if (nuevo.vencimiento) {
-    const fecha = new Date(nuevo.vencimiento);
-    if (isNaN(fecha.getTime()) || fecha <= new Date()) {
-      return "La fecha de vencimiento debe ser válida y posterior a hoy.";
-    }
-  }
-  return null;
+  estado?: string;
 }
 
-// Definimos los posibles estados de vista
-type Vista = 'registro' | 'lista';
+// DTO para Fase 1 (sin ID)
+interface CreateJugadorFase1Dto {
+  nombre: string;
+  apellido: string;
+  dni: string;
+  clubId: number;
+  categoria: string;
+  telefono?: string;
+  vencimiento?: string;
+  estado: string;
+}
+
+// DTO para crear (incluye docs)
+interface CreateJugadorDto extends CreateJugadorFase1Dto {
+  carnetUrl?: string;
+  fichaMedicaUrl?: string;
+}
+
+type Vista = "registro" | "lista" | "editar"; // <-- AÑADIR VISTA EDITAR
+const API_URL = "http://localhost:3001"; // URL del Backend Nest.js
 
 const JugadoresPage: React.FC = () => {
-  const { jugadores, agregar, actualizar, eliminar } = useJugadores();
-  const [vista, setVista] = useState<Vista>('registro'); 
+  // --- NUEVO ESTADO CON API ---
+  const [jugadores, setJugadores] = useState<Jugador[]>([]);
+  const [clubes, setClubes] = useState<Club[]>([]);
+  const [vista, setVista] = useState<Vista>("registro");
   const [fase, setFase] = useState<1 | 2>(1);
-  const [jugadorEnProceso, setJugadorEnProceso] = useState<Jugador | null>(null);
+  const [jugadorEnProceso, setJugadorEnProceso] =
+    useState<CreateJugadorFase1Dto | null>(null); // DTO de Fase 1
+  const [jugadorEditando, setJugadorEditando] = useState<Jugador | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // --- LÓGICA DE GESTIÓN DE JUGADORES (Sin cambios) ---
+  // --- Cargar datos al montar ---
+  useEffect(() => {
+    cargarJugadores();
+    cargarClubes();
+  }, []);
 
-  const registrarJugador = (nuevo: Jugador) => {
-    const error = validarJugador(nuevo, jugadores);
-    if (error) {
-      alert(error);
-      return;
+  const cargarJugadores = async () => {
+    try {
+      const res = await fetch(`${API_URL}/jugadores`);
+      if (!res.ok) throw new Error("Error al cargar jugadores");
+      const data: Jugador[] = await res.json();
+      setJugadores(data);
+    } catch (err) {
+      setError((err as Error).message);
     }
-    setJugadorEnProceso(nuevo);
+  };
+
+  const cargarClubes = async () => {
+    try {
+      const res = await fetch(`${API_URL}/clubes`);
+      if (!res.ok) throw new Error("Error al cargar clubes");
+      const data: Club[] = await res.json();
+      setClubes(data);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
+  // --- LÓGICA DE NAVEGACIÓN Y CRUD ---
+
+  const irARegistro = () => {
+    setJugadorEditando(null);
+    setJugadorEnProceso(null);
+    setFase(1);
+    setVista("registro");
+    setError(null);
+  };
+
+  const irALista = () => {
+    setJugadorEditando(null);
+    setJugadorEnProceso(null);
+    setFase(1);
+    setVista("lista");
+    setError(null);
+  };
+
+  // Fase 1: Recibe datos básicos, pasa a Fase 2
+  const registrarJugador = (fase1Dto: CreateJugadorFase1Dto) => {
+    // (Validación ya hecha en el componente hijo)
+    setJugadorEnProceso(fase1Dto);
     setFase(2);
   };
 
-  const guardarDocumentacion = (jugadorConDocs: Jugador) => {
-    const error = validarJugador(jugadorConDocs, jugadores);
-    if (error) {
-      alert(error);
-      return;
+  // Fase 2: Recibe docs y guarda todo en la API
+  const guardarDocumentacion = async (docs: {
+    carnetUrl?: string;
+    fichaMedicaUrl?: string;
+  }) => {
+    if (!jugadorEnProceso) return;
+    setError(null);
+
+    const dtoCompleto: CreateJugadorDto = {
+      ...jugadorEnProceso,
+      ...docs,
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/jugadores`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dtoCompleto),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(
+          errData.message || "Error al crear el jugador (revise DNI duplicado)",
+        );
+      }
+
+      await cargarJugadores(); // Recargar lista
+      irARegistro(); // Volver a Fase 1
+    } catch (err) {
+      setError((err as Error).message);
     }
-    agregar(jugadorConDocs);
-    setJugadorEnProceso(null);
-    setFase(1);
-    // Opcional: Podrías cambiar a setVista('lista') después de guardar
   };
 
-  const actualizarJugador = (jugadorActualizado: Jugador) => {
-    const error = validarJugador(jugadorActualizado, jugadores);
-    if (error) {
-      alert(error);
-      return;
+  const actualizarJugador = async (id: number, dto: Partial<Jugador>) => {
+    setError(null);
+    try {
+      const res = await fetch(`${API_URL}/jugadores/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dto),
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(
+          errData.message || "Error al actualizar (revise DNI duplicado)",
+        );
+      }
+      await cargarJugadores();
+      irALista(); // Volver a la lista
+    } catch (err) {
+      setError((err as Error).message);
     }
-    actualizar(jugadorActualizado);
   };
 
-  const eliminarJugador = (id: number) => {
+  const eliminarJugador = async (id: number) => {
     if (window.confirm("¿Seguro que quieres eliminar este jugador?")) {
-      eliminar(id);
+      setError(null);
+      try {
+        const res = await fetch(`${API_URL}/jugadores/${id}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error("Error al eliminar");
+        await cargarJugadores(); // Recargar
+      } catch (err) {
+        setError((err as Error).message);
+      }
     }
   };
-
-  // --- Renderizado de Vistas (Sin cambios) ---
 
   const renderContenidoPrincipal = () => {
-    if (vista === 'registro') {
+    // --- VISTA REGISTRO (Fase 1 y 2) ---
+    if (vista === "registro") {
       return (
-        <>
-          {/* Formulario de Registro / Documentación */}
-          <div className="form-card card">
-            <BarraProgreso fase={fase} />
-            
-            {fase === 1 && (
-              <RegistroJugador onRegistrar={registrarJugador} />
-            )}
-            
-            {fase === 2 && jugadorEnProceso && (
-              <FormularioDocumentacion
-                jugador={jugadorEnProceso}
-                onGuardar={guardarDocumentacion}
-                onCancelar={() => {
-                  setJugadorEnProceso(null);
-                  setFase(1);
-                }}
-              />
-            )}
+        <div className="form-card card">
+          <BarraProgreso fase={fase} />
+          {error && <div style={{ color: "red", textAlign: "center", marginBottom: "1rem" }}>{error}</div>}
 
-            {/* BOTÓN PARA IR A LA LISTA */}
-            <button 
-              onClick={() => setVista('lista')} 
-              className="action-button-switch"
-            >
-              Ver Lista de Jugadores ({jugadores.length}) ➡️
-            </button>
-          </div>
-        </>
+          {fase === 1 && (
+            <RegistroJugador
+              onRegistrar={registrarJugador}
+              clubes={clubes} // <-- Pasar clubes
+            />
+          )}
+
+          {fase === 2 && jugadorEnProceso && (
+            <FormularioDocumentacion
+              // Pasamos solo los datos necesarios
+              jugadorInfo={{
+                nombre: jugadorEnProceso.nombre,
+                apellido: jugadorEnProceso.apellido,
+              }}
+              onGuardar={guardarDocumentacion}
+              onCancelar={() => {
+                setJugadorEnProceso(null);
+                setFase(1);
+              }}
+            />
+          )}
+
+          <button onClick={irALista} className="action-button-switch">
+            Ver Lista de Jugadores ({jugadores.length}) ➡️
+          </button>
+        </div>
       );
-    } else { // vista === 'lista'
+    }
+
+    // --- VISTA LISTA ---
+    if (vista === "lista") {
       return (
         <div className="list-card card">
-          <h2 className="list-title">
-            Listado de Jugadores Registrados
-          </h2>
+          <h2 className="list-title">Listado de Jugadores Registrados</h2>
           <ListaJugadores
             jugadores={jugadores}
-            onEditar={actualizarJugador} 
+            onIniciarEdicion={(j) => {
+              setJugadorEditando(j);
+              setVista("editar"); // Cambiar a la vista de edición
+              setError(null);
+            }}
             onEliminar={eliminarJugador}
           />
-          
-          {/* BOTÓN PARA VOLVER AL REGISTRO */}
-          <button 
-            onClick={() => setVista('registro')} 
-            className="action-button-switch back-button"
-          >
+          <button onClick={irARegistro} className="action-button-switch back-button">
             ⬅️ Volver al Registro
           </button>
         </div>
       );
     }
+
+    // --- VISTA EDITAR ---
+    if (vista === "editar" && jugadorEditando) {
+      return (
+        <div className="card">
+          {error && <div style={{ color: "red", textAlign: "center", marginBottom: "1rem" }}>{error}</div>}
+          <EditarJugador
+            jugador={jugadorEditando}
+            clubes={clubes} // <-- Pasar clubes
+            onActualizar={actualizarJugador}
+            onCancelar={irALista} // Volver a la lista
+            jugadores={jugadores} // Para validación de DNI
+          />
+        </div>
+      );
+    }
   };
 
-  // --- Estilos ---
-
+  // (Pegar el <style>{`...`}</style> de JugadoresPage.tsx aquí)
   return (
     <>
       <style>{`
-        /* Definiciones de color y variables */
         :root {
           --primary-blue: #1f3c88;
           --bg-light-gray: #f3f4f6;
@@ -181,18 +268,10 @@ const JugadoresPage: React.FC = () => {
           --shadow-color: rgba(0, 0, 0, 0.1);
           --secondary-gray: #6b7280;
         }
-
-        /* Contenedor principal de la página */
         .page-container {
-          /* Padding para los costados */
           padding: 2.5rem 4rem; 
           background-color: var(--bg-light-gray);
-          
-          /* CLAVE: Eliminamos min-height: 100vh; para que no estire hacia abajo */
-          /* Su altura será determinada únicamente por el contenido. */
         }
-
-        /* Título principal */
         .page-title {
           font-size: 2.25rem;
           font-weight: 800;
@@ -202,11 +281,8 @@ const JugadoresPage: React.FC = () => {
           margin-bottom: 1.5rem;
           text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
         }
-
-        /* Estilos de las tarjetas (Registro/Lista) */
         .card {
-          /* Aumentamos el ancho máximo de las tarjetas internas */
-          max-width: 9000px; 
+          max-width: 900px; /* Reducido para mejor legibilidad */
           width: 100%; 
           margin-left: auto;
           margin-right: auto;
@@ -215,9 +291,8 @@ const JugadoresPage: React.FC = () => {
           border-radius: 1rem;
           padding: 2rem;
           border: 1px solid #e5e7eb;
+          margin-bottom: 2rem; /* Añadido para separar tarjetas */
         }
-        
-        /* Subtítulo de la lista */
         .list-title {
           font-size: 1.25rem;
           font-weight: 600;
@@ -226,8 +301,6 @@ const JugadoresPage: React.FC = () => {
           border-bottom: 1px solid #e5e7eb;
           padding-bottom: 0.5rem;
         }
-        
-        /* --- ESTILO DEL BOTÓN DE NAVEGACIÓN --- */
         .action-button-switch {
             width: 100%;
             padding: 0.75rem;
@@ -240,31 +313,22 @@ const JugadoresPage: React.FC = () => {
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
         }
-        
         .action-button-switch:hover {
-            background-color: #2daeffff; /* Gris más oscuro */
+            background-color: #4b5563; /* Gris más oscuro */
         }
-
         .action-button-switch.back-button {
-            background-color: rgba(59, 130, 246, 1); /* Usar un azul más amigable para volver */
+            background-color: #3b82f6; /* Azul */
         }
-        
         .action-button-switch.back-button:hover {
             background-color: #2563eb; 
         }
-
         .action-button-switch:active {
             transform: scale(0.99);
         }
       `}</style>
-
       <div className="page-container">
-        <h1 className="page-title">
-            Gestión de Jugadores 
-        </h1>
-        
+        <h1 className="page-title">Gestión de Jugadores</h1>
         {renderContenidoPrincipal()}
-
       </div>
     </>
   );

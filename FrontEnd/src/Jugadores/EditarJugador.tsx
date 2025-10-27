@@ -1,111 +1,188 @@
 import React, { useState } from "react";
+// (Pega la función 'validarJugador' aquí)
+// ...
 
-// Inlined Jugador type
-type Jugador = {
-  estado?: string;
+// --- Tipos ---
+interface Club {
+  id: number;
+  nombre: string;
+}
+interface Jugador {
   id: number;
   nombre: string;
   apellido: string;
   dni: string;
-  club: string;
+  clubId: number;
+  club: Club;
   categoria: string;
   telefono?: string;
   vencimiento?: string;
-  carnetUrl?: string;
-  fichaMedicaUrl?: string;
-};
-
-// Inlined validarJugador
-function validarJugador(nuevo: Jugador, jugadores: Jugador[]): string | null {
-  if (jugadores.some(j => j.dni === nuevo.dni && j.id !== nuevo.id)) {
-    return "El DNI ingresado ya pertenece a otro jugador.";
-  }
-
-  if (nuevo.telefono && jugadores.some(j => j.telefono === nuevo.telefono && j.id !== nuevo.id)) {
-    return "El teléfono ingresado ya pertenece a otro jugador.";
-  }
-
-  if (
-    !nuevo.nombre.trim() ||
-    !nuevo.apellido.trim() ||
-    !nuevo.dni.trim() ||
-    !nuevo.club.trim() ||
-    !nuevo.categoria
-  ) {
-    return "Todos los campos son obligatorios.";
-  }
-
-  if (nuevo.nombre.trim().length < 2 || nuevo.apellido.trim().length < 2) {
-    return "El nombre y apellido deben tener al menos 2 caracteres.";
-  }
-
-  if (!/^\d{7,8}$/.test(nuevo.dni)) {
-    return "El DNI debe tener 7 u 8 dígitos numéricos.";
-  }
-
-  if (nuevo.telefono && !/^\d{7,15}$/.test(nuevo.telefono)) {
-    return "El teléfono debe tener entre 7 y 15 dígitos numéricos.";
-  }
-
-  if (nuevo.vencimiento) {
-    const fecha = new Date(nuevo.vencimiento);
-    if (isNaN(fecha.getTime()) || fecha <= new Date()) {
-      return "La fecha de vencimiento debe ser válida y posterior a hoy.";
-    }
-  }
-  return null;
+  estado?: string;
+  // ...
 }
 
 type Props = {
   jugador: Jugador;
-  onActualizar: (jugador: Jugador) => void;
+  onActualizar: (id: number, dto: Partial<Jugador>) => void;
   onCancelar: () => void;
-  jugadores: Jugador[]; 
+  jugadores: Jugador[]; // Lista completa para validación
+  clubes: Club[]; // Lista de clubes para el dropdown
 };
 
-const EditarJugador: React.FC<Props> = ({ jugador, onActualizar, onCancelar, jugadores }) => {
-  const [form, setForm] = useState<Jugador>({ ...jugador });
+const EditarJugador: React.FC<Props> = ({
+  jugador,
+  onActualizar,
+  onCancelar,
+  jugadores,
+  clubes,
+}) => {
+  // Inicializamos el formulario con los datos del jugador
+  const [form, setForm] = useState({
+    nombre: jugador.nombre,
+    apellido: jugador.apellido,
+    dni: jugador.dni,
+    clubId: jugador.clubId, // <-- CAMBIO
+    categoria: jugador.categoria,
+    telefono: jugador.telefono || "",
+    vencimiento: jugador.vencimiento || "",
+    estado: jugador.estado || "activo",
+  });
+  const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setError(null);
+    setForm({
+      ...form,
+      [name]: name === "clubId" ? Number(value) : value,
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const error = validarJugador(form, jugadores);
-    if (error) {
-      alert(error);
+    setError(null);
+
+    // Validación (puedes usar tu función 'validarJugador' si la adaptas)
+    if (
+      !form.nombre || !form.apellido || !form.dni ||
+      !form.clubId || !form.categoria
+    ) {
+      setError("Todos los campos marcados con * son obligatorios.");
       return;
     }
-    onActualizar(form);
+    
+    // Validar DNI duplicado (excluyendo el actual)
+    if (jugadores.some(j => j.dni === form.dni && j.id !== jugador.id)) {
+      setError("El DNI ingresado ya pertenece a otro jugador.");
+      return;
+    }
+
+    onActualizar(jugador.id, form);
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-white shadow-lg rounded-2xl p-6">
+    <div className="max-w-lg mx-auto">
       <h2 className="text-xl font-bold mb-4 text-center">Editar Jugador</h2>
+      {error && <div style={{ color: "red", textAlign: "center", marginBottom: "1rem" }}>{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input name="nombre" placeholder="Nombre" value={form.nombre} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="apellido" placeholder="Apellido" value={form.apellido} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="dni" placeholder="DNI" value={form.dni} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <input name="club" placeholder="Club" value={form.club} onChange={handleChange} className="w-full p-2 border rounded" required />
-        <select name="categoria" value={form.categoria} onChange={handleChange} className="w-full p-2 border rounded" required>
-          <option value="">Seleccione Categoría</option>
+        <input
+          name="nombre"
+          placeholder="Nombre *"
+          value={form.nombre}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          name="apellido"
+          placeholder="Apellido *"
+          value={form.apellido}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          name="dni"
+          placeholder="DNI *"
+          value={form.dni}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        />
+
+        {/* --- CAMBIO: Input a Select --- */}
+        <select
+          name="clubId"
+          value={form.clubId}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        >
+          <option value={0} disabled>
+            Seleccione Club *
+          </option>
+          {clubes.map((club) => (
+            <option key={club.id} value={club.id}>
+              {club.nombre}
+            </option>
+          ))}
+        </select>
+        {/* --- FIN DEL CAMBIO --- */}
+
+        <select
+          name="categoria"
+          value={form.categoria}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        >
+          <option value="">Seleccione Categoría *</option>
           <option value="Femenino">Femenino</option>
           <option value="Masculino">Masculino</option>
         </select>
-        <input name="telefono" placeholder="Teléfono" value={form.telefono} onChange={handleChange} className="w-full p-2 border rounded" />
-        <input type="date" name="vencimiento" value={form.vencimiento} onChange={handleChange} className="w-full p-2 border rounded" />
+        <input
+          name="telefono"
+          placeholder="Teléfono (Opcional)"
+          value={form.telefono}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="date"
+          name="vencimiento"
+          value={form.vencimiento}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+        />
         <label className="block font-semibold">Estado del jugador</label>
-        <select name="estado" value={form.estado || "activo"} onChange={handleChange} className="w-full p-2 border rounded" required>
+        <select
+          name="estado"
+          value={form.estado || "activo"}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        >
           <option value="activo">Activo</option>
           <option value="lesionado">Lesionado</option>
           <option value="sancionado">Sancionado</option>
           <option value="inactivo">Inactivo</option>
         </select>
         <div className="flex gap-2 mt-4">
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Actualizar</button>
-          <button type="button" onClick={onCancelar} className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancelar</button>
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Actualizar
+          </button>
+          <button
+            type="button"
+            onClick={onCancelar}
+            className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+          >
+            Cancelar
+          </button>
         </div>
       </form>
     </div>

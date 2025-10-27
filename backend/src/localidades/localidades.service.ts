@@ -1,16 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Localidad } from './localidad.entity';
+import { CreateLocalidadDto } from './dto/create-localidad.dto';
+import { UpdateLocalidadDto } from './dto/update-localidad.dto';
 
 @Injectable()
 export class LocalidadesService {
-  constructor(
-    @InjectRepository(Localidad)
-    private readonly localidadRepo: Repository<Localidad>,
-  ) {}
+  create(createLocalidadDto: CreateLocalidadDto) {
+    return 'This action adds a new localidade';
+  }
 
-  async findAll(): Promise<Localidad[]> {
-    return this.localidadRepo.find();
+  findAll() {
+    return `This action returns all localidades`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} localidade`;
+  }
+
+  update(id: number, updateLocalidadDto: UpdateLocalidadDto) {
+    return `This action updates a #${id} localidade`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} localidade`;
   }
 }

@@ -1,11 +1,18 @@
+// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as dotenv from 'dotenv';
+import * as bodyParser from 'body-parser';
+import { ValidationPipe } from '@nestjs/common'; // <--- Importar
 
 async function bootstrap() {
-  dotenv.config();
   const app = await NestFactory.create(AppModule);
   app.enableCors();
-  await app.listen(3000);
+  app.use(bodyParser.json({ limit: '10mb' }));
+  app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
+  // Usar el ValidationPipe globalmente
+  app.useGlobalPipes(new ValidationPipe()); // <--- Añadir esta línea
+
+  await app.listen(3001);
 }
 bootstrap();

@@ -1,27 +1,33 @@
 import React from "react";
 
-// Inlined Jugador type (was incorrectly imported from FormularioDatos)
-type Jugador = {
-  estado?: string;
+// --- Tipos ---
+interface Club {
+  id: number;
+  nombre: string;
+}
+interface Jugador {
   id: number;
   nombre: string;
   apellido: string;
   dni: string;
-  club: string;
+  clubId: number;
+  club: Club;
   categoria: string;
-  telefono?: string;
-  vencimiento?: string;
-  carnetUrl?: string;
-  fichaMedicaUrl?: string;
-};
+  estado?: string;
+  // ...
+}
 
 type Props = {
   jugadores: Jugador[];
-  onEditar?: (jugador: Jugador) => void;
+  onIniciarEdicion: (jugador: Jugador) => void; // <-- CAMBIO
   onEliminar: (id: number) => void;
 };
 
-const ListaJugadores: React.FC<Props> = ({ jugadores, onEditar, onEliminar }) => {
+const ListaJugadores: React.FC<Props> = ({
+  jugadores,
+  onIniciarEdicion,
+  onEliminar,
+}) => {
   if (!jugadores || jugadores.length === 0) {
     return <p className="text-gray-500">No hay jugadores cargados.</p>;
   }
@@ -44,16 +50,22 @@ const ListaJugadores: React.FC<Props> = ({ jugadores, onEditar, onEliminar }) =>
             <tr key={j.id} className="border-b hover:bg-gray-50">
               <td className="p-2">{j.nombre}</td>
               <td className="p-2">{j.apellido}</td>
-              <td className="p-2">{j.club}</td>
+              {/* --- CAMBIO: Mostrar nombre del club --- */}
+              <td className="p-2">{j.club ? j.club.nombre : "Sin club"}</td>
               <td className="p-2">{j.dni}</td>
               <td className="p-2 capitalize">{j.estado || "activo"}</td>
               <td className="p-2 flex gap-2">
-                {onEditar && (
-                  <button onClick={() => onEditar(j)} className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-                    Editar
-                  </button>
-                )}
-                <button onClick={() => onEliminar(j.id)} className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                {/* --- CAMBIO: onEditar a onIniciarEdicion --- */}
+                <button
+                  onClick={() => onIniciarEdicion(j)}
+                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => onEliminar(j.id)}
+                  className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                >
                   Eliminar
                 </button>
               </td>

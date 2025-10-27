@@ -1,212 +1,194 @@
 import React, { useState } from "react";
+import { styles } from "./ReferentesPage"; // Importar estilos
 
-// Inlined Referente type
-type Referente = {
+// --- Definiciones de tipo (ajustadas) ---
+interface Club {
+  id: number;
+  nombre: string;
+}
+
+interface Referente {
   id: number;
   nombre: string;
   apellido: string;
   categoria: "Masculino" | "Femenino";
   dni: string;
   correo: string;
-  equipo: string;
-};
-
-// Inlined validarReferente
-function validarReferente(nuevo: Referente, referentes: Referente[]): string | null {
-  if (
-    !nuevo.nombre.trim() ||
-    !nuevo.apellido.trim() ||
-    !nuevo.categoria ||
-    !nuevo.dni.trim() ||
-    !nuevo.correo.trim() ||
-    !nuevo.equipo.trim()
-  ) {
-    return "Todos los campos son obligatorios.";
-  }
-  if (!/^[a-zA-Z\s]{2,}$/.test(nuevo.nombre)) {
-    return "El nombre debe tener solo letras y al menos 2 caracteres.";
-  }
-  if (!/^[a-zA-Z\s]{2,}$/.test(nuevo.apellido)) {
-    return "El apellido debe tener solo letras y al menos 2 caracteres.";
-  }
-  if (!/^\d{7,10}$/.test(nuevo.dni)) {
-    return "El DNI debe tener entre 7 y 10 números.";
-  }
-  if (referentes.some(r => r.dni === nuevo.dni && r.id !== nuevo.id)) {
-    return "El DNI ya está registrado.";
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nuevo.correo)) {
-    return "Correo inválido.";
-  }
-  if (!/^[a-zA-Z0-9\s]{2,}$/.test(nuevo.equipo)) {
-    return "El equipo debe contener solo letras, números y espacios.";
-  }
-  return null;
+  clubId: number;
+  club: Club;
 }
-// 🛑 Importamos los estilos del archivo principal
-import { styles } from "./ReferentesPage"; 
 
+type UpdateReferenteDto = Partial<{
+  nombre: string;
+  apellido: string;
+  categoria: "Masculino" | "Femenino";
+  dni: string;
+  correo: string;
+  clubId: number;
+}>;
+
+// --- Props ---
 type Props = {
   referente: Referente;
-  onActualizar: (referente: Referente) => void;
+  clubes: Club[]; // <-- Recibe clubes
+  onActualizar: (id: number, dto: UpdateReferenteDto) => void;
   onCancelar: () => void;
-  referentes?: Referente[]; 
+  error: string | null; // <-- Recibe error del padre
 };
 
 const categorias = ["Masculino", "Femenino"];
 
-const EditarReferente: React.FC<Props> = ({ referente, onActualizar, onCancelar, referentes = [] }) => {
-  const [form, setForm] = useState<Referente>({ ...referente });
-  const [mensaje, setMensaje] = useState<{ tipo: 'error' | 'exito', texto: string } | null>(null);
+const EditarReferente: React.FC<Props> = ({
+  referente,
+  clubes,
+  onActualizar,
+  onCancelar,
+  error,
+}) => {
+  // --- CAMBIO: El estado se inicializa con los datos del referente, incluyendo clubId
+  const [form, setForm] = useState<UpdateReferenteDto>({
+    nombre: referente.nombre,
+    apellido: referente.apellido,
+    categoria: referente.categoria,
+    dni: referente.dni,
+    correo: referente.correo,
+    clubId: referente.clubId, // <-- Usamos clubId
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // NO MÁS mensajes locales, el padre los maneja
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-    if (mensaje) setMensaje(null);
+    setForm({
+      ...form,
+      [name]: name === "clubId" ? Number(value) : value,
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // La validación debe excluir al referente actual (form.id) para que no falle por DNI/Correo repetido consigo mismo.
-    // Aunque tu función `validarReferente` en `ReferentesPage` parece manejar esto. 
-    const referentesSinActual = referentes.filter(ref => ref.id !== form.id);
-    const errorMsg = validarReferente(form, referentesSinActual);
-    
-    if (errorMsg) {
-      setMensaje({ tipo: 'error', texto: errorMsg });
-      return;
-    }
-    
-    onActualizar(form);
-    setMensaje(null);
-    setMensaje({ tipo: 'exito', texto: `Referente ${form.nombre} actualizado exitosamente.` });
-    // NOTA: La función 'onActualizar' en ReferentesPage ya llama a manejarIrLista, 
-    // lo que cambia la vista. Por eso, el mensaje de éxito dura poco.
+    // NO MÁS validación aquí, el padre la hace
+    onActualizar(referente.id, form);
   };
 
   return (
-    // 🛑 Aplicamos el estilo de la tarjeta de formulario
-    <div style={styles.cardFormulario}> 
-      <h2 style={styles.formTitulo}>
-        Editar Referente
-      </h2>
-      
-      {/* Mensajes de Validación/Éxito - Usando estilos en línea centralizados */}
-      {mensaje && (
-        <div 
+    <div style={styles.cardFormulario}>
+      <h2 style={styles.formTitulo}>Editar Referente</h2>
+
+      {/* Mensaje de Error (del padre) */}
+      {error && (
+        <div
           style={{
             ...styles.mensajeAlerta,
-            ...(mensaje.tipo === 'error' ? styles.mensajeError : styles.mensajeExito),
+            ...styles.mensajeError,
           }}
         >
-          {mensaje.texto}
+          {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        
+      <form onSubmit={handleSubmit}>
         {/* Agrupación Nombre y Apellido */}
-        <div 
-            style={{ 
-                display: 'flex', 
-                gap: '16px',
-                marginBottom: '16px' 
-            }}
-        > 
-          <input 
-            name="nombre" 
-            placeholder="Nombre" 
-            value={form.nombre} 
-            onChange={handleChange} 
-            // 🛑 APLICACIÓN DEL ESTILO OSCURO
+        <div
+          style={{
+            display: "flex",
+            gap: "16px",
+            marginBottom: "16px",
+          }}
+        >
+          <input
+            name="nombre"
+            placeholder="Nombre"
+            value={form.nombre}
+            onChange={handleChange}
             style={{ ...styles.inputOscuro, flex: 1, marginBottom: 0 }}
-            required 
-          />
-          <input 
-            name="apellido" 
-            placeholder="Apellido" 
-            value={form.apellido} 
-            onChange={handleChange} 
-            // 🛑 APLICACIÓN DEL ESTILO OSCURO
-            style={{ ...styles.inputOscuro, flex: 1, marginBottom: 0 }}
-            required 
-          />
-        </div>
-        
-        {/* Categoria */}
-        <div>
-          <select 
-            name="categoria" 
-            value={form.categoria} 
-            onChange={handleChange} 
-            // 🛑 APLICACIÓN DEL ESTILO OSCURO
-            style={styles.inputOscuro}
             required
-          >
-            <option value="" disabled>— Seleccione Categoría —</option>
-            {categorias.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          />
+          <input
+            name="apellido"
+            placeholder="Apellido"
+            value={form.apellido}
+            onChange={handleChange}
+            style={{ ...styles.inputOscuro, flex: 1, marginBottom: 0 }}
+            required
+          />
         </div>
-        
+
+        {/* Categoria */}
+        <select
+          name="categoria"
+          value={form.categoria}
+          onChange={handleChange}
+          style={styles.inputOscuro}
+          required
+        >
+          {categorias.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+
         {/* DNI */}
-        <input 
-          name="dni" 
-          type="text" 
-          placeholder="DNI (sin puntos)" 
-          value={form.dni} 
-          onChange={handleChange} 
-          // 🛑 APLICACIÓN DEL ESTILO OSCURO
+        <input
+          name="dni"
+          type="text"
+          placeholder="DNI (sin puntos)"
+          value={form.dni}
+          onChange={handleChange}
           style={styles.inputOscuro}
-          required 
+          required
         />
-        
+
         {/* Correo */}
-        <input 
-          name="correo" 
-          type="email" 
-          placeholder="Correo Electrónico" 
-          value={form.correo} 
-          onChange={handleChange} 
-          // 🛑 APLICACIÓN DEL ESTILO OSCURO
+        <input
+          name="correo"
+          type="email"
+          placeholder="Correo Electrónico"
+          value={form.correo}
+          onChange={handleChange}
           style={styles.inputOscuro}
-          required 
+          required
         />
-        
-        {/* Equipo */}
-        <input 
-          name="equipo" 
-          placeholder="Equipo" 
-          value={form.equipo} 
-          onChange={handleChange} 
-          // 🛑 APLICACIÓN DEL ESTILO OSCURO
+
+        {/* --- CAMBIO CRÍTICO: De Input a Select --- */}
+        <select
+          name="clubId"
+          value={form.clubId}
+          onChange={handleChange}
           style={styles.inputOscuro}
-          required 
-        />
-        
+          required
+        >
+          <option value={0} disabled>
+            — Seleccione Equipo —
+          </option>
+          {clubes.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.nombre}
+            </option>
+          ))}
+        </select>
+
         {/* Botones de Acción */}
-        <div style={{ display: 'flex', gap: '16px', marginTop: '30px' }}>
-          
-          {/* Botón Actualizar (Primario) */}
-          <button 
-            type="submit" 
-            style={{ 
-                ...styles.botonPrimario, 
-                width: '50%',
-                marginTop: 0, // Quitamos el margen superior que viene por defecto
+        <div style={{ display: "flex", gap: "16px", marginTop: "30px" }}>
+          <button
+            type="submit"
+            style={{
+              ...styles.botonPrimario,
+              width: "50%",
+              marginTop: 0,
             }}
           >
             Actualizar
           </button>
-          
-          {/* Botón Cancelar (Secundario) */}
-          <button 
-            type="button" 
-            onClick={onCancelar} 
-            style={{ 
-                ...styles.botonSecundario, 
-                width: '50%',
-                // Si necesitas un efecto hover, usa una clase CSS en su lugar.
+          <button
+            type="button"
+            onClick={onCancelar}
+            style={{
+              ...styles.botonSecundario,
+              width: "50%",
             }}
           >
             Cancelar

@@ -1,28 +1,48 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from "@nestjs/common";
-import { ClubesService } from "./clubes.service";
-import { Club } from "./clubes.entity";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { ClubesService } from './clubes.service'; // This import should now work
+import { CreateClubDto } from './dto/create-club.dto';
+import { UpdateClubDto } from './dto/update-club.dto';
 
-@Controller("clubes")
+@Controller('clubes')
 export class ClubesController {
-  constructor(private readonly service: ClubesService) {}
+  constructor(private readonly clubesService: ClubesService) {}
 
   @Post()
-  async createClub(@Body() clubData: Partial<Club>) {
-    return this.service.createClub(clubData);
+  create(@Body() createClubDto: CreateClubDto) {
+    return this.clubesService.create(createClubDto);
   }
 
   @Get()
-  async findAll() {
-    return this.service.findAll();
+  findAll() {
+    return this.clubesService.findAll();
   }
 
-  @Put(":id")
-  async updateClub(@Param("id") id: string, @Body() data: Partial<Club>) {
-    return this.service.updateClub(+id, data);
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.clubesService.findOne(id);
   }
 
-  @Delete(":id")
-  async deleteClub(@Param("id") id: string) {
-    return this.service.deleteClub(+id);
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateClubDto: UpdateClubDto,
+  ) {
+    return this.clubesService.update(id, updateClubDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    // --- CORRECCIÓN APLICADA AQUÍ ---
+    return this.clubesService.remove(id); // Added 'id' and ')'
+    // --- FIN DE LA CORRECCIÓN ---
   }
 }

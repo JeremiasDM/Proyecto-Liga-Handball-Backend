@@ -1,344 +1,171 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // <-- Importar useEffect
 
-// Inlined Pago type (canonical shape)
-type Pago = {
-    motivo: string;
-    id: number;
-    tipo: "cuota" | "arbitraje";
-    club: string;
-    categoria: "Masculino" | "Femenino" | "Ambos";
-    partidoId?: number;
-    monto: number;
-    comprobante: string;
-    comprobanteArchivo?: string;
-    fecha: string;
-    estado: "pendiente" | "pagado" | "invalido";
-    cantidadJugadores?: number;
-    sancion?: string;
-};
-
-// Inlined validarPago (simplified, uses partidos only as provided)
-function validarPago(
-    nuevo: Pago,
-    montoMinimo: number,
-    partidos: any[],
-    comprobanteArchivo?: File
-): string | null {
-    if (!nuevo.club) {
-        return "Debes seleccionar un club.";
-    }
-    if (!nuevo.partidoId && nuevo.tipo === "arbitraje") {
-        return "Debes seleccionar un partido.";
-    }
-    if (!nuevo.comprobante && !nuevo.comprobanteArchivo) {
-        return "Debes ingresar el comprobante o adjuntar el archivo.";
-    }
-    if (nuevo.monto < montoMinimo) {
-        return `El monto debe ser igual o mayor al mínimo ($${montoMinimo}).`;
-    }
-
-    // fecha límite sencilla: si partido tiene fecha, valida que pago no sea posterior al viernes siguiente
-    const partido = partidos
-        .flatMap((f: any) => f.partidos)
-        .find((p: any) => p.jornada === nuevo.partidoId);
-    if (partido && (partido as any).fecha) {
-        const fechaLimite = new Date((partido as any).fecha);
-        fechaLimite.setDate(fechaLimite.getDate() + (5 - fechaLimite.getDay()));
-        fechaLimite.setHours(23, 59, 59, 999);
-        if (new Date(nuevo.fecha) > fechaLimite) {
-            return "La fecha de pago superó el límite permitido.";
-        }
-    }
-
-    if (comprobanteArchivo) {
-        if (comprobanteArchivo.size > 5 * 1024 * 1024) {
-            return "El archivo no puede superar los 5MB.";
-        }
-        if (!["image/jpeg", "image/png", "application/pdf"].includes(comprobanteArchivo.type)) {
-            return "Solo se permiten imágenes JPG/PNG o PDF.";
-        }
-    }
-    return null;
-}
+// (Define o importa tipos: Pago, TipoPago, Fixture)
+// ...
 
 type Props = {
-    pago: Pago;
-    montoMinimo: number;
-    partidos: any[]; 
-    onGuardar: (actualizado: Pago) => void;
+    pago: Pago; // Recibe el pago completo a editar
+    montoMinimo: number; // Podría variar según el tipo
+    partidos: any[]; // Lista de partidos para el selector si es arbitraje
+    onGuardar: (actualizado: Pago) => void; // <-- Recibe la función que llama a PATCH
     onCancelar: () => void;
+    // No necesita clubes si no permites cambiar el club
 };
 
-// ============================================
-// SECCIÓN DE ESTILOS CSS PLANOS INYECTADOS
-// ============================================
-const globalStyles = `
-/* Contenedor principal y Modal */
-.edit-form-card {
-    max-width: 450px;
-    margin: 2rem auto;
-    background-color: #ffffff; 
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); 
-    border-radius: 1rem; /* rounded-2xl */
-    padding: 1.5rem; /* p-6 */
-    border: 1px solid #f3f4f6; /* border-gray-100 */
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem; /* space-y-5 */
-}
-
-/* Título */
-.form-edit-title {
-    font-size: 1.875rem; /* text-3xl */
-    font-weight: 800; /* font-extrabold */
-    text-align: center;
-    color: #ea580c; /* text-orange-600 */
-    border-bottom: 1px solid #e5e7eb; /* border-b pb-3 */
-    padding-bottom: 0.75rem;
-    margin-bottom: 1rem;
-}
-
-/* Contenedor de Error */
-.alert-error {
-    background-color: #fee2e2; /* bg-red-100 */
-    border: 1px solid #f87171; /* border-red-400 */
-    color: #b91c1c; /* text-red-700 */
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    position: relative;
-}
-
-/* Formulario */
-.form-edit-body {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem; /* space-y-4 */
-}
-
-/* Etiqueta */
-.form-label {
-    display: block;
-    font-size: 0.875rem; /* text-sm */
-    font-weight: 500; /* font-medium */
-    color: #374151; /* text-gray-700 */
-    margin-bottom: 0.25rem;
-}
-
-/* Input/Select Control */
-.form-input-control {
-    width: 100%;
-    padding: 0.75rem; /* p-3 */
-    border: 1px solid #d1d5db; /* border-gray-300 */
-    border-radius: 0.5rem; /* rounded-lg */
-    transition: border-color 0.15s, box-shadow 0.15s;
-    font-size: 1rem;
-    color: #1f2937;
-    appearance: none; /* para el select */
-    background-color: #ffffff; /* Asegura el fondo blanco */
-}
-
-.form-input-control:focus {
-    border-color: #ea580c; /* focus:border-orange-500 */
-    box-shadow: 0 0 0 1px #ea580c; /* focus:ring-orange-500 */
-    outline: none;
-}
-
-/* Estilo para club de solo lectura */
-.form-input-control[readonly] {
-    background-color: #f9fafb; /* bg-gray-50 */
-    cursor: default;
-}
-
-/* Contenedor de Botones */
-.button-group {
-    display: flex;
-    gap: 1rem; /* gap-4 */
-    padding-top: 0.5rem; /* pt-2 */
-}
-
-/* Botón Guardar */
-.btn-save-edit {
-    flex: 1;
-    background-color: #ea580c; /* bg-orange-600 */
-    color: #ffffff;
-    padding: 0.75rem 1rem; /* px-4 py-3 */
-    border-radius: 0.75rem; /* rounded-xl */
-    font-weight: 700; /* font-bold */
-    box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.1), 0 2px 4px -2px rgba(234, 88, 12, 0.06);
-    transition: background-color 0.2s;
-    border: none;
-    cursor: pointer;
-}
-.btn-save-edit:hover {
-    background-color: #c2410c; /* hover:bg-orange-700 */
-}
-
-/* Botón Cancelar */
-.btn-cancel-edit {
-    flex: 1;
-    background-color: #d1d5db; /* bg-gray-300 */
-    color: #1f2937; /* text-gray-800 */
-    padding: 0.75rem 1rem;
-    border-radius: 0.75rem;
-    font-weight: 600; /* font-semibold */
-    transition: background-color 0.2s;
-    border: none;
-    cursor: pointer;
-}
-.btn-cancel-edit:hover {
-    background-color: #9ca3af; /* hover:bg-gray-400 */
-}
-`;
-// ============================================
-
+// (Pega tu globalStyles aquí)
+// ...
 
 const EditarPago: React.FC<Props> = ({ pago, montoMinimo, partidos, onGuardar, onCancelar }) => {
+    // Estado inicial con los datos del pago a editar
     const [form, setForm] = useState<Pago>({ ...pago });
     const [error, setError] = useState<string | null>(null);
 
+    // Sincroniza si el pago prop cambia (por si acaso)
+     useEffect(() => {
+        setForm({ ...pago });
+    }, [pago]);
+
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setForm({ ...form, [name]: name === "monto" || name === "partidoId" ? Number(value) : value });
+        setError(null);
+        setForm(prev => ({
+             ...prev,
+             // Convierte a número si es monto, partidoId o cantidadJugadores
+             [name]: (name === "monto" || name === "partidoId" || name === "cantidadJugadores") ? Number(value) : value
+        }));
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // El campo 'partidos' se pasa a la utilidad de validación si es necesario.
-        const errorMsg = validarPago(form, montoMinimo, partidos); 
-        if (errorMsg) {
-            setError(errorMsg);
+        setError(null);
+
+        // Validaciones (puedes reutilizar la lógica de FormularioPago o validaciones específicas aquí)
+        if (!form.comprobante /* && !form.comprobanteArchivo */) { // Validación comprobante
+            setError("Debe ingresar el número de comprobante.");
             return;
         }
+         if (form.monto < montoMinimo) {
+            setError(`El monto mínimo es $${montoMinimo.toLocaleString()}.`);
+            return;
+        }
+        if (form.tipo === 'arbitraje' && !form.partidoId) {
+             setError("Debe seleccionar un partido para el pago de arbitraje.");
+             return;
+        }
+        // ... otras validaciones ...
+
+        // Llama a onGuardar del padre pasando el objeto 'form' completo
+        // PagosPage se encargará de extraer los campos necesarios para el DTO de actualización
         onGuardar(form);
-        setError(null);
     };
 
-    // Formato de fecha para el input type="date"
+    // Formato de fecha para input 'date'
     const formattedDate = form.fecha ? new Date(form.fecha).toISOString().substring(0, 10) : '';
+
+    // Filtra partidos si es arbitraje (igual que en FormularioPago)
+     const partidosRelevantes = form.tipo === 'arbitraje'
+    ? partidos.flatMap((f: any) =>
+        (f.partidos || []).filter((p: any) => p.club1 === form.club || p.club2 === form.club).map((p: any)=> ({
+            id: p.id || `${f.fecha}-${p.jornada}-${p.club1}-${p.club2}`,
+            display: `J${p.jornada} (${f.fecha || 'N/F'}): ${p.club1} vs ${p.club2}`
+        }))
+      )
+    : [];
+
 
     return (
         <>
-            {/* ⚠️ INYECCIÓN DE ESTILOS CSS PLANOS ⚠️ */}
-            <style>{globalStyles}</style>
+            {/* <style>{globalStyles}</style> */}
+            <div /* className="edit-form-card" */>
+                <h2 /* className="form-edit-title" */>✏️ Editar Pago (ID: {form.id})</h2>
+                {error && <div /* className="alert-error" */ role="alert">{error}</div>}
 
-            <div className="edit-form-card">
-                <h2 className="form-edit-title">
-                    ✏️ Editar Pago
-                </h2>
-                
-                {error && (
-                    <div className="alert-error" role="alert">
-                        <span className="block sm:inline">{error}</span>
-                    </div>
-                )}
-                
-                <form onSubmit={handleSubmit} className="form-edit-body">
-                    
+                <form onSubmit={handleSubmit} /* className="form-edit-body" */>
                     {/* Club (Solo Lectura) */}
                     <div>
-                        <label htmlFor="club" className="form-label">Club</label>
-                        <input
-                            id="club"
-                            name="club"
-                            placeholder="Club"
-                            value={form.club}
-                            onChange={handleChange}
-                            className="form-input-control"
-                            readOnly 
-                        />
+                        <label htmlFor="club" /* className="form-label" */>Club</label>
+                        <input id="club" value={form.club} /* className="form-input-control" */ readOnly />
                     </div>
-                    
-                    {/* ID Partido / Jornada (Visible solo para Arbitraje) */}
-                    {form.tipo === "arbitraje" && (
+
+                    {/* Tipo (Solo Lectura) */}
+                     <div>
+                        <label htmlFor="tipo" /* className="form-label" */>Tipo</label>
+                        <input id="tipo" value={form.tipo.charAt(0).toUpperCase() + form.tipo.slice(1)} /* className="form-input-control" */ readOnly />
+                    </div>
+
+
+                    {/* Campos editables según el tipo */}
+                    {(form.tipo === "cuota" || form.tipo === "arbitraje") && form.categoria && (
                         <div>
-                            <label htmlFor="partidoId" className="form-label">ID Partido / Jornada</label>
-                            <input
-                                id="partidoId"
-                                name="partidoId"
-                                type="number"
-                                placeholder="ID Partido"
-                                value={form.partidoId || ''}
-                                onChange={handleChange}
-                                className="form-input-control"
-                                required
-                            />
+                            <label htmlFor="categoria">Categoría</label>
+                            <select id="categoria" name="categoria" value={form.categoria} onChange={handleChange} required>
+                                {["Masculino", "Femenino", "Ambos"].map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                            </select>
                         </div>
                     )}
-                    
-                    {/* Monto */}
-                    <div>
-                        <label htmlFor="monto" className="form-label">Monto ($)</label>
-                        <input
-                            id="monto"
-                            name="monto"
-                            type="number"
-                            min={montoMinimo}
-                            placeholder={`Monto mínimo: $${montoMinimo.toLocaleString()}`}
-                            value={form.monto}
-                            onChange={handleChange}
-                            className="form-input-control"
-                            required
-                        />
-                         <p className="text-xs text-gray-500 mt-1">Monto mínimo: ${montoMinimo.toLocaleString()}</p>
-                    </div>
-                    
-                    {/* Comprobante */}
-                    <div>
-                        <label htmlFor="comprobante" className="form-label">Número de Comprobante</label>
-                        <input
-                            id="comprobante"
-                            name="comprobante"
-                            placeholder="Comprobante"
-                            value={form.comprobante}
-                            onChange={handleChange}
-                            className="form-input-control"
-                        />
-                    </div>
+                    {form.tipo === "cuota" && form.cantidadJugadores !== undefined && (
+                        <div>
+                            <label htmlFor="cantidadJugadores">Cantidad Jugadores</label>
+                            <input id="cantidadJugadores" name="cantidadJugadores" type="number" min={1} value={form.cantidadJugadores} onChange={handleChange} required/>
+                        </div>
+                    )}
+                     {form.tipo === "arbitraje" && (
+                        <div>
+                            <label htmlFor="partidoId">Partido</label>
+                            <select id="partidoId" name="partidoId" value={form.partidoId || ""} onChange={handleChange} required>
+                                <option value="" disabled>Selecciona un partido</option>
+                                {partidosRelevantes.map((p) => (
+                                    <option key={p.id} value={p.id}> {p.display} </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+                    {(form.tipo === "multa" || form.tipo === "otro") && form.motivo !== undefined && (
+                        <div>
+                            <label htmlFor="motivo">Motivo</label>
+                            <input id="motivo" name="motivo" type="text" value={form.motivo} onChange={handleChange} required/>
+                        </div>
+                    )}
 
-                    {/* Fecha */}
-                    <div>
-                        <label htmlFor="fecha" className="form-label">Fecha de Pago</label>
-                        <input
-                            id="fecha"
-                            name="fecha"
-                            type="date"
-                            value={formattedDate} 
-                            onChange={handleChange}
-                            className="form-input-control"
-                            required
-                        />
-                    </div>
 
-                    {/* Estado Selector */}
+                    {/* Campos Comunes Editables */}
                     <div>
-                        <label htmlFor="estado" className="form-label">Estado de Validación</label>
-                        <select
-                            id="estado"
-                            name="estado"
-                            value={form.estado}
-                            onChange={handleChange}
-                            className="form-input-control"
-                        >
+                        <label htmlFor="monto">Monto ($)</label>
+                        <input id="monto" name="monto" type="number" min={montoMinimo} value={form.monto} onChange={handleChange} required/>
+                    </div>
+                    <div>
+                        <label htmlFor="comprobante">Nº Comprobante</label>
+                        <input id="comprobante" name="comprobante" value={form.comprobante} onChange={handleChange}/>
+                    </div>
+                    <div>
+                        <label htmlFor="fecha">Fecha de Pago</label>
+                        <input id="fecha" name="fecha" type="date" value={formattedDate} onChange={handleChange} required/>
+                    </div>
+                    <div>
+                        <label htmlFor="estado">Estado Validación</label>
+                        <select id="estado" name="estado" value={form.estado} onChange={handleChange}>
                             <option value="pendiente">🟠 Pendiente</option>
-                            <option value="pagado">🟡 Pagado</option>
+                            {/* <option value="pagado">🟡 Pagado</option> */} {/* Quitado si "pagado" es un estado intermedio */}
                             <option value="validado">🟢 Validado</option>
-                            <option value="invalido">🔴 Inválido / Rechazado</option>
+                            <option value="invalido">🔴 Inválido</option>
                         </select>
                     </div>
-                    
-                    {/* Botones de Acción */}
-                    <div className="button-group">
-                        <button 
-                            type="submit" 
-                            className="btn-save-edit"
-                        >
-                            💾 Guardar Cambios
+
+                     {/* TODO: Manejo de Archivo (más complejo en edición) */}
+                     {/* <div>
+                         <label htmlFor="archivo">Adjuntar Nuevo Comprobante (Opcional)</label>
+                         <input id="archivo" type="file" accept="image/*,application/pdf" onChange={handleFileUpload}/>
+                         {form.comprobanteArchivo && <small>Archivo anterior adjunto.</small>}
+                     </div> */}
+
+
+                    {/* Botones */}
+                    <div /* className="button-group" */>
+                        <button type="submit" /* className="btn-save-edit" */ disabled={loadingPagos}>
+                             {loadingPagos ? 'Guardando...' : '💾 Guardar Cambios'}
                         </button>
-                        <button 
-                            type="button" 
-                            onClick={onCancelar} 
-                            className="btn-cancel-edit"
-                        >
+                        <button type="button" onClick={onCancelar} /* className="btn-cancel-edit" */ disabled={loadingPagos}>
                             ❌ Cancelar
                         </button>
                     </div>
