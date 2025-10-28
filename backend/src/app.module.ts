@@ -19,16 +19,13 @@ import { FixtureModule } from './fixture/fixture.module';
         ConfigModule.forRoot({ isGlobal: true }),
 
         // 🔹 MySQL (conexión directa sin .env)
-        TypeOrmModule.forRoot({
-            type: 'mysql',
-            host: 'shinkansen.proxy.rlwy.net',
-            port: 59556,
-            username: 'root',
-            password: 'CimVqFrWEhogJruXrlHYQPJWVgNpuiWa',
-            database: 'railway',
-            autoLoadEntities: true,
-            // Sincroniza el esquema en desarrollo. Poner en 'false' para producción.
-            synchronize: true,
+TypeOrmModule.forRoot({
+  type: 'mysql',
+  url: process.env.DATABASE_URL,
+  autoLoadEntities: true,
+  synchronize: true, // poner false en producción
+});
+
         }),
 
         // Módulos de la aplicación (lista limpiada de duplicados)
