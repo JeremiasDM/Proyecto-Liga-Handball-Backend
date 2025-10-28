@@ -55,19 +55,82 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar, clubes }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    // --- Validaciones inline (sin helpers externos) ---
+    const trim = (s?: string) => (typeof s === 'string' ? s.trim() : '');
+    const nombre = trim(form.nombre);
+    const apellido = trim(form.apellido);
+    const dni = trim(form.dni);
+    const telefono = trim(form.telefono);
+    const categoria = trim(form.categoria);
 
-    // Validación simple de campos (la validación de DNI se hará en el backend)
-    if (
-      !form.nombre || !form.apellido || !form.dni ||
-      !form.clubId || !form.categoria
-    ) {
+    // Requeridos
+    if (!nombre || !apellido || !dni || !form.clubId || !categoria) {
       setError("Todos los campos marcados con * son obligatorios.");
       return;
     }
-    
-    // (Puedes añadir validación de formato de DNI/Teléfono aquí si lo deseas)
 
-    onRegistrar(form); // Pasa el DTO de Fase 1 al padre
+    // Longitudes máximas
+    const MAX_NAME = 100;
+    if (nombre.length > MAX_NAME || apellido.length > MAX_NAME) {
+      setError(`Nombre y apellido deben tener como máximo ${MAX_NAME} caracteres.`);
+      return;
+    }
+
+    // Nombre/Apellido: permitir letras latinas y espacios, apóstrofe y guión
+    const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'\-]{2,100}$/;
+    if (!nameRe.test(nombre) || !nameRe.test(apellido)) {
+      setError('Nombre y apellido deben tener al menos 2 letras y sólo caracteres válidos.');
+      return;
+    }
+
+    // DNI: 7 u 8 dígitos
+    if (!/^\d{7,8}$/.test(dni)) {
+      setError('El DNI debe tener 7 u 8 dígitos numéricos.');
+      return;
+    }
+
+    // Teléfono opcional: 7-15 dígitos
+    if (telefono && !/^\d{7,15}$/.test(telefono)) {
+      setError('El teléfono debe contener entre 7 y 15 dígitos numéricos.');
+      return;
+    }
+
+    // clubId válido (existencia en lista)
+    if (!Number.isInteger(form.clubId) || form.clubId <= 0 || !clubes.some(c => c.id === form.clubId)) {
+      setError('Seleccioná un club válido.');
+      return;
+    }
+
+    // Categoría whitelist
+    if (!(categoria === 'Femenino' || categoria === 'Masculino')) {
+      setError('Seleccioná una categoría válida.');
+      return;
+    }
+
+    // Vencimiento, si existe, debe ser fecha válida y posterior a hoy
+    if (form.vencimiento) {
+      const d = new Date(form.vencimiento);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      if (isNaN(d.getTime()) || d <= today) {
+        setError('La fecha de vencimiento debe ser válida y posterior a hoy.');
+        return;
+      }
+    }
+
+    // Preparar DTO saneado
+    const dto: CreateJugadorFase1Dto = {
+      nombre,
+      apellido,
+      dni,
+      clubId: form.clubId,
+      categoria,
+      telefono: telefono || undefined,
+      vencimiento: form.vencimiento || undefined,
+      estado: form.estado || 'activo',
+    };
+
+    onRegistrar(dto);
   };
 
   return (

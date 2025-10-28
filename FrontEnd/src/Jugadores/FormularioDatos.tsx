@@ -17,42 +17,58 @@ type Jugador = {
 
 // Inlined validarJugador
 function validarJugador(nuevo: Jugador, jugadores: Jugador[]): string | null {
-  if (jugadores.some(j => j.dni === nuevo.dni && j.id !== nuevo.id)) {
+  const trim = (s?: string) => (typeof s === 'string' ? s.trim() : '');
+  const nombre = trim(nuevo.nombre);
+  const apellido = trim(nuevo.apellido);
+  const dni = trim(nuevo.dni);
+  const telefono = trim(nuevo.telefono);
+  const club = trim(nuevo.club);
+  const categoria = trim(nuevo.categoria);
+
+  // Duplicados
+  if (jugadores.some(j => j.dni === dni && j.id !== nuevo.id)) {
     return "El DNI ingresado ya pertenece a otro jugador.";
   }
-
-  if (nuevo.telefono && jugadores.some(j => j.telefono === nuevo.telefono && j.id !== nuevo.id)) {
+  if (telefono && jugadores.some(j => j.telefono === telefono && j.id !== nuevo.id)) {
     return "El teléfono ingresado ya pertenece a otro jugador.";
   }
 
-  if (
-    !nuevo.nombre.trim() ||
-    !nuevo.apellido.trim() ||
-    !nuevo.dni.trim() ||
-    !nuevo.club.trim() ||
-    !nuevo.categoria
-  ) {
+  // Requeridos
+  if (!nombre || !apellido || !dni || !club || !categoria) {
     return "Todos los campos son obligatorios.";
   }
 
-  if (nuevo.nombre.trim().length < 2 || nuevo.apellido.trim().length < 2) {
-    return "El nombre y apellido deben tener al menos 2 caracteres.";
+  // Nombre/apellido: permitir letras latinas + acentos
+  const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'\-]{2,100}$/;
+  if (!nameRe.test(nombre) || !nameRe.test(apellido)) {
+    return "El nombre y apellido deben tener al menos 2 letras y usar caracteres válidos.";
   }
 
-  if (!/^\d{7,8}$/.test(nuevo.dni)) {
+  // DNI
+  if (!/^\d{7,8}$/.test(dni)) {
     return "El DNI debe tener 7 u 8 dígitos numéricos.";
   }
 
-  if (nuevo.telefono && !/^\d{7,15}$/.test(nuevo.telefono)) {
+  // Teléfono
+  if (telefono && !/^\d{7,15}$/.test(telefono)) {
     return "El teléfono debe tener entre 7 y 15 dígitos numéricos.";
   }
 
+  // Vencimiento
   if (nuevo.vencimiento) {
     const fecha = new Date(nuevo.vencimiento);
-    if (isNaN(fecha.getTime()) || fecha <= new Date()) {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    if (isNaN(fecha.getTime()) || fecha <= today) {
       return "La fecha de vencimiento debe ser válida y posterior a hoy.";
     }
   }
+
+  // Categoria validación básica (si se usa select en otros componentes esto se normaliza)
+  if (!(categoria === 'Femenino' || categoria === 'Masculino')) {
+    return "La categoría seleccionada no es válida.";
+  }
+
   return null;
 }
 

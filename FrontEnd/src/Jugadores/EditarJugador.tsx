@@ -63,23 +63,87 @@ const EditarJugador: React.FC<Props> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    // Inline validations
+    const trim = (s?: string) => (typeof s === 'string' ? s.trim() : '');
+    const nombre = trim(form.nombre as string);
+    const apellido = trim(form.apellido as string);
+    const dni = trim(form.dni as string);
+    const telefono = trim(form.telefono as string);
+    const categoria = trim(form.categoria as string);
+    const estado = trim(form.estado as string);
 
-    // Validación (puedes usar tu función 'validarJugador' si la adaptas)
-    if (
-      !form.nombre || !form.apellido || !form.dni ||
-      !form.clubId || !form.categoria
-    ) {
+    if (!nombre || !apellido || !dni || !form.clubId || !categoria) {
       setError("Todos los campos marcados con * son obligatorios.");
       return;
     }
-    
-    // Validar DNI duplicado (excluyendo el actual)
-    if (jugadores.some(j => j.dni === form.dni && j.id !== jugador.id)) {
-      setError("El DNI ingresado ya pertenece a otro jugador.");
+
+    // Name rules
+    const MAX_NAME = 100;
+    const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'\-]{2,100}$/;
+    if (!nameRe.test(nombre) || !nameRe.test(apellido)) {
+      setError('Nombre y apellido inválidos.');
+      return;
+    }
+    if (nombre.length > MAX_NAME || apellido.length > MAX_NAME) {
+      setError(`Nombre y apellido deben tener como máximo ${MAX_NAME} caracteres.`);
       return;
     }
 
-    onActualizar(jugador.id, form);
+    // DNI
+    if (!/^\d{7,8}$/.test(dni)) {
+      setError('El DNI debe tener 7 u 8 dígitos numéricos.');
+      return;
+    }
+
+    // DNI duplicado
+    if (jugadores.some(j => j.dni === dni && j.id !== jugador.id)) {
+      setError('El DNI ingresado ya pertenece a otro jugador.');
+      return;
+    }
+
+    // Telefono
+    if (telefono && !/^\d{7,15}$/.test(telefono)) {
+      setError('El teléfono debe contener entre 7 y 15 dígitos numéricos.');
+      return;
+    }
+
+    // clubId exists
+    if (!Number.isInteger(form.clubId) || form.clubId <= 0 || !clubes.some(c => c.id === form.clubId)) {
+      setError('Seleccioná un club válido.');
+      return;
+    }
+
+    // categoria/estado whitelist
+    if (!(categoria === 'Femenino' || categoria === 'Masculino')) {
+      setError('Seleccioná una categoría válida.');
+      return;
+    }
+    if (!(estado === 'activo' || estado === 'lesionado' || estado === 'sancionado' || estado === 'inactivo')) {
+      setError('Seleccioná un estado válido.');
+      return;
+    }
+
+    // vencimiento
+    if (form.vencimiento) {
+      const d = new Date(form.vencimiento);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      if (isNaN(d.getTime()) || d <= today) {
+        setError('La fecha de vencimiento debe ser válida y posterior a hoy.');
+        return;
+      }
+    }
+
+    onActualizar(jugador.id, {
+      nombre,
+      apellido,
+      dni,
+      clubId: form.clubId,
+      categoria,
+      telefono: telefono || undefined,
+      vencimiento: form.vencimiento || undefined,
+      estado: estado || 'activo',
+    });
   };
 
   return (

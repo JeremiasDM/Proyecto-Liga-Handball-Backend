@@ -37,9 +37,32 @@ const FormularioDocumentacion: React.FC<Props> = ({
       return;
     }
 
+    // Validación extra: extensión por nombre
+    const filename = file.name || '';
+    const isImageExt = /\.(jpe?g|png|gif|webp|bmp)$/i.test(filename);
+    const isPdfExt = /\.pdf$/i.test(filename);
+    if (tipo === 'carnet' && !isImageExt) {
+      setError('Extensión inválida para carnet. Use JPG/PNG.');
+      return;
+    }
+    if (tipo === 'ficha' && !isPdfExt) {
+      setError('La ficha médica debe tener extensión .pdf');
+      return;
+    }
+
     const reader = new FileReader();
     reader.onloadend = () => {
       if (typeof reader.result === "string") {
+        // Estimar bytes del Base64
+        const comma = reader.result.indexOf(',');
+        const data = comma >= 0 ? reader.result.slice(comma + 1) : reader.result;
+        const len = data.length;
+        const padding = (data.endsWith('==') ? 2 : data.endsWith('=') ? 1 : 0);
+        const bytes = Math.ceil((len * 3) / 4) - padding;
+        if (bytes > 5 * 1024 * 1024) {
+          setError('El contenido codificado supera el límite de 5MB después de la conversión.');
+          return;
+        }
         if (tipo === "carnet") setCarnet(reader.result);
         if (tipo === "ficha") setFichaMedica(reader.result);
       }
