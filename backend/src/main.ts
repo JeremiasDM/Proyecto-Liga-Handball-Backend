@@ -1,14 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as bodyParser from 'body-parser';
+import { ValidationPipe } from '@nestjs/common'; // <--- Importar
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors({ origin: '*' }); // permitir cualquier frontend temporalmente
+  app.enableCors();
+
   app.use(bodyParser.json({ limit: '10mb' }));
   app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
-  await app.listen(process.env.PORT || 3000); // Railway asigna el puerto automáticamente
+  // Usar el ValidationPipe globalmente
+  app.useGlobalPipes(new ValidationPipe()); // <--- Añadir esta línea
+
+  await app.listen(3001);
 }
 bootstrap();
