@@ -3,6 +3,7 @@ import { Localidad } from '../../localidades/entities/localidad.entity';
 import { Referente } from '../../referente/entities/referente.entity';
 import { Jugador } from '../../jugador/entities/jugador.entity';
 import { Encuentro } from '../../encuentro/entities/encuentro.entity';
+import { Pago } from '../../pago/entities/pago.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -74,4 +75,7 @@ export class Club {
 
   @Column({ type: 'int', default: 0, nullable: true })
   puntos: number; // Puntos calculados
+
+  @OneToMany(() => Pago, (pago) => pago.club)
+  pagos: Pago[]; 
 }

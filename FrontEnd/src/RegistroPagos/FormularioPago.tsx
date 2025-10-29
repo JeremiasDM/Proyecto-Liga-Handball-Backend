@@ -11,6 +11,7 @@ type Props = {
   // La función ahora recibe un objeto más simple para crear
   onGuardar: (pagoFormData: Omit<Pago, 'id' | 'fecha' | 'estado' | 'club'> & {club: string}) => void;
   onCerrar: () => void;
+  loadingPagos: boolean; // <-- AÑADIR ESTA LÍNEA
 };
 
 const categorias = ["Masculino", "Femenino", "Ambos"];
@@ -18,7 +19,15 @@ const categorias = ["Masculino", "Femenino", "Ambos"];
 // (Pega tu styleConfig y globalStyles aquí)
 // ...
 
-const FormularioPago: React.FC<Props> = ({ tipo, club, montoMinimo, partidos = [], onGuardar, onCerrar }) => {
+const FormularioPago: React.FC<Props> = ({
+  tipo,
+  club,
+  montoMinimo,
+  partidos = [],
+  onGuardar,
+  onCerrar,
+  loadingPagos // <-- AÑADIR ESTA LÍNEA
+}) => {
 
   // Estados iniciales
   const [categoria, setCategoria] = useState<string>("Masculino");

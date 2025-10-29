@@ -7,41 +7,46 @@ export class Pago {
   id: number;
 
   @Column()
-  tipo: string; // 'cuota', 'arbitraje', 'multa', 'otro'
+  tipo: string;
 
-  @Column()
+  // --- INICIO DE LA CORRECCIÓN ---
+
+  @Column({ nullable: true }) // <-- AÑADIR ESTO
   clubId: number; // Clave foránea
 
-  @ManyToOne(() => Club, { onDelete: 'SET NULL' }) // O CASCADE si prefieres
+  @ManyToOne(() => Club, (club) => club.pagos, { // (club) => club.pagos es buena práctica
+    onDelete: 'SET NULL',
+    nullable: true // <-- AÑADIR ESTO
+  })
   @JoinColumn({ name: 'clubId' })
   club: Club;
 
-  @Column('decimal', { precision: 10, scale: 2 }) // Para dinero
+  // --- FIN DE LA CORRECCIÓN ---
+
+  @Column('decimal', { precision: 10, scale: 2 })
   monto: number;
 
   @Column({ nullable: true })
-  comprobante: string; // Número o código
+  comprobante: string;
 
-  @Column({ type: 'mediumtext', nullable: true }) // Para Base64
+  @Column({ type: 'mediumtext', nullable: true })
   comprobanteArchivo: string;
 
-  @CreateDateColumn() // Genera la fecha automáticamente
+  @CreateDateColumn()
   fecha: Date;
 
-  @Column({ default: 'pendiente' }) // pendiente, pagado, validado, invalido
+  @Column({ default: 'pendiente' })
   estado: string;
 
-  // --- Campos opcionales según el tipo ---
   @Column({ nullable: true })
-  categoria: string; // 'Masculino', 'Femenino', 'Ambos' (para cuota/arbitraje)
+  categoria: string;
 
   @Column({ nullable: true })
-  partidoId: number; // ID del Encuentro (para arbitraje)
-  // Aquí podrías añadir @ManyToOne con Encuentro si lo necesitas
+  partidoId: number;
 
   @Column({ nullable: true })
-  cantidadJugadores: number; // (para cuota)
+  cantidadJugadores: number;
 
   @Column({ nullable: true })
-  motivo: string; // (para multa u otro)
+  motivo: string;
 }

@@ -4,18 +4,25 @@ import React, { useState, useEffect } from "react"; // <-- Importar useEffect
 // ...
 
 type Props = {
-    pago: Pago; // Recibe el pago completo a editar
-    montoMinimo: number; // Podría variar según el tipo
-    partidos: any[]; // Lista de partidos para el selector si es arbitraje
-    onGuardar: (actualizado: Pago) => void; // <-- Recibe la función que llama a PATCH
-    onCancelar: () => void;
-    // No necesita clubes si no permites cambiar el club
+  pago: Pago;
+  montoMinimo: number;
+  partidos: any[];
+  onGuardar: (pagoActualizado: Pago) => void;
+  onCancelar: () => void;
+  loadingPagos: boolean; // <-- AÑADIR ESTA LÍNEA
 };
 
 // (Pega tu globalStyles aquí)
 // ...
 
-const EditarPago: React.FC<Props> = ({ pago, montoMinimo, partidos, onGuardar, onCancelar }) => {
+const EditarPago: React.FC<Props> = ({
+  pago,
+  montoMinimo,
+  partidos,
+  onGuardar,
+  onCancelar,
+  loadingPagos // <-- AÑADIR ESTA LÍNEA
+}) => {
     // Estado inicial con los datos del pago a editar
     const [form, setForm] = useState<Pago>({ ...pago });
     const [error, setError] = useState<string | null>(null);

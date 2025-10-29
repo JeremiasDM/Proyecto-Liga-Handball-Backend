@@ -312,7 +312,7 @@ const PagosPage: React.FC = () => {
           )}
 
           {/* Modal Registro */}
-          {modal && (
+{modal && (
             <div /* className={styleConfig.modalBackdrop} */>
               <FormularioPago
                 tipo={modal.tipo}
@@ -324,6 +324,7 @@ const PagosPage: React.FC = () => {
                 partidos={partidos} // Pasa los partidos cargados
                 onGuardar={handleGuardarPago} // Llama a la función POST
                 onCerrar={handleCerrarModal}
+                loadingPagos={loadingPagos} // <-- AÑADIR ESTA LÍNEA
               />
                {/* Muestra error específico del modal */}
                {errorPagos && <p style={{ color: 'red', marginTop: '1rem', textAlign: 'center' }}>{errorPagos}</p>}
@@ -331,7 +332,7 @@ const PagosPage: React.FC = () => {
           )}
 
            {/* Modal Edición */}
-          {pagoEditando && (
+{pagoEditando && (
             <div /* className={styleConfig.modalBackdrop} */>
               <EditarPago
                 pago={pagoEditando}
@@ -342,6 +343,7 @@ const PagosPage: React.FC = () => {
                 partidos={partidos} // Pasa partidos si EditarPago lo necesita
                 onGuardar={handleActualizarPago} // Llama a la función PATCH
                 onCancelar={handleCerrarModal}
+                loadingPagos={loadingPagos} // <-- AÑADIR ESTA LÍNEA
               />
               {/* Muestra error específico del modal */}
               {errorPagos && <p style={{ color: 'red', marginTop: '1rem', textAlign: 'center' }}>{errorPagos}</p>}
