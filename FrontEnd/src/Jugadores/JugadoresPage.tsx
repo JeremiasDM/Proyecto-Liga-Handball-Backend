@@ -4,7 +4,6 @@ import ListaJugadores from "./ListaJugadores";
 import FormularioDocumentacion from "./FormularioDocumentacion";
 import BarraProgreso from "./BarraProgreso";
 import EditarJugador from "./EditarJugador"; // <-- AÑADIR
-// import { useJugadores } from "../hooks/useJugadores"; // <-- ELIMINAR
 
 // --- NUEVOS TIPOS (DE LA API) ---
 interface Club {
@@ -188,7 +187,7 @@ const JugadoresPage: React.FC = () => {
       return (
         <div className="form-card card">
           <BarraProgreso fase={fase} />
-          {error && <div style={{ color: "red", textAlign: "center", marginBottom: "1rem" }}>{error}</div>}
+          {error && <div className="error-message">{error}</div>} {/* CLASE CSS */}
 
           {fase === 1 && (
             <RegistroJugador
@@ -244,7 +243,7 @@ const JugadoresPage: React.FC = () => {
     if (vista === "editar" && jugadorEditando) {
       return (
         <div className="card">
-          {error && <div style={{ color: "red", textAlign: "center", marginBottom: "1rem" }}>{error}</div>}
+          {error && <div className="error-message">{error}</div>} {/* CLASE CSS */}
           <EditarJugador
             jugador={jugadorEditando}
             clubes={clubes} // <-- Pasar clubes
@@ -257,73 +256,182 @@ const JugadoresPage: React.FC = () => {
     }
   };
 
-  // (Pegar el <style>{`...`}</style> de JugadoresPage.tsx aquí)
   return (
     <>
       <style>{`
         :root {
-          --primary-blue: #1f3c88;
-          --bg-light-gray: #f3f4f6;
-          --text-dark-gray: #1f2937;
-          --shadow-color: rgba(0, 0, 0, 0.1);
-          --secondary-gray: #6b7280;
+            /* Paleta de Colores más moderna y profesional */
+            --primary-blue: #1f3c88; /* Azul principal fuerte (mantenido) */
+            --secondary-blue: #007bff; /* Azul secundario para acentos (mantenido) */
+            --accent-teal: #00bcd4; /* Nuevo color de acento para progreso/destacados */
+            --bg-light-gray: #f9fafb; /* Fondo aún más claro */
+            --text-dark-gray: #1f2937;
+            --border-color: #e5e7eb;
+            --shadow-color: rgba(0, 0, 0, 0.05); /* Sombra más sutil y moderna */
+            --error-red: #ef4444;
+            --success-green: #10b981;
+            --transition: all 0.3s ease;
+            --radius: 12px;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente más moderna */
         }
+
+        /* --- BASE: Aplicar la nueva fuente --- */
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-light-gray);
+            color: var(--text-dark-gray);
+            margin: 0;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL MODIFICADO (MÁS ANCHO) --- */
         .page-container {
-          padding: 2.5rem 4rem; 
-          background-color: var(--bg-light-gray);
+            max-width: 1200px; /* MODIFICADO: Aumentamos el ancho máximo del contenedor general */
+            margin: 3rem auto;
+            padding: 0 1rem;
+            background-color: var(--bg-light-gray);
+            min-height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+        
+        @media (max-width: 1250px) {
+            .page-container { max-width: 95%; }
+        }
+        
+        /* --- TÍTULO DE LA PÁGINA --- */
         .page-title {
-          font-size: 2.25rem;
-          font-weight: 800;
-          text-align: center;
-          color: var(--primary-blue);
-          padding-bottom: 0.5rem;
-          margin-bottom: 1.5rem;
-          text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+            font-size: 2.8rem;
+            font-weight: 800;
+            text-align: center;
+            color: var(--primary-blue);
+            margin-bottom: 2.5rem;
+            text-shadow: 1px 1px 2px rgba(31, 60, 136, 0.2);
+            letter-spacing: -1px;
+            position: relative;
         }
+        
+        .page-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--accent-teal);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+
+        /* --- TARJETAS (Registro / Lista / Editar) --- */
         .card {
-          max-width: 900px; /* Reducido para mejor legibilidad */
-          width: 100%; 
-          margin-left: auto;
-          margin-right: auto;
-          background-color: white;
-          box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color);
-          border-radius: 1rem;
-          padding: 2rem;
-          border: 1px solid #e5e7eb;
-          margin-bottom: 2rem; /* Añadido para separar tarjetas */
+            width: 100%;
+            max-width: 100%; /* MODIFICADO: Eliminamos el límite de 800px para que se estire al 100% del contenedor */
+            margin: 0;
+            background-color: white;
+            box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color);
+            border-radius: var(--radius);
+            padding: 2.5rem; /* Le dimos un poco más de padding para que respire */
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
         }
+        
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+
         .list-title {
-          font-size: 1.25rem;
-          font-weight: 600;
-          color: var(--text-dark-gray);
-          margin-bottom: 1rem;
-          border-bottom: 1px solid #e5e7eb;
-          padding-bottom: 0.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--accent-teal);
+            padding-bottom: 0.75rem;
+            letter-spacing: -0.5px;
         }
+
+        /* --- MENSAJES DE ERROR (CLASE CSS) --- */
+        .error-message {
+            background-color: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: var(--error-red) !important;
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem !important;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        /* --- BOTONES DE CAMBIO DE VISTA (Refinados) --- */
         .action-button-switch {
             width: 100%;
-            padding: 0.75rem;
-            margin-top: 1.5rem;
-            background-color: var(--secondary-gray);
+            padding: 1rem 1.5rem;
+            margin-top: 2.5rem;
+            background-color: var(--primary-blue);
             color: white;
             border: none;
-            border-radius: 0.5rem;
-            font-weight: 600;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 1.15rem;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 10px -2px rgba(31, 60, 136, 0.4);
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
         }
+        
         .action-button-switch:hover {
-            background-color: #4b5563; /* Gris más oscuro */
+            background-color: #2e57b4;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px -3px rgba(31, 60, 136, 0.5);
         }
+
         .action-button-switch.back-button {
-            background-color: #3b82f6; /* Azul */
+            background-color: var(--secondary-blue);
+            box-shadow: 0 4px 10px -2px rgba(0, 123, 255, 0.4);
         }
+        
         .action-button-switch.back-button:hover {
-            background-color: #2563eb; 
+            background-color: #0056b3;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px -3px rgba(0, 123, 255, 0.5);
         }
+
         .action-button-switch:active {
-            transform: scale(0.99);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px -1px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* --- ESTILOS DE FORMULARIO BASE (Para inputs y selects) --- */
+        input[type="text"], input[type="number"], input[type="email"], input[type="tel"], input[type="date"], select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-size: 1rem;
+        }
+        
+        input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, input[type="tel"]:focus, input[type="date"]:focus, select:focus {
+            border-color: var(--accent-teal);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 187, 212, 0.2);
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark-gray);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 25px; 
+            margin-top: 1.5rem;
         }
       `}</style>
       <div className="page-container">

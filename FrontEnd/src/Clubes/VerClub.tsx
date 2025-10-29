@@ -1,6 +1,7 @@
-// VerClub.tsx (Corregido con localidades fijas)
+// VerClub.tsx (Organizado con objeto de estilos)
 
 import { useEffect, useState } from "react";
+import React, { CSSProperties } from 'react'; // Importar CSSProperties para tipado
 
 const API_URL = "http://localhost:3001";
 
@@ -11,7 +12,7 @@ interface Club {
   categoria: "masculino" | "femenino";
   correo: string;
   telefono: string;
-  localidad: string; // El *nombre* de la localidad (para mostrar)
+  localidad: string;
   fechaRegistro: string;
   activo: boolean;
   logoUrl?: string;
@@ -29,14 +30,12 @@ interface ClubPayload {
   categoria?: "masculino" | "femenino";
   correo?: string;
   telefono?: string;
-  localidadId?: number; // <-- Se envía el ID
+  localidadId?: number; 
   fechaRegistro?: string;
   logoUrl?: string;
 }
 
-// --- CAMBIO: Definir localidades fijas ---
-// ADVERTENCIA: Los ID aquí (1, 2, 3...) deben coincidir 
-// exactamente con los ID de su base de datos.
+// Definir localidades fijas
 const LOCALIDADES_FIJAS: Localidad[] = [
   { id: 1, nombre: 'Bialet Massé' },
   { id: 2, nombre: 'Capilla del Monte' },
@@ -72,7 +71,6 @@ const LOCALIDADES_FIJAS: Localidad[] = [
 export default function VerClubes() {
   const [clubes, setClubes] = useState<Club[]>([]);
   
-  // --- CAMBIO: Inicializar estado con las localidades fijas ---
   const [localidades, setLocalidades] = useState<Localidad[]>(LOCALIDADES_FIJAS);
   
   const [busqueda, setBusqueda] = useState("");
@@ -85,14 +83,17 @@ export default function VerClubes() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [error, setError] = useState("");
 
+  // Función de mapeo de ID a Nombre
+  const getLocalidadNombre = (id?: number) => {
+    return localidades.find(loc => loc.id === id)?.nombre || 'Localidad Desconocida';
+  };
+
   // Cargar clubes al montar
   useEffect(() => {
     fetch(`${API_URL}/clubes`)
       .then(res => res.json())
       .then(data => setClubes(data))
       .catch(() => setClubes([]));
-
-    // --- CAMBIO: Se eliminó el fetch a /localidades ---
     
   }, []);
 
@@ -104,7 +105,7 @@ export default function VerClubes() {
       (categoriaFiltro ? club.categoria === categoriaFiltro : true)
   );
 
-  // Validación revisa 'localidadId'
+  // Validación
   function validarClub(club: ClubPayload) {
     if (!club.nombre || !club.categoria || !club.correo || !club.telefono || !club.localidadId || !club.fechaRegistro) {
       return "Todos los campos son obligatorios.";
@@ -170,12 +171,11 @@ export default function VerClubes() {
   const handleAbrirEdicion = (club: Club) => {
     setEditando(club); 
     
-    // Buscar el ID de la localidad basado en el nombre que tenemos
     const localidadId = localidades.find(l => l.nombre === club.localidad)?.id;
 
     setEditandoForm({
       ...club, 
-      localidadId: localidadId || undefined, // Asigna el ID numérico
+      localidadId: localidadId || club.localidadId || undefined, 
     });
     setError("");
     setMostrarFormulario(false); 
@@ -217,29 +217,150 @@ export default function VerClubes() {
     }
   }
 
-  // Estilos
-  const inputStyle = { width: "100%", padding: "0.5rem", marginBottom: "0.5rem", borderRadius: 5, border: "1px solid #ccc" };
-  const btnStyle = { padding: "0.5rem 1rem", borderRadius: 5, background: "#1f3c88", color: "white", border: "none", cursor: "pointer", marginRight: "0.5rem" };
-  const btnCancelStyle = { padding: "0.5rem 1rem", borderRadius: 5, background: "#aaa", color: "white", border: "none", cursor: "pointer" };
-  const cardStyle = { background: "#f7f7f7", padding: "1rem", borderRadius: "8px", marginBottom: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem" };
-  const logoListStyle = { width: "80px", height: "80px", objectFit: "contain", borderRadius: "4px", background: "#e0e0e0", flexShrink: 0 } as React.CSSProperties;
+  // =========================================================================
+  // SECCIÓN STYLES (Estética)
+  // =========================================================================
+  const styles = {
+    // Estilos de Input/Select base
+    inputStyle: {
+      width: "100%", 
+      padding: "0.5rem", 
+      marginBottom: "0.5rem", 
+      borderRadius: 5, 
+      border: "1px solid #ccc" 
+    } as CSSProperties,
+    
+    // Estilos de Botones
+    btnStyle: { 
+      padding: "0.5rem 1rem", 
+      borderRadius: 5, 
+      background: "#1f3c88", 
+      color: "white", 
+      border: "none", 
+      cursor: "pointer", 
+      marginRight: "0.5rem" 
+    } as CSSProperties,
+    
+    btnCancelStyle: { 
+      padding: "0.5rem 1rem", 
+      borderRadius: 5, 
+      background: "#aaa", 
+      color: "white", 
+      border: "none", 
+      cursor: "pointer" 
+    } as CSSProperties,
+    
+    // Estilos de Tarjeta (Lista de Clubes)
+    cardStyle: { 
+      background: "#f7f7f7", 
+      padding: "1rem", 
+      borderRadius: "8px", 
+      marginBottom: "1rem", 
+      display: "flex", 
+      justifyContent: "space-between", 
+      alignItems: "center", 
+      gap: "1rem" 
+    } as CSSProperties,
+    
+    // Estilo del Logo en la Lista
+    logoListStyle: { 
+      width: "80px", 
+      height: "80px", 
+      objectFit: "contain", 
+      borderRadius: "4px", 
+      background: "#e0e0e0", 
+      flexShrink: 0 
+    } as CSSProperties,
 
+    // Estilos del Contenedor Principal (Reemplaza el inline style del <div> principal)
+    mainContainer: {
+      maxWidth: 900, 
+      margin: "2rem auto", 
+      fontFamily: "Arial, sans-serif" 
+    } as CSSProperties,
+
+    // Estilos del Header
+    header: {
+      background: "linear-gradient(90deg, #1f3c88, #3a6ea5)", 
+      color: "white", 
+      padding: "1.5rem", 
+      borderRadius: "8px", 
+      marginBottom: "1.5rem", 
+      textAlign: "center" as const, 
+      boxShadow: "0 3px 8px rgba(0,0,0,0.2)"
+    } as CSSProperties,
+
+    // Estilos de la Barra de Búsqueda y Filtros
+    searchBar: {
+      display: "flex", 
+      gap: "1rem", 
+      marginBottom: "1.5rem", 
+      padding: "1rem", 
+      background: "#f9f9f9", 
+      borderRadius: "8px", 
+      boxShadow: "0 2px 6px rgba(0,0,0,0.1)"
+    } as CSSProperties,
+    
+    // Estilos de los Formularios (Añadir y Editar)
+    formContainer: {
+        marginTop: "1rem", 
+        padding: "1rem", 
+        background: "#f0f0f0", 
+        borderRadius: 8
+    } as CSSProperties,
+    
+    // Estilos del Input de Búsqueda
+    searchInput: {
+        flex: 1, 
+        padding: "0.6rem", 
+        borderRadius: "5px", 
+        border: "1px solid #ccc"
+    } as CSSProperties,
+    
+    // Estilos del Select de Categoría
+    categorySelect: {
+        flex: "0.4", 
+        padding: "0.6rem", 
+        borderRadius: "5px", 
+        border: "1px solid #ccc"
+    } as CSSProperties,
+    
+    // Estilo para Texto de Error
+    errorText: {
+        color: "red", 
+        marginBottom: "0.5rem"
+    } as CSSProperties,
+    
+    // Estilo para Labels
+    label: {
+        display: 'block', 
+        margin: '0.5rem 0 0.2rem'
+    } as CSSProperties,
+
+    // Estilo para Previews de Logo
+    logoPreview: {
+        width: 100, 
+        height: 100, 
+        objectFit: 'contain' as const
+    } as CSSProperties,
+  };
+  // =========================================================================
 
   return (
-    <div style={{ maxWidth: 900, margin: "2rem auto", fontFamily: "Arial, sans-serif" }}>
+    <div style={styles.mainContainer}>
       {/* Header */}
-      <div style={{ background: "linear-gradient(90deg, #1f3c88, #3a6ea5)", color: "white", padding: "1.5rem", borderRadius: "8px", marginBottom: "1.5rem", textAlign: "center", boxShadow: "0 3px 8px rgba(0,0,0,0.2)" }}>
+      <div style={styles.header}>
         <h1 style={{ margin: 0, fontSize: "2rem" }}>Gestión de Clubes</h1>
         <p style={{ margin: "0.5rem 0 0", fontSize: "1rem" }}> Administra y consulta los clubes registrados </p>
       </div>
 
       {/* Barra de búsqueda y filtros */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", padding: "1rem", background: "#f9f9f9", borderRadius: "8px", boxShadow: "0 2px 6px rgba(0,0,0,0.1)" }}>
+      <div style={styles.searchBar}>
         <input type="text" placeholder="Buscar..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-          style={{ flex: 1, padding: "0.6rem", borderRadius: "5px", border: "1px solid #ccc" }}
+          style={styles.searchInput}
         />
         <select value={categoriaFiltro} onChange={(e) => setCategoriaFiltro(e.target.value as any)}
-          style={{ flex: "0.4", padding: "0.6rem", borderRadius: "5px", border: "1px solid #ccc" }}
+          style={styles.categorySelect}
         >
           <option value="">Todas</option>
           <option value="masculino">Masculino</option>
@@ -249,45 +370,45 @@ export default function VerClubes() {
 
       {/* Lista de clubes */}
       {clubesFiltrados.map(club => (
-        <div key={club.id} style={cardStyle}>
+        <div key={club.id} style={styles.cardStyle}>
           <img
             src={club.logoUrl || 'https://via.placeholder.com/80?text=Logo'}
             alt="Logo"
-            style={logoListStyle}
+            style={styles.logoListStyle}
           />
           <div style={{ flexGrow: 1 }}>
             <h4>{club.nombre}</h4>
-            <p style={{ margin: '0.2rem 0' }}> {club.localidad?.nombre || 'Sin localidad'} | {club.categoria} </p>
+            <p style={{ margin: '0.2rem 0' }}> {getLocalidadNombre(club.localidadId)} | {club.categoria} </p>
             <p style={{ margin: '0.2rem 0' }}> {club.correo} | {club.telefono} </p>
             <p style={{ margin: '0.2rem 0', fontSize: '0.9rem' }}>Registrado: {club.fechaRegistro}</p>
           </div>
           <div style={{ flexShrink: 0 }}>
-            <button style={btnStyle} onClick={() => handleAbrirEdicion(club)}>
+            <button style={styles.btnStyle} onClick={() => handleAbrirEdicion(club)}>
               Modificar
             </button>
-            <button style={btnCancelStyle} onClick={() => handleDeleteClub(club.id)}>
+            <button style={styles.btnCancelStyle} onClick={() => handleDeleteClub(club.id)}>
               Borrar
             </button>
           </div>
         </div>
       ))}
 
-      <button style={btnStyle} onClick={() => { setMostrarFormulario(true); setEditando(null); setError(""); }}>
+      <button style={styles.btnStyle} onClick={() => { setMostrarFormulario(true); setEditando(null); setError(""); }}>
         Añadir Club
       </button>
 
       {/* Formulario Añadir */}
       {mostrarFormulario && (
-        <form onSubmit={handleAddClub} style={{ marginTop: "1rem", padding: "1rem", background: "#f0f0f0", borderRadius: 8 }}>
-          {error && <div style={{ color: "red", marginBottom: "0.5rem" }}>{error}</div>}
-          <input type="text" placeholder="Nombre" value={nuevoClub.nombre || ""} onChange={e => setNuevoClub({ ...nuevoClub, nombre: e.target.value })} style={inputStyle} required />
-          <select value={nuevoClub.categoria || ""} onChange={e => setNuevoClub({ ...nuevoClub, categoria: e.target.value as any })} style={inputStyle} required>
+        <form onSubmit={handleAddClub} style={styles.formContainer}>
+          {error && <div style={styles.errorText}>{error}</div>}
+          <input type="text" placeholder="Nombre" value={nuevoClub.nombre || ""} onChange={e => setNuevoClub({ ...nuevoClub, nombre: e.target.value })} style={styles.inputStyle} required />
+          <select value={nuevoClub.categoria || ""} onChange={e => setNuevoClub({ ...nuevoClub, categoria: e.target.value as any })} style={styles.inputStyle} required>
             <option value="">Seleccionar</option>
             <option value="masculino">Masculino</option>
             <option value="femenino">Femenino</option>
           </select>
-          <input type="email" placeholder="Correo" value={nuevoClub.correo || ""} onChange={e => setNuevoClub({ ...nuevoClub, correo: e.target.value })} style={inputStyle} required />
-          <input type="tel" placeholder="Teléfono" value={nuevoClub.telefono || ""} onChange={e => setNuevoClub({ ...nuevoClub, telefono: e.target.value })} style={inputStyle} required />
+          <input type="email" placeholder="Correo" value={nuevoClub.correo || ""} onChange={e => setNuevoClub({ ...nuevoClub, correo: e.target.value })} style={styles.inputStyle} required />
+          <input type="tel" placeholder="Teléfono" value={nuevoClub.telefono || ""} onChange={e => setNuevoClub({ ...nuevoClub, telefono: e.target.value })} style={styles.inputStyle} required />
           
           {/* Select usa localidadId */}
           <select
@@ -296,44 +417,44 @@ export default function VerClubes() {
               ...nuevoClub,
               localidadId: parseInt(e.target.value) 
             })}
-            style={inputStyle} required
+            style={styles.inputStyle} required
           >
             <option value="">Seleccionar Localidad</option>
             {/* El 'value' es el ID numérico */}
             {localidades.map(loc => <option key={loc.id} value={loc.id}>{loc.nombre}</option>)}
           </select>
           
-          <input type="date" value={nuevoClub.fechaRegistro || ""} onChange={e => setNuevoClub({ ...nuevoClub, fechaRegistro: e.target.value })} style={inputStyle} required />
+          <input type="date" value={nuevoClub.fechaRegistro || ""} onChange={e => setNuevoClub({ ...nuevoClub, fechaRegistro: e.target.value })} style={styles.inputStyle} required />
 
-          <label style={{ display: 'block', margin: '0.5rem 0 0.2rem' }}>Logo del Club (Max 5MB)</label>
+          <label style={styles.label}>Logo del Club (Max 5MB)</label>
           <input
             type="file"
             accept="image/*"
             onChange={(e) => handleFileUpload(e, setNuevoClub)}
-            style={inputStyle}
+            style={styles.inputStyle}
           />
-          {nuevoClub.logoUrl && <img src={nuevoClub.logoUrl} alt="Preview" style={{ width: 100, height: 100, objectFit: 'contain' }} />}
+          {nuevoClub.logoUrl && <img src={nuevoClub.logoUrl} alt="Preview" style={styles.logoPreview} />}
 
           <div style={{ marginTop: "0.5rem" }}>
-            <button type="submit" style={btnStyle}>Registrar</button>
-            <button type="button" style={btnCancelStyle} onClick={() => setMostrarFormulario(false)}>Cancelar</button>
+            <button type="submit" style={styles.btnStyle}>Registrar</button>
+            <button type="button" style={styles.btnCancelStyle} onClick={() => setMostrarFormulario(false)}>Cancelar</button>
           </div>
         </form>
       )}
 
       {/* Formulario Editar */}
       {editando && (
-        <form onSubmit={handleEditClub} style={{ marginTop: "1rem", padding: "1rem", background: "#f0f0f0", borderRadius: 8 }}>
-          {error && <div style={{ color: "red", marginBottom: "0.5rem" }}>{error}</div>}
+        <form onSubmit={handleEditClub} style={styles.formContainer}>
+          {error && <div style={styles.errorText}>{error}</div>}
           
           {/* Inputs usan 'editandoForm' */}
-          <input type="text" value={editandoForm.nombre || ""} onChange={e => setEditandoForm({ ...editandoForm, nombre: e.target.value })} style={inputStyle} required />
-          <select value={editandoForm.categoria || ""} onChange={e => setEditandoForm({ ...editandoForm, categoria: e.target.value as any })} style={inputStyle} required>
+          <input type="text" value={editandoForm.nombre || ""} onChange={e => setEditandoForm({ ...editandoForm, nombre: e.target.value })} style={styles.inputStyle} required />
+          <select value={editandoForm.categoria || ""} onChange={e => setEditandoForm({ ...editandoForm, categoria: e.target.value as any })} style={styles.inputStyle} required>
             <option value="masculino">Masculino</option>
             <option value="femenino">Femenino</option>
           </select>
-          <input type="email" value={editandoForm.correo || ""} onChange={e => setEditandoForm({ ...editandoForm, correo: e.target.value })} style={inputStyle} required />
-          <input type="tel" value={editandoForm.telefono || ""} onChange={e => setEditandoForm({ ...editandoForm, telefono: e.target.value })} style={inputStyle} required />
+          <input type="email" value={editandoForm.correo || ""} onChange={e => setEditandoForm({ ...editandoForm, correo: e.target.value })} style={styles.inputStyle} required />
+          <input type="tel" value={editandoForm.telefono || ""} onChange={e => setEditandoForm({ ...editandoForm, telefono: e.target.value })} style={styles.inputStyle} required />
           
           {/* Select usa localidadId de 'editandoForm' */}
           <select
@@ -342,26 +463,26 @@ export default function VerClubes() {
               ...editandoForm,
               localidadId: parseInt(e.target.value) 
             })}
-            style={inputStyle} required
+            style={styles.inputStyle} required
           >
             <option value="">Seleccionar Localidad</option>
             {localidades.map(loc => <option key={loc.id} value={loc.id}>{loc.nombre}</option>)}
           </select>
           
-          <input type="date" value={editandoForm.fechaRegistro || ""} onChange={e => setEditandoForm({ ...editandoForm, fechaRegistro: e.target.value })} style={inputStyle} required />
+          <input type="date" value={editandoForm.fechaRegistro || ""} onChange={e => setEditandoForm({ ...editandoForm, fechaRegistro: e.target.value })} style={styles.inputStyle} required />
 
-          <label style={{ display: 'block', margin: '0.5rem 0 0.2rem' }}>Logo del Club (Max 5MB)</label>
+          <label style={styles.label}>Logo del Club (Max 5MB)</label>
           <input
             type="file"
             accept="image/*"
             onChange={(e) => handleFileUpload(e, setEditandoForm)}
-            style={inputStyle}
+            style={styles.inputStyle}
           />
-          {editandoForm.logoUrl && <img src={editandoForm.logoUrl} alt="Preview" style={{ width: 100, height: 100, objectFit: 'contain' }} />}
+          {editandoForm.logoUrl && <img src={editandoForm.logoUrl} alt="Preview" style={styles.logoPreview} />}
 
           <div style={{ marginTop: "0.5rem" }}>
-            <button type="submit" style={btnStyle}>Guardar</button>
-            <button type="button" style={btnCancelStyle} onClick={() => { setEditando(null); setEditandoForm({}); }}>Cancelar</button>
+            <button type="submit" style={styles.btnStyle}>Guardar</button>
+            <button type="button" style={styles.btnCancelStyle} onClick={() => { setEditando(null); setEditandoForm({}); }}>Cancelar</button>
           </div>
         </form>
       )}

@@ -1,21 +1,126 @@
 import React, { useState } from "react";
-// (Pega las interfaces Club, CreateEncuentroDto, CreateFixtureDto aquí)
-// ...
+import type { CSSProperties } from "react";
+
+// (Asumimos que las interfaces Club, CreateEncuentroDto, CreateFixtureDto están definidas en el contexto)
+
+interface Club {
+  id: number;
+  nombre: string;
+}
+
+interface CreateEncuentroDto {
+  jornada: number;
+  grupo?: string;
+  fecha?: string;
+  resultado: string;
+  club1Id: number;
+  club2Id: number;
+}
+
+interface CreateFixtureDto {
+  fecha: string;
+  lugar: string;
+  partidos: CreateEncuentroDto[];
+}
+
+// Interfaz para pasar todos los estilos del padre
+interface StyleProps {
+  buttonBase: CSSProperties;
+  buttonPrimary: CSSProperties;
+  buttonSuccess: CSSProperties;
+  buttonContainer: CSSProperties;
+  errorMessage?: CSSProperties;
+  successMessage?: CSSProperties;
+}
 
 type Props = {
   onAgregarFixture: (dto: CreateFixtureDto) => void;
   onGenerarAutomatico?: () => void;
   clubes: Club[]; // <-- Recibe clubes
-  buttonContainerStyle?: React.CSSProperties;
+  styles: StyleProps; 
 };
 
-// NO MÁS clubesValidos y gruposValidos hardcodeados
+// --- 👇 ESTILOS ESPECÍFICOS DEL FORMULARIO AQUÍ 👇 ---
+const formStyles = {
+    // Estilo base para Input y Select
+    inputBase: {
+        width: '100%',
+        padding: '10px 12px',
+        margin: '8px 0 16px 0',
+        display: 'inline-block',
+        border: '1px solid #ccc',
+        borderRadius: '6px',
+        boxSizing: 'border-box' as const,
+        fontSize: '1rem',
+        transition: 'border-color 0.3s, box-shadow 0.3s',
+        backgroundColor: '#fff',
+    },
+    // Estilo para el contenedor de la información general
+    infoGeneral: {
+        display: 'flex',
+        gap: '20px',
+        marginBottom: '20px',
+    },
+    // Estilo de la cabecera (h3) de sección
+    sectionHeader: {
+        color: '#1f3c88',
+        fontSize: '1.4rem',
+        borderBottom: '2px solid #f0f0f0',
+        paddingBottom: '10px',
+        marginBottom: '20px',
+        marginTop: '30px',
+    },
+    // Estilo para el contenedor del formulario de un solo partido (Grid)
+    formPartidoGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gap: '15px',
+        alignItems: 'flex-start',
+        padding: '15px',
+        backgroundColor: '#f9f9f9',
+        borderRadius: '8px',
+        border: '1px solid #eee',
+    },
+    // Estilo para los botones de acción dentro del grid (ej: Agregar Partido)
+    gridButton: {
+        marginTop: 'auto', 
+        alignSelf: 'flex-end',
+    },
+    // Estilo para la lista de partidos
+    partidoList: {
+        listStyleType: 'none',
+        padding: '10px 0',
+        borderTop: '1px dashed #ddd',
+        marginTop: '15px',
+    },
+    partidoListItem: {
+        backgroundColor: '#fff',
+        padding: '10px 15px',
+        marginBottom: '5px',
+        borderRadius: '4px',
+        borderLeft: '4px solid #3498db',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        fontSize: '0.95rem',
+    },
+    // Estilos de Mensajes (Usando los colores del padre si están disponibles)
+    successMessage: {
+        color: "#28a745", // Verde
+        backgroundColor: "#d4edda", // Fondo verde claro
+        padding: "10px",
+        borderRadius: "4px",
+        textAlign: "center" as const,
+        marginBottom: "1rem",
+        border: "1px solid #c3e6cb",
+    }
+};
+// --- 👆 FIN DE ESTILOS ESPECÍFICOS ---
+
 
 const RegistrarFixture: React.FC<Props> = ({
   onAgregarFixture,
   onGenerarAutomatico,
-  clubes, // <-- Usa clubes de props
-  buttonContainerStyle,
+  clubes,
+  styles, // Recibe el objeto styles del padre
 }) => {
   const [fixtureDto, setFixtureDto] = useState<CreateFixtureDto>({
     fecha: "",
@@ -24,14 +129,23 @@ const RegistrarFixture: React.FC<Props> = ({
   });
   const [partidoTemp, setPartidoTemp] = useState<CreateEncuentroDto>({
     jornada: 1,
-    // grupo: "A", // Puedes quitarlo si no usas grupos
-    club1Id: 0, // <-- Cambiado a ID
-    club2Id: 0, // <-- Cambiado a ID
+    club1Id: 0,
+    club2Id: 0,
     resultado: "-",
-    fecha: new Date().toISOString().split('T')[0] // Fecha por defecto
+    fecha: new Date().toISOString().split('T')[0]
   });
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Combina estilos de botón con el estilo base
+  const botonGuardarStyle = { ...styles.buttonBase, ...styles.buttonPrimary };
+  const botonGenerarStyle = { ...styles.buttonBase, ...styles.buttonSuccess };
+  // Estilo para el botón de agregar partido
+  const botonAgregarPartidoStyle = { 
+    ...styles.buttonBase, 
+    ...formStyles.gridButton,
+  };
+
 
   const handleChangeFixture = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
@@ -45,7 +159,6 @@ const RegistrarFixture: React.FC<Props> = ({
     setError(null);
     setPartidoTemp({
       ...partidoTemp,
-      // Convertir IDs a número
       [name]:
         name === "jornada" || name === "club1Id" || name === "club2Id"
           ? Number(value)
@@ -57,7 +170,7 @@ const RegistrarFixture: React.FC<Props> = ({
     setError(null);
     setMensaje(null);
 
-    // Validaciones
+    // Validaciones (sin cambios)
     if (!partidoTemp.club1Id || !partidoTemp.club2Id) {
       setError("Debes seleccionar ambos clubes.");
       return;
@@ -78,11 +191,11 @@ const RegistrarFixture: React.FC<Props> = ({
       return;
     }
 
-    // Comprobar duplicados
+    // Comprobar duplicados (sin cambios)
     const partidoDuplicado = fixtureDto.partidos.some(
       (p) =>
         p.jornada === partidoTemp.jornada &&
-        p.grupo === partidoTemp.grupo && // Si usas grupos
+        p.grupo === partidoTemp.grupo && 
         ((p.club1Id === partidoTemp.club1Id && p.club2Id === partidoTemp.club2Id) ||
           (p.club1Id === partidoTemp.club2Id && p.club2Id === partidoTemp.club1Id)),
     );
@@ -91,20 +204,19 @@ const RegistrarFixture: React.FC<Props> = ({
       return;
     }
 
-    // Agregar partido al DTO del fixture
+    // Agregar partido al DTO del fixture (sin cambios)
     setFixtureDto({
       ...fixtureDto,
       partidos: [...fixtureDto.partidos, partidoTemp],
     });
 
-    // Resetear formulario de partido
+    // Resetear formulario de partido (sin cambios)
     setPartidoTemp({
-      jornada: partidoTemp.jornada, // Mantener jornada actual por defecto
-      // grupo: partidoTemp.grupo, // Mantener grupo
+      jornada: partidoTemp.jornada, 
       club1Id: 0,
       club2Id: 0,
       resultado: "-",
-      fecha: partidoTemp.fecha, // Mantener fecha
+      fecha: partidoTemp.fecha,
     });
 
     setMensaje("Partido agregado temporalmente.");
@@ -121,95 +233,85 @@ const RegistrarFixture: React.FC<Props> = ({
       setError("Agrega al menos un partido al fixture.");
       return;
     }
-    onAgregarFixture(fixtureDto); // Llama a la función del padre con el DTO
-    // Resetear fixture DTO
+    onAgregarFixture(fixtureDto); 
     setFixtureDto({ fecha: "", lugar: "", partidos: [] });
-    // Mensaje de éxito lo manejará el padre
   };
 
-  // --- Estilos Reutilizables ---
-  // (Pega tus estilos aquí: colorPrimary, inputBaseStyle, etc.)
-  // ...
 
   return (
-    <div /* style={contenedorPrincipalStyle} */ >
-      <h2 /* style={tituloStyle} */>Registro de Fixture</h2>
+    <div>
+      {/* Título sin ícono */}
+      <h2 style={{ color: '#1f3c88', fontSize: '1.8rem', marginBottom: '20px' }}>
+        Registro Manual de Fixture
+      </h2>
 
       {/* --- Información General del Fixture --- */}
-      <div /* style={infoGeneralStyle} */>
-        <div>
-          <label /* style={labelStyle} */>Fecha de Encuentros:</label>
+      <h4 style={formStyles.sectionHeader}>Información General del Evento</h4>
+      <div style={formStyles.infoGeneral}>
+        {/* Contenedor de Fecha */}
+        <div style={{ flex: 1 }}>
+          <label style={{ display: 'block', fontWeight: 600, color: '#4a5568' }}>Fecha de Encuentros:</label>
           <input
             name="fecha"
             type="date"
             value={fixtureDto.fecha}
             onChange={handleChangeFixture}
-            // style={inputStyle}
+            style={formStyles.inputBase}
             required
           />
         </div>
-        <div>
-          <label /* style={labelStyle} */>Lugar / Sede:</label>
+        {/* Contenedor de Lugar */}
+        <div style={{ flex: 1 }}>
+          <label style={{ display: 'block', fontWeight: 600, color: '#4a5568' }}>Lugar / Sede:</label>
           <input
             name="lugar"
             placeholder="Ej: Polideportivo Central"
             value={fixtureDto.lugar}
             onChange={handleChangeFixture}
-            // style={inputStyle}
+            style={formStyles.inputBase}
             required
           />
         </div>
       </div>
 
       {/* --- Formulario de Agregación de Partido --- */}
-      <h3>Agregar Partido</h3>
-      <div /* style={formPartidoStyle} */>
+      <h4 style={formStyles.sectionHeader}>Datos del Partido (Uno a la vez)</h4>
+      <div style={formStyles.formPartidoGrid}>
+        
         {/* Jornada */}
         <div>
-          <label /* style={labelStyle} */>Jornada</label>
+          <label style={{ display: 'block', fontWeight: 600, color: '#4a5568' }}>Jornada</label>
           <input
             name="jornada"
             type="number"
             min={1}
             value={partidoTemp.jornada}
             onChange={handleChangePartido}
-            // style={inputStyleSmall}
+            style={{ ...formStyles.inputBase, maxWidth: '100px' }}
             required
           />
         </div>
 
-        {/* Grupo (Opcional) */}
-        {/*
+        {/* Fecha Partido (Opcional) */}
         <div>
-          <label>Grupo</label>
-          <select name="grupo" value={partidoTemp.grupo} onChange={handleChangePartido}>
-             <option value="A">Grupo A</option>
-             <option value="B">Grupo B</option>
-          </select>
-        </div>
-        */}
-
-         {/* Fecha Partido (Opcional) */}
-        <div>
-          <label>Fecha Partido (Opcional)</label>
+          <label style={{ display: 'block', fontWeight: 600, color: '#4a5568' }}>Fecha Partido (Opcional)</label>
           <input
             name="fecha"
             type="date"
             value={partidoTemp.fecha}
             onChange={handleChangePartido}
-            // style={...}
+            style={formStyles.inputBase}
           />
         </div>
 
-
-        {/* --- CAMBIO: Selects con Clubes de la API --- */}
+        {/* Club Local */}
         <div>
-          <label /* style={labelStyle} */>Club Local *</label>
+          <label style={{ display: 'block', fontWeight: 600, color: '#4a5568' }}>Club Local *</label>
           <select
             name="club1Id"
             value={partidoTemp.club1Id}
             onChange={handleChangePartido}
-            // style={selectStyle}
+            style={formStyles.inputBase}
             required
           >
             <option value={0} disabled>
@@ -223,13 +325,14 @@ const RegistrarFixture: React.FC<Props> = ({
           </select>
         </div>
 
+        {/* Club Visitante */}
         <div>
-          <label /* style={labelStyle} */>Club Visitante *</label>
+          <label style={{ display: 'block', fontWeight: 600, color: '#4a5568' }}>Club Visitante *</label>
           <select
             name="club2Id"
             value={partidoTemp.club2Id}
             onChange={handleChangePartido}
-            // style={selectStyle}
+            style={formStyles.inputBase}
             required
           >
             <option value={0} disabled>
@@ -242,23 +345,26 @@ const RegistrarFixture: React.FC<Props> = ({
             ))}
           </select>
         </div>
-        {/* --- FIN DEL CAMBIO --- */}
 
         {/* Resultado */}
         <div>
-          <label /* style={labelStyle} */>Resultado *</label>
+          <label style={{ display: 'block', fontWeight: 600, color: '#4a5568' }}>Resultado *</label>
           <input
             name="resultado"
             placeholder="Ej: 25-21 o -"
             value={partidoTemp.resultado}
             onChange={handleChangePartido}
-            // style={inputStyleMedium}
+            style={formStyles.inputBase}
             required
           />
         </div>
 
+        {/* Botón Agregar Partido (sin ícono) */}
         <button
-          /* style={botonAgregarStyle} */
+          style={{ 
+            ...botonAgregarPartidoStyle, 
+            ...{ backgroundColor: '#3498db', color: '#fff' }
+          }} 
           onClick={agregarPartido}
           type="button"
         >
@@ -267,21 +373,20 @@ const RegistrarFixture: React.FC<Props> = ({
       </div>
 
       {/* Mensajes de Alerta */}
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      {mensaje && <div style={{ color: "green" }}>{mensaje}</div>}
+      {error && <div style={styles.errorMessage || { color: "red" }}>{error}</div>}
+      {mensaje && <div style={formStyles.successMessage || { color: "green" }}>{mensaje}</div>}
 
       {/* --- Lista de Partidos Agregados --- */}
       {fixtureDto.partidos.length > 0 && (
         <>
-          <h4>Partidos para guardar ({fixtureDto.partidos.length})</h4>
-          <ul>
+          <h4 style={{ ...formStyles.sectionHeader, marginTop: '30px' }}>Partidos a Incluir ({fixtureDto.partidos.length})</h4>
+          <ul style={formStyles.partidoList}>
             {fixtureDto.partidos.map((p, i) => {
-              // Buscar nombres de clubes para mostrar
               const club1Name = clubes.find(c => c.id === p.club1Id)?.nombre || `ID: ${p.club1Id}`;
               const club2Name = clubes.find(c => c.id === p.club2Id)?.nombre || `ID: ${p.club2Id}`;
               return (
-                <li key={i} /* style={listItemStyle} */>
-                  <strong>J{p.jornada}</strong> {p.grupo ? `| G.${p.grupo}` : ''}: {club1Name} vs {club2Name} ({p.resultado}) {p.fecha ? `[${p.fecha}]` : ''}
+                <li key={i} style={formStyles.partidoListItem}>
+                  <strong>J{p.jornada}</strong>: {club1Name} vs {club2Name} ({p.resultado}) {p.fecha ? `[${p.fecha}]` : ''}
                 </li>
               );
             })}
@@ -289,12 +394,12 @@ const RegistrarFixture: React.FC<Props> = ({
         </>
       )}
 
-      {/* --- Botones de Acción Final --- */}
-      <div style={buttonContainerStyle || { marginTop: 24 }}>
+      {/* --- Botones de Acción Final (sin iconos) --- */}
+      <div style={styles.buttonContainer || { marginTop: 24, justifyContent: 'center' }}>
         <button
           onClick={guardarFixture}
-          disabled={fixtureDto.partidos.length === 0} // Deshabilitar si no hay partidos
-          /* style={botonGuardarStyle} */
+          disabled={fixtureDto.partidos.length === 0 || !fixtureDto.fecha || !fixtureDto.lugar}
+          style={botonGuardarStyle}
         >
           Guardar Fixture Completo
         </button>
@@ -302,9 +407,9 @@ const RegistrarFixture: React.FC<Props> = ({
           <button
             type="button"
             onClick={onGenerarAutomatico}
-            /* style={botonGenerarStyle} */
+            style={botonGenerarStyle}
           >
-            Generar Automático (Demo)
+            Generar Automático
           </button>
         )}
       </div>

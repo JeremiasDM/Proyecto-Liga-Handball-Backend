@@ -2,6 +2,20 @@ import React from "react";
 import EquipoItem from "./EquipoItem";
 // (Importa el tipo Equipo si no está global)
 
+// --- Definición del tipo Equipo (Asumiendo que es la misma que en el componente padre) ---
+export type Equipo = {
+  id: number;
+  nombre: string;
+  pg: number;
+  pe: number;
+  pp: number;
+  goles: number; // Asumiendo que es la diferencia de gol
+  puntos: number;
+  activo?: boolean;
+};
+// -----------------------------------------------------------------------------------------
+
+
 type Props = {
   equipos: Equipo[]; // Recibe equipos como prop
   onActualizar: (id: number, actualizado: Partial<Equipo>) => void; // Recibe handler
@@ -9,10 +23,6 @@ type Props = {
 };
 
 const TablaEquipos: React.FC<Props> = ({ equipos, onActualizar, onEliminar }) => {
-  // --- NO MÁS useState local para equipos ---
-  // --- NO MÁS funciones agregar/actualizar/eliminar locales ---
-  // --- NO MÁS EquipoForm ---
-
   // Ordenamiento se mantiene
   const equiposOrdenados = [...equipos].sort((a, b) => {
       // Criterio principal: Puntos (descendente)
@@ -36,7 +46,6 @@ const TablaEquipos: React.FC<Props> = ({ equipos, onActualizar, onEliminar }) =>
         maxWidth: "1000px",
       }}
     >
-      {/* --- Se eliminó EquipoForm --- */}
 
       {equiposOrdenados.length === 0 ? (
           <p style={{textAlign: 'center', color: '#6c757d', marginTop: '20px'}}>No hay equipos registrados para mostrar estadísticas.</p>
@@ -44,33 +53,32 @@ const TablaEquipos: React.FC<Props> = ({ equipos, onActualizar, onEliminar }) =>
           <table
             style={{
               width: "100%",
-              borderCollapse: "separate",
+              borderCollapse: "separate", // Necesario para bordes redondeados
               borderSpacing: 0,
               marginTop: "20px",
               backgroundColor: "#fff",
-              borderRadius: "12px",
-              overflow: "hidden",
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+              borderRadius: "12px", // Bordes más grandes
+              overflow: "hidden", // Importante para que los bordes redondeados se apliquen a thead
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Sombra elegante
             }}
           >
             <thead
               style={{
-                backgroundColor: "#1f3c88", // Azul más oscuro
+                backgroundColor: "#007bff", // Azul Primario 💙
                 color: "white",
-                fontSize: "0.9em", // Ligeramente más pequeño
-                fontWeight: 600, // Menos bold
+                fontSize: "0.95em",
+                fontWeight: 700,
                 textTransform: "uppercase",
-                letterSpacing: '0.5px' // Espaciado letras
               }}
             >
               <tr>
-                <th style={{ padding: '10px 15px', textAlign: "left" }}>Equipo</th>
-                <th style={{ padding: '10px 15px' }}>PG</th>
-                <th style={{ padding: '10px 15px' }}>PE</th>
-                <th style={{ padding: '10px 15px' }}>PP</th>
-                <th style={{ padding: '10px 15px' }}>Dif. Gol</th> {/* Asumiendo diferencia */}
-                <th style={{ padding: '10px 15px' }}>Puntos</th>
-                <th style={{ padding: '10px 15px' }}>Acciones</th>
+                <th style={{ padding: 12, textAlign: "left" }}>Equipo</th>
+                <th style={{ padding: 12 }}>PG</th>
+                <th style={{ padding: 12 }}>PE</th>
+                <th style={{ padding: 12 }}>PP</th>
+                <th style={{ padding: 12 }}>Goles</th> {/* Manteniendo 'Goles' según tu solicitud de encabezado */}
+                <th style={{ padding: 12 }}>Puntos</th>
+                <th style={{ padding: 12 }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -79,7 +87,8 @@ const TablaEquipos: React.FC<Props> = ({ equipos, onActualizar, onEliminar }) =>
                   key={equipo.id}
                   equipo={equipo}
                   onActualizar={onActualizar} // Pasa el handler del padre
-                  onEliminar={onEliminar}     // Pasa el handler del padre
+                  onEliminar={onEliminar}     // Pasa el handler del padre
+                  // Añadimos estilo para filas impares/pares (estilo cebra)
                   rowStyle={index % 2 === 1 ? { backgroundColor: "#f8f9fa" } : {}}
                 />
               ))}
