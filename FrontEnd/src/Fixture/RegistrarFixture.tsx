@@ -3,9 +3,9 @@ import React, { useState } from "react";
 // ...
 
 type Props = {
-  onAgregarFixture: (dto: CreateFixtureDto) => void;
+  onAgregarFixture: (dto: any) => void;
   onGenerarAutomatico?: () => void;
-  clubes: Club[]; // <-- Recibe clubes
+  clubes: any[]; // <-- Recibe clubes
   buttonContainerStyle?: React.CSSProperties;
 };
 
@@ -17,12 +17,12 @@ const RegistrarFixture: React.FC<Props> = ({
   clubes, // <-- Usa clubes de props
   buttonContainerStyle,
 }) => {
-  const [fixtureDto, setFixtureDto] = useState<CreateFixtureDto>({
+  const [fixtureDto, setFixtureDto] = useState<any>({
     fecha: "",
     lugar: "",
     partidos: [],
   });
-  const [partidoTemp, setPartidoTemp] = useState<CreateEncuentroDto>({
+  const [partidoTemp, setPartidoTemp] = useState<any>({
     jornada: 1,
     // grupo: "A", // Puedes quitarlo si no usas grupos
     club1Id: 0, // <-- Cambiado a ID
@@ -79,15 +79,21 @@ const RegistrarFixture: React.FC<Props> = ({
     }
 
     // Comprobar duplicados
-    const partidoDuplicado = fixtureDto.partidos.some(
-      (p) =>
-        p.jornada === partidoTemp.jornada &&
-        p.grupo === partidoTemp.grupo && // Si usas grupos
-        ((p.club1Id === partidoTemp.club1Id && p.club2Id === partidoTemp.club2Id) ||
-          (p.club1Id === partidoTemp.club2Id && p.club2Id === partidoTemp.club1Id)),
+    const partidoDuplicado = fixtureDto.partidos.some((p: any) =>
+      p.jornada === partidoTemp.jornada &&
+      p.grupo === partidoTemp.grupo && // Si usas grupos
+      ((p.club1Id === partidoTemp.club1Id && p.club2Id === partidoTemp.club2Id) ||
+        (p.club1Id === partidoTemp.club2Id && p.club2Id === partidoTemp.club1Id)),
     );
     if (partidoDuplicado) {
       setError("Este enfrentamiento ya está agregado para esta jornada y grupo.");
+      return;
+    }
+
+    // Si existe fecha general del fixture, validar que la fecha del partido (si fue seteada)
+    // coincida con la fecha del fixture. Asunción: los partidos deben realizarse en la misma fecha del fixture.
+    if (fixtureDto.fecha && partidoTemp.fecha && partidoTemp.fecha !== fixtureDto.fecha) {
+      setError("La fecha del partido debe coincidir con la fecha del fixture.");
       return;
     }
 
@@ -275,7 +281,7 @@ const RegistrarFixture: React.FC<Props> = ({
         <>
           <h4>Partidos para guardar ({fixtureDto.partidos.length})</h4>
           <ul>
-            {fixtureDto.partidos.map((p, i) => {
+              {fixtureDto.partidos.map((p: any, i: number) => {
               // Buscar nombres de clubes para mostrar
               const club1Name = clubes.find(c => c.id === p.club1Id)?.nombre || `ID: ${p.club1Id}`;
               const club2Name = clubes.find(c => c.id === p.club2Id)?.nombre || `ID: ${p.club2Id}`;

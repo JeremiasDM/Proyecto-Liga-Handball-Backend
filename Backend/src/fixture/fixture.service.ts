@@ -56,15 +56,64 @@ export class FixtureService {
   }
 
   async update(id: number, updateFixtureDto: UpdateFixtureDto): Promise<Fixture> {
-     // La actualización de partidos anidados es más compleja.
-     // Podrías borrar los existentes y crear los nuevos, o hacer un diff.
-     // Por simplicidad, aquí solo actualizamos fecha y lugar.
-     const { partidos, ...fixtureData } = updateFixtureDto;
+  // Manejar 'partidos' con un cast para evitar conflictos de tipos en tiempo de compilación
+  const partidos = (updateFixtureDto as any).partidos;
+  const fixtureData = { ...(updateFixtureDto as any) } as any;
+  delete fixtureData.partidos;
+
+     // Cargar y validar fixture existente
      const fixture = await this.fixtureRepository.preload({ id, ...fixtureData });
      if (!fixture) {
-         throw new NotFoundException(`Fixture con ID ${id} no encontrado.`);
+       throw new NotFoundException(`Fixture con ID ${id} no encontrado.`);
      }
-     // Aquí faltaría la lógica para actualizar/reemplazar los partidos (encuentros)
+
+     // Si no se enviaron partidos, solo actualizamos los datos del fixture
+     if (!partidos) {
+       await this.fixtureRepository.save(fixture);
+       return this.findOne(id);
+     }
+
+     // Si vienen partidos, sincronizarlos: crear/actualizar/borrar según diff
+     await this.encuentroRepository.manager.transaction(async (manager) => {
+       // Obtener encuentros actuales del fixture
+       const actuales: Encuentro[] = await manager.find(Encuentro, { where: { fixtureId: id } });
+       const actualesIds = actuales.map((a) => a.id);
+
+       // Ids entrantes (los que deben permanecer/actualizarse)
+       const entrantesIds = (partidos as any[])
+         .filter((p) => typeof p.id === 'number')
+         .map((p) => p.id as number);
+
+       // Borrar los encuentros que no están en la lista entrante
+       const aBorrar = actualesIds.filter((aid) => !entrantesIds.includes(aid));
+       if (aBorrar.length > 0) {
+         await manager.delete(Encuentro, aBorrar);
+       }
+
+       // Procesar entrantes: actualizar los existentes o crear nuevos
+       for (const p of partidos as any[]) {
+         // Validación básica: evitar asignar un encuentro con id que no pertenezca al fixture
+         if (p.id && !actualesIds.includes(p.id)) {
+           throw new NotFoundException(`Encuentro con ID ${p.id} no pertenece al fixture ${id}.`);
+         }
+
+         const entidad = manager.create(Encuentro, {
+           jornada: p.jornada,
+           grupo: p.grupo,
+           fecha: p.fecha,
+           resultado: p.resultado || '-',
+           fixtureId: id,
+           club1Id: p.club1Id,
+           club2Id: p.club2Id,
+           id: p.id, // si existe, será usado para update
+         });
+
+         // Save a través del manager (insertará o actualizará según tenga id)
+         await manager.save(Encuentro, entidad);
+       }
+     });
+
+     // Finalmente, guardar datos del fixture y devolver el recurso actualizado
      await this.fixtureRepository.save(fixture);
      return this.findOne(id);
   }
