@@ -34,6 +34,7 @@ type Props = {
   onActualizar: (id: number, dto: UpdateReferenteDto) => void;
   onCancelar: () => void;
   error: string | null; // <-- Recibe error del padre
+  referentes: { id: number; dni: string }[]; // lista para comprobacion de duplicados
 };
 
 const categorias = ["Masculino", "Femenino"];
@@ -44,6 +45,7 @@ const EditarReferente: React.FC<Props> = ({
   onActualizar,
   onCancelar,
   error,
+  referentes,
 }) => {
   // --- CAMBIO: El estado se inicializa con los datos del referente, incluyendo clubId
   const [form, setForm] = useState<UpdateReferenteDto>({
@@ -69,8 +71,59 @@ const EditarReferente: React.FC<Props> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // NO MÁS validación aquí, el padre la hace
-    onActualizar(referente.id, form);
+    // Validación inline (no helpers)
+    const nombre = (form.nombre || "").toString().trim();
+    const apellido = (form.apellido || "").toString().trim();
+    const dni = (form.dni || "").toString().trim();
+    const correo = (form.correo || "").toString().trim();
+    const clubId = Number(form.clubId);
+
+    const nameRe = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s'\-]{2,60}$/;
+    if (!nameRe.test(nombre)) {
+      alert("Nombre inválido. Use solo letras y espacios (2-60 caracteres).");
+      return;
+    }
+    if (!nameRe.test(apellido)) {
+      alert("Apellido inválido. Use solo letras y espacios (2-60 caracteres).");
+      return;
+    }
+
+    if (!/^\d{7,10}$/.test(dni)) {
+      alert("El DNI debe contener entre 7 y 10 números (sin puntos).");
+      return;
+    }
+
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRe.test(correo)) {
+      alert("Correo inválido.");
+      return;
+    }
+
+    if (!clubId || clubId === 0) {
+      alert("Debe seleccionar un equipo/claro.");
+      return;
+    }
+
+    // DNI duplicado (excluyendo el propio referente)
+    if (
+      referentes &&
+      referentes.some((r: { id: number; dni: string }) => r.dni === dni && r.id !== referente.id)
+    ) {
+      alert("El DNI ya está registrado por otro referente.");
+      return;
+    }
+
+    // Construir DTO parcial saneado
+    const dto: UpdateReferenteDto = {
+      nombre,
+      apellido,
+      categoria: form.categoria,
+      dni,
+      correo,
+      clubId,
+    };
+
+    onActualizar(referente.id, dto);
   };
 
   return (

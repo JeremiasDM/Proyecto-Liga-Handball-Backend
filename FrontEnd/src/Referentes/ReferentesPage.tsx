@@ -93,7 +93,15 @@ const ReferentesPage: React.FC = () => {
   const cargarReferentes = async () => {
     try {
       const res = await fetch(`${API_URL}/referentes`);
-      if (!res.ok) throw new Error("Error al cargar referentes");
+      if (!res.ok) {
+        try {
+          const errData = await res.json();
+          setError(errData.message || "Error al cargar referentes");
+        } catch {
+          setError("Error al cargar referentes");
+        }
+        return;
+      }
       const data: Referente[] = await res.json();
       setReferentes(data);
     } catch (err) {
@@ -104,7 +112,15 @@ const ReferentesPage: React.FC = () => {
   const cargarClubes = async () => {
     try {
       const res = await fetch(`${API_URL}/clubes`); // Asume endpoint de clubes
-      if (!res.ok) throw new Error("Error al cargar clubes");
+      if (!res.ok) {
+        try {
+          const errData = await res.json();
+          setError(errData.message || "Error al cargar clubes");
+        } catch {
+          setError("Error al cargar clubes");
+        }
+        return;
+      }
       const data: Club[] = await res.json();
       setClubes(data);
     } catch (err) {
@@ -146,8 +162,12 @@ const ReferentesPage: React.FC = () => {
         body: JSON.stringify(dto),
       });
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Error al crear referente");
+        try {
+          const errData = await res.json();
+          throw new Error(errData.message || "Error al crear referente");
+        } catch {
+          throw new Error("Error al crear referente");
+        }
       }
       await cargarReferentes(); // Recargar lista
       manejarIrLista(); // Ir a la lista
@@ -171,8 +191,12 @@ const ReferentesPage: React.FC = () => {
         body: JSON.stringify(dto),
       });
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Error al actualizar referente");
+        try {
+          const errData = await res.json();
+          throw new Error(errData.message || "Error al actualizar referente");
+        } catch {
+          throw new Error("Error al actualizar referente");
+        }
       }
       await cargarReferentes(); // Recargar lista
       manejarIrLista(); // Ir a la lista
@@ -189,7 +213,12 @@ const ReferentesPage: React.FC = () => {
           method: "DELETE",
         });
         if (!res.ok) {
-          throw new Error("Error al eliminar referente");
+          try {
+            const errData = await res.json();
+            throw new Error(errData.message || "Error al eliminar referente");
+          } catch {
+            throw new Error("Error al eliminar referente");
+          }
         }
         await cargarReferentes(); // Recargar lista
         manejarVolver();
@@ -220,6 +249,7 @@ const ReferentesPage: React.FC = () => {
           onActualizar={actualizarReferente} // <-- Pasar nueva función
           onCancelar={manejarIrLista}
           error={error} // <-- Pasar error para mostrar
+            referentes={referentes}
         />
       )}
 
@@ -288,6 +318,7 @@ const ReferentesPage: React.FC = () => {
               <RegistrarReferente
                 onGuardar={registrarReferente}
                 clubes={clubes} // <-- Pasar clubes
+                referentes={referentes}
               />
             </div>
           ) : (

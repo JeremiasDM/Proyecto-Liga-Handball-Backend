@@ -16,15 +16,21 @@ interface CreateReferenteDto {
   clubId: number;
 }
 
+interface Referente {
+  id: number;
+  dni: string;
+}
+
 // --- Props ---
 type Props = {
   onGuardar: (dto: CreateReferenteDto) => void;
   clubes: Club[]; // Recibe los clubes como prop
+  referentes: Referente[]; // Lista para comprobaciones (p.ej. dni duplicado)
 };
 
 const categorias = ["Masculino", "Femenino"];
 
-const RegistrarReferente: React.FC<Props> = ({ onGuardar, clubes }) => {
+const RegistrarReferente: React.FC<Props> = ({ onGuardar, clubes, referentes }) => {
   const [form, setForm] = useState<CreateReferenteDto>({
     nombre: "",
     apellido: "",
@@ -49,9 +55,58 @@ const RegistrarReferente: React.FC<Props> = ({ onGuardar, clubes }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // NO MÁS validación aquí, el padre la hace
-    // NO MÁS fetch aquí, el padre lo hace
-    onGuardar(form);
+    // Validación inline (no helpers) — trim y chequeos básicos
+    const nombre = (form.nombre || "").toString().trim();
+    const apellido = (form.apellido || "").toString().trim();
+    const dni = (form.dni || "").toString().trim();
+    const correo = (form.correo || "").toString().trim();
+    const clubId = Number(form.clubId);
+
+    // Nombre / Apellido: solo letras, espacios y algunos símbolos comunes, 2..60
+    const nameRe = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s'\-]{2,60}$/;
+    if (!nameRe.test(nombre)) {
+      alert("Nombre inválido. Use solo letras y espacios (2-60 caracteres).");
+      return;
+    }
+    if (!nameRe.test(apellido)) {
+      alert("Apellido inválido. Use solo letras y espacios (2-60 caracteres).");
+      return;
+    }
+
+    // DNI: 7 a 10 dígitos
+    if (!/^\d{7,10}$/.test(dni)) {
+      alert("El DNI debe contener entre 7 y 10 números (sin puntos).");
+      return;
+    }
+
+    // Correo: comprobación simple
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRe.test(correo)) {
+      alert("Correo inválido.");
+      return;
+    }
+
+    // Club seleccionado
+    if (!clubId || clubId === 0) {
+      alert("Debe seleccionar un equipo/claro.");
+      return;
+    }
+
+    // DNI duplicado (cliente) — prevenir envío si ya existe
+    if (referentes && referentes.some((r: Referente) => r.dni === dni)) {
+      alert("El DNI ya está registrado.");
+      return;
+    }
+
+    // Enviar dto con valores saneados
+    onGuardar({
+      nombre,
+      apellido,
+      categoria: form.categoria,
+      dni,
+      correo,
+      clubId,
+    });
     
     // Opcional: limpiar formulario (aunque el padre cambiará de vista)
     setForm({
