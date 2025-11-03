@@ -244,7 +244,7 @@ const VerJugadores: React.FC<Props> = ({ jugador, onActualizar, onEliminar }) =>
                 
                 {jugador.fichaMedicaUrl && (
                     <a href={jugador.fichaMedicaUrl} target="_blank" rel="noopener noreferrer" className="document-link">
-                        🔗 Ver ficha médica (PDF/Imagen)
+                         Ver ficha médica (PDF/Imagen)
                     </a>
                 )}
 
@@ -253,18 +253,18 @@ const VerJugadores: React.FC<Props> = ({ jugador, onActualizar, onEliminar }) =>
                         onClick={() => {setEditandoDocs(false); setEditandoDatos(!editandoDatos);}} 
                         className="action-button btn-edit-data"
                     >
-                        {editandoDatos ? "🚫 Cancelar Edición" : "✏️ Editar Datos"}
+                        {editandoDatos ? " Cancelar Edición" : " Editar Datos"}
                     </button>
                     
                     <button 
                         onClick={() => {setEditandoDatos(false); setEditandoDocs(!editandoDocs);}} 
                         className="action-button btn-edit-docs"
                     >
-                        {editandoDocs ? "🚫 Cancelar Docs" : "📄 Editar Documentación"}
+                        {editandoDocs ? " Cancelar Docs" : " Editar Documentación"}
                     </button>
                     
                     <button onClick={handleEliminar} className="action-button btn-delete">
-                        🗑️ Eliminar
+                         Eliminar
                     </button>
                 </div>
 
