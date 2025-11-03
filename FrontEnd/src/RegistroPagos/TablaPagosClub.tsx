@@ -44,8 +44,8 @@ const styleConfig = {
     paymentCellArbitraje: "payment-cell-arbitraje",
     paymentInfoContainer: "payment-info-container",
     statusBadge: "status-badge",
-    cuotaButton: "btn-pago-cuota",
-    arbitrajeButton: "btn-pago-arbitraje"
+    // 🆕 Nueva clase base para los botones de pago
+    btnPagoBase: "btn-pago-base", 
 };
 
 // ============================================
@@ -55,7 +55,6 @@ const styleConfig = {
 const globalStyles = `
 /* Contenedor de la Tabla */
 .table-pagos-club-wrapper {
-    /* Contenedor que permite el scroll horizontal si la tabla es demasiado ancha */
     overflow-x: auto;
     width: 100%;
     height: 100%;
@@ -65,10 +64,9 @@ const globalStyles = `
 
 /* Estilo principal de la tabla */
 .table-pagos-club {
-    /* 🛠️ MODIFICADO: Estira la tabla al 100% del ancho del contenedor */
     width: 100%;
-    min-width: 500px; /* Mínimo para móviles, si es menor activa overflow-x */
-    table-layout: auto; /* Permite que las columnas se ajusten para llenar el 100% */
+    min-width: 500px; 
+    table-layout: auto; 
     
     border-collapse: separate;
     border-spacing: 0;
@@ -91,9 +89,8 @@ const globalStyles = `
     letter-spacing: 0.05em;
 }
 
-/* 🛠️ MODIFICADO: Ancho de Columna Club */
 .table-header-club {
-    width: 30%; /* Asigna un 30% del ancho al club */
+    width: 30%; 
     border-top-left-radius: 0.5rem;
 }
 .table-header-center {
@@ -121,12 +118,11 @@ const globalStyles = `
     border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
 }
 
-/* 🛠️ MODIFICADO: Ancho de Columnas de Pagos */
 .payment-cell, .payment-cell-arbitraje {
     padding: 0.75rem 0.5rem;
     text-align: center;
     border-bottom: 1px solid #e5e7eb;
-    width: 35%; /* Asigna un 35% del ancho a cada pago (30+35+35=100%) */
+    width: 35%; 
 }
 
 /* Contenedor de Información (Badge + Botón) */
@@ -160,8 +156,8 @@ const globalStyles = `
     color: #991b1b; /* text-red-800 */
 }
 
-/* Botones de Pago */
-.btn-pago-cuota, .btn-pago-arbitraje {
+/* 🆕 Botones de Pago Base (Aplicado a todos los tipos de pago) */
+.btn-pago-base {
     padding: 0.4rem 0.8rem;
     font-size: 0.75rem; /* text-xs */
     font-weight: 600;
@@ -171,28 +167,16 @@ const globalStyles = `
     border: none;
     width: 90%;
     max-width: 140px;
+    color: #ffffff; /* Texto blanco */
+    background-color: #1f3c88; /* Fondo azul fuerte solicitado */
 }
 
-/* Botón Cuota (Verde) */
-.btn-pago-cuota {
-    color: #ffffff;
-    background-color: #059669; /* bg-emerald-600 */
-}
-.btn-pago-cuota:hover {
-    background-color: #047857; /* hover:bg-emerald-700 */
+.btn-pago-base:hover {
+    background-color: #1a316e; /* Un tono ligeramente más oscuro para el hover */
 }
 
-/* Botón Arbitraje (Naranja/Ámbar) */
-.btn-pago-arbitraje {
-    color: #ffffff;
-    background-color: #d97706; /* bg-amber-700 */
-}
-.btn-pago-arbitraje:hover {
-    background-color: #b45309; /* hover:bg-amber-800 */
-}
-
-/* Botones Deshabilitados */
-.btn-pago-cuota:disabled, .btn-pago-arbitraje:disabled {
+/* Botones Deshabilitados (Mantienen el color gris) */
+.btn-pago-base:disabled {
     background-color: #e5e7eb; /* disabled:bg-gray-200 */
     color: #6b7280; /* disabled:text-gray-500 */
     cursor: not-allowed;
@@ -222,9 +206,11 @@ const additionalStyles = `
 `;
 // ============================================
 
-const tiposTabla: Array<{ tipo: TipoPago, label: string, buttonClass: string }> = [
-    { tipo: "cuota", label: "Cuota Anual", buttonClass: styleConfig.cuotaButton },
-    { tipo: "arbitraje", label: "Pago Arbitraje", buttonClass: styleConfig.arbitrajeButton },
+// La configuración de los tipos de tabla ahora solo necesita el 'tipo' y 'label',
+// ya que el 'buttonClass' será el mismo para todos.
+const tiposTabla: Array<{ tipo: TipoPago, label: string }> = [
+    { tipo: "cuota", label: "Cuota Anual" },
+    { tipo: "arbitraje", label: "Pago Arbitraje" },
     // Puedes añadir 'multa', 'otro' si quieres columnas separadas
 ];
 
@@ -239,7 +225,6 @@ const TablaPagosClub: React.FC<Props> = ({ clubes, pagos, onRealizarPago }) => (
                         <th className={styleConfig.tableHeaderCellClub}>Club</th>
                         {/* Genera cabeceras dinámicamente */}
                         {tiposTabla.map((t, index) => (
-                            // La última cabecera debe tener el border-radius de la derecha
                             <th 
                                 key={t.tipo} 
                                 className={`${styleConfig.tableHeaderCellOther} ${index === tiposTabla.length - 1 ? styleConfig.tableHeaderCellArbitraje : ''}`}
@@ -254,7 +239,7 @@ const TablaPagosClub: React.FC<Props> = ({ clubes, pagos, onRealizarPago }) => (
                         <tr key={club} className={styleConfig.tableRow}>
                             <td className={styleConfig.clubNameCell}>{club}</td>
                             {/* Genera celdas dinámicamente */}
-                            {tiposTabla.map((t, index) => {
+                            {tiposTabla.map((t) => {
                                 // Encuentra el último pago de ese tipo para el club
                                 const ultimoPago = pagos
                                     .filter(p => p.club === club && p.tipo === t.tipo)
@@ -265,21 +250,20 @@ const TablaPagosClub: React.FC<Props> = ({ clubes, pagos, onRealizarPago }) => (
 
                                 return (
                                     <td 
-                                            key={t.tipo} 
-                                            className={`${styleConfig.paymentCell} ${t.tipo === 'arbitraje' ? styleConfig.paymentCellArbitraje : ''}`}
-                                        >
+                                        key={t.tipo} 
+                                        className={`${styleConfig.paymentCell} ${t.tipo === 'arbitraje' ? styleConfig.paymentCellArbitraje : ''}`}
+                                    >
                                         <div className={styleConfig.paymentInfoContainer}>
                                             <span className={`${styleConfig.statusBadge} ${estadoClass}`}>
                                                 {estado.toUpperCase()}
                                             </span>
-                                            {/* Podrías mostrar fecha del último pago: {ultimoPago ? new Date(ultimoPago.fecha).toLocaleDateString() : '-'} */}
                                             <button
-                                                className={t.buttonClass}
+                                                className={styleConfig.btnPagoBase} // 🆕 Aplica la nueva clase base
                                                 onClick={() => onRealizarPago(club, t.tipo)}
                                                 // Deshabilitar podría tener lógica más compleja (ej. no permitir si ya está validado)
                                                 // disabled={estado === "pagado" || estado === "validado"}
                                             >
-                                                Registrar Pago {/* Texto del botón */}
+                                                Registrar Pago
                                             </button>
                                         </div>
                                     </td>
