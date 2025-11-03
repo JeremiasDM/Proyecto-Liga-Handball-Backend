@@ -12,7 +12,7 @@ import type { CSSProperties } from "react";
 const styleConfig = {
     container: "pagos-container",
     contentWrapper: "content-wrapper",
-    title: "main-title",
+    title: "main-title", // Esta clase ya no se usa para el título principal, pero se mantiene aquí
     modalBackdrop: "modal-backdrop",
     sancionesSectionWrapper: "sanciones-section-wrapper",
     sancionesHeader: "sanciones-header",
@@ -27,14 +27,35 @@ const styleConfig = {
     sancionMetadata: "sancion-metadata",
     noSancionesMessage: "no-sanciones-message",
     apiStatusAlert: "api-status-alert",
-    // NUEVAS CLASES PARA LA NAVEGACIÓN
-    navBar: "nav-bar", 
-    navButton: "nav-button",
-    navButtonActive: "nav-button-active",
+    // ❌ CLASES DE NAVEGACIÓN ELIMINADAS/IGNORADAS para usar estilo inline
+    // navBar: "nav-bar",
+    // navButton: "nav-button",
+    // navButtonActive: "nav-button-active",
+};
+
+// 🆕 ESTILO BASE PARA LOS BOTONES DE NAVEGACIÓN
+const baseNavButtonStyle: CSSProperties = {
+    padding: "0.5rem 1rem",
+    borderRadius: "5px",
+    background: "#1f3c88",
+    color: "white",
+    border: "none",
+    cursor: "pointer",
+    marginRight: "0.5rem",
+    fontWeight: '600',
+    transition: 'background-color 0.2s, opacity 0.2s' // Añadido para suavizar el hover
+};
+
+// 🆕 ESTILO PARA EL BOTÓN DE SECCIÓN ACTIVA
+const activeNavButtonStyle: CSSProperties = {
+    // Hereda de baseNavButtonStyle, pero aplica un estilo de "resaltado"
+    background: "#0f2357", // Un tono más oscuro del azul para indicar activo
+    boxShadow: '0 0 10px rgba(31, 60, 136, 0.5)'
 };
 
 /**
  * Bloque de estilos CSS inyectados para el componente PagosPage.
+ * Se eliminaron los estilos de las pestañas (`.nav-bar`, `.nav-button`, etc.)
  */
 const globalStyles = `
 /* ... (Estilos existentes) ... */
@@ -63,6 +84,7 @@ ${/* Estructura Principal */''}
     gap: 2rem; /* space-y-8 */
 }
 
+/* NOTA: El estilo .main-title ahora es reemplazado por estilo inline en el H2 */
 .main-title {
     font-size: 1.875rem; /* text-3xl */
     font-weight: 800; /* font-extrabold */
@@ -86,9 +108,8 @@ ${/* Estructura Principal */''}
     z-index: 50;
 }
 
-/* Sección de Sanciones (Sin iconos) */
+/* Sección de Sanciones */
 .sanciones-section-wrapper {
-    /* Mantenemos el estilo visual, pero eliminamos el margin-top de 2.5rem para que no quede espacio innecesario al cambiar de pestaña */
     padding: 1.25rem; /* p-5 */
     border: 2px solid #fca5a5; /* border-2 border-red-300 */
     border-radius: 0.75rem; /* rounded-xl */
@@ -110,7 +131,7 @@ ${/* Estructura Principal */''}
     font-weight: 700; /* font-bold */
     color: #b91c1c; /* text-red-700 */
 }
-/* Eliminado: .sanciones-title svg {} */
+
 .sanciones-body {
     max-height: 20rem; /* max-h-80 */
     overflow-y: auto;
@@ -139,7 +160,6 @@ ${/* Estructura Principal */''}
     background-color: #fef2f2; /* hover:bg-red-100 */
 }
 .sancion-icon {
-    /* Mantenido para estructura, pero puede estar vacío o contener un placeholder simple */
     font-size: 1.5rem; /* text-2xl */
     flex-shrink: 0;
 }
@@ -181,7 +201,7 @@ ${/* Estructura Principal */''}
     border-radius: 0.5rem; /* rounded-lg */
     border: 1px solid #a7f3d0; /* border border-green-200 */
 }
-/* NUEVOS ESTILOS PARA INDICADORES DE ESTADO API */
+/* ESTILOS PARA INDICADORES DE ESTADO API */
 .api-status-alert {
     padding: 0.75rem; /* p-3 */
     margin-bottom: 1rem; /* mb-4 */
@@ -199,63 +219,17 @@ ${/* Estructura Principal */''}
     border: 1px solid #7dd3fc; /* border-sky-300 */
 }
 
-/* 🆕 ESTILOS PARA LA BARRA DE NAVEGACIÓN (tabs) */
-.nav-bar {
-    display: flex;
-    justify-content: center;
-    gap: 1rem; /* space-x-4 */
-    margin-bottom: 2rem;
-    padding: 0.5rem 0;
-    /* Eliminamos el border-bottom para usarlo como separador visual de la pestaña activa */
-}
+/* ❌ ESTILOS DE NAVEGACIÓN ELIMINADOS DE AQUÍ */
 
-.nav-button {
-    background-color: #f9fafb; /* bg-gray-50 */
-    color: #4b5563; /* text-gray-600 */
-    padding: 0.6rem 1.2rem;
-    border: 1px solid #d1d5db; /* border-gray-300 */
-    border-radius: 0.375rem 0.375rem 0 0; /* Bordes superiores redondeados */
-    border-bottom: none; /* Quitamos el borde inferior */
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-    position: relative;
-    z-index: 10;
-}
-
-.nav-button:hover:not(.nav-button-active) {
-    background-color: #e5e7eb; /* hover:bg-gray-200 */
-    color: #1f2937;
-    border-color: #9ca3af;
-}
-
-.nav-button-active {
-    background-color: #ffffff; /* Fondo blanco para la pestaña activa */
-    color: #059669; /* Color de texto del tema (emerald) */
-    border-color: #e5e7eb; /* Borde superior y laterales grises */
-    border-bottom: 2px solid #ffffff; /* Simula la línea divisoria debajo de la pestaña activa */
-    margin-bottom: -2px; /* Mueve la pestaña activa para superponer la línea divisoria del contenedor */
-    z-index: 20;
-}
-
-.nav-button-active:hover {
-    background-color: #ffffff; 
-    color: #047857; /* Un poco más oscuro en hover */
-    border-color: #d1d5db;
-}
-
-/* Contenedor para el contenido de las pestañas (agregado) */
-.tab-content-container {
-    padding-top: 0.5rem; /* Espacio superior */
-    border-top: 1px solid #e5e7eb; /* Línea divisoria de las pestañas */
-    margin-top: -1.5rem; /* Para que la línea toque las pestañas */
+/* Contenedor para el contenido (Simplificado) */
+.content-section {
+    padding-top: 1rem; /* Espacio superior */
 }
 
 `;
 
 
-// --- TIPOS ---
-// Tipos de la API (Asegúrate que coincidan con tu backend)
+// --- TIPOS Y CONSTANTES (Sin cambios) ---
 interface ClubAPI {
     id: number;
     nombre: string;
@@ -331,7 +305,7 @@ const PagosPage: React.FC = () => {
     const [partidos, setPartidos] = useState<any[]>([]);
     
     // ESTADO CLAVE: Controla qué sección está visible.
-    const [activeSection, setActiveSection] = useState<'tablaClubes' | 'historialPagos' | 'sanciones'>('tablaClubes'); 
+    const [activeSection, setActiveSection] = useState<'tablaClubes' | 'historialPagos' | 'sanciones'>('tablaClubes');
 
     // Estados UI
     const [modal, setModal] = useState<{ tipo: TipoPago; club: string } | null>(null);
@@ -341,7 +315,6 @@ const PagosPage: React.FC = () => {
     const [loadingPagos, setLoadingPagos] = useState(false);
     const [errorPagos, setErrorPagos] = useState<string | null>(null);
 
-    // ... (El resto de las funciones cargarClubes, cargarPagos, handleGuardarPago, etc. quedan igual) ...
     // --- Cargar datos iniciales ---
     useEffect(() => {
         cargarClubes();
@@ -349,7 +322,7 @@ const PagosPage: React.FC = () => {
         // cargarPartidos(); // <-- Llama si necesitas cargar partidos
     }, []);
 
-    // --- FUNCIONES API (Mantengo solo las firmas para brevedad, pero en tu código real van aquí) ---
+    // --- FUNCIONES API (Mantenidas) ---
     const cargarClubes = async () => {
         setLoadingClubes(true);
         setErrorClubes(null);
@@ -393,7 +366,7 @@ const PagosPage: React.FC = () => {
         }
     };
 
-    // --- MANEJO DE MODALES Y GUARDADO/ACTUALIZACIÓN ---
+    // --- MANEJO DE MODALES Y CRUD (Mantenidas) ---
     const handleRealizarPago = (club: string, tipo: TipoPago) => {
         setErrorPagos(null); // Limpia errores previos al abrir
         setModal({ tipo, club });
@@ -469,11 +442,11 @@ const PagosPage: React.FC = () => {
 
         // El club no debería cambiar, pero si lo permites, busca el ID
         const clubId = obtenerClubIdPorNombre(pagoActualizado.club);
-          if (clubId === null) {
-            setErrorPagos(`Error: No se encontró el ID para el club "${pagoActualizado.club}".`);
-            setLoadingPagos(false);
-            return;
-          }
+            if (clubId === null) {
+                setErrorPagos(`Error: No se encontró el ID para el club "${pagoActualizado.club}".`);
+                setLoadingPagos(false);
+                return;
+            }
 
         try {
             // Prepara el DTO de actualización
@@ -514,24 +487,24 @@ const PagosPage: React.FC = () => {
 
     // Elimina un PAGO
     const handleEliminarPago = async (id: number) => {
-          if (window.confirm(`¿Seguro que quieres eliminar el registro de pago ID ${id}?`)) {
-              setErrorPagos(null);
-              setLoadingPagos(true);
-              try {
-                  const response = await fetch(`${API_URL}/pagos/${id}`, { // DELETE /pagos/:id
-                      method: 'DELETE',
-                  });
-                  if (!response.ok) {
-                      throw new Error(`Error ${response.status}: No se pudo eliminar el pago.`);
-                  }
-                  await cargarPagos(); // Recarga la lista
-                  alert(`Pago ID ${id} eliminado.`);
-              } catch (err) {
-                  setErrorPagos((err as Error).message);
-              } finally {
-                  setLoadingPagos(false);
-              }
-          }
+            if (window.confirm(`¿Seguro que quieres eliminar el registro de pago ID ${id}?`)) {
+                setErrorPagos(null);
+                setLoadingPagos(true);
+                try {
+                    const response = await fetch(`${API_URL}/pagos/${id}`, { // DELETE /pagos/:id
+                        method: 'DELETE',
+                    });
+                    if (!response.ok) {
+                        throw new Error(`Error ${response.status}: No se pudo eliminar el pago.`);
+                    }
+                    await cargarPagos(); // Recarga la lista
+                    alert(`Pago ID ${id} eliminado.`);
+                } catch (err) {
+                    setErrorPagos((err as Error).message);
+                } finally {
+                    setLoadingPagos(false);
+                }
+            }
     };
     
     // --- RENDERIZADO ---
@@ -540,39 +513,97 @@ const PagosPage: React.FC = () => {
             <style>{globalStyles}</style> {/* CSS inyectado */}
             <div className={styleConfig.container}>
                 <div className={styleConfig.contentWrapper}>
-                    <h2 className={styleConfig.title}>Gestión de Pagos de Clubes </h2>
+                    
+                    {/* TÍTULO */}
+                    <h2
+                        style={{
+                            color: "#1f3c88", // ¡AZUL ACTUALIZADO! 🟦
+                            marginBottom: "30px",
+                            textAlign: "center",
+                            fontSize: "2.5em",
+                            fontWeight: 600,
+                            borderBottom: "3px solid #1f3c88", // ¡BORDE ACTUALIZADO!
+                            display: "inline-block",
+                            paddingBottom: "5px",
+                            margin: "0 auto 30px auto", // Centrar el título
+                            display: "block",
+                            width: "fit-content",
+                        }}
+                    >
+                        Gestión de Pagos de Clubes
+                    </h2>
 
-                    {/* BARRA DE NAVEGACIÓN (TABS) */}
-                    <nav className={styleConfig.navBar}>
+                    {/* 🆕 BARRA DE NAVEGACIÓN (BOTONES CON ESTILO INLINE) */}
+                    <nav 
+                        style={{ 
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            gap: '1rem', 
+                            marginBottom: '2rem',
+                            borderBottom: '1px solid #e5e7eb', // Separador visual
+                            paddingBottom: '1rem',
+                        }}
+                    >
                         <button
-                            className={`${styleConfig.navButton} ${activeSection === 'tablaClubes' ? styleConfig.navButtonActive : ''}`}
+                            style={{ 
+                                ...baseNavButtonStyle, 
+                                ...(activeSection === 'tablaClubes' ? activeNavButtonStyle : {}),
+                                // Para el efecto hover que se acerca al activo
+                                opacity: activeSection === 'tablaClubes' ? 1 : 0.8,
+                            }}
                             onClick={() => setActiveSection('tablaClubes')}
+                            onMouseEnter={(e) => { 
+                                if (activeSection !== 'tablaClubes') e.currentTarget.style.opacity = '1'; 
+                            }}
+                            onMouseLeave={(e) => { 
+                                if (activeSection !== 'tablaClubes') e.currentTarget.style.opacity = '0.8'; 
+                            }}
                         >
                             Resumen por Club
                         </button>
                         <button
-                            className={`${styleConfig.navButton} ${activeSection === 'historialPagos' ? styleConfig.navButtonActive : ''}`}
+                            style={{ 
+                                ...baseNavButtonStyle, 
+                                ...(activeSection === 'historialPagos' ? activeNavButtonStyle : {}),
+                                opacity: activeSection === 'historialPagos' ? 1 : 0.8,
+                            }}
                             onClick={() => setActiveSection('historialPagos')}
+                            onMouseEnter={(e) => { 
+                                if (activeSection !== 'historialPagos') e.currentTarget.style.opacity = '1'; 
+                            }}
+                            onMouseLeave={(e) => { 
+                                if (activeSection !== 'historialPagos') e.currentTarget.style.opacity = '0.8'; 
+                            }}
                         >
                             Historial de Pagos
                         </button>
                         <button
-                            className={`${styleConfig.navButton} ${activeSection === 'sanciones' ? styleConfig.navButtonActive : ''}`}
+                            style={{ 
+                                ...baseNavButtonStyle, 
+                                ...(activeSection === 'sanciones' ? activeNavButtonStyle : {}),
+                                opacity: activeSection === 'sanciones' ? 1 : 0.8,
+                            }}
                             onClick={() => setActiveSection('sanciones')}
+                            onMouseEnter={(e) => { 
+                                if (activeSection !== 'sanciones') e.currentTarget.style.opacity = '1'; 
+                            }}
+                            onMouseLeave={(e) => { 
+                                if (activeSection !== 'sanciones') e.currentTarget.style.opacity = '0.8'; 
+                            }}
                         >
                             Sanciones
                         </button>
                     </nav>
 
-                    {/* Contenedor para el contenido de las pestañas */}
-                    <div className="tab-content-container">
+                    {/* Contenedor para el contenido de las secciones */}
+                    <div className="content-section">
 
                         {/* Indicadores de Carga/Error Globales */}
                         {loadingClubes && <p className={`${styleConfig.apiStatusAlert} loading`}>Cargando lista de clubes...</p>}
-                        {errorClubes && <p className={`${styleConfig.apiStatusAlert} error`}>🚨 Error al cargar clubes: {errorClubes}</p>}
+                        {errorClubes && <p className={`${styleConfig.apiStatusAlert} error`}> Error al cargar clubes: {errorClubes}</p>}
                         {loadingPagos && <p className={`${styleConfig.apiStatusAlert} loading`}>Actualizando pagos...</p>}
                         {/* Muestra error global o específico del modal (si no está abierto un modal) */}
-                        {(errorPagos && !modal && !pagoEditando) && <p className={`${styleConfig.apiStatusAlert} error`}>❌ Error Pagos: {errorPagos}</p>}
+                        {(errorPagos && !modal && !pagoEditando) && <p className={`${styleConfig.apiStatusAlert} error`}> Error Pagos: {errorPagos}</p>}
 
                         {/* --- RENDERIZADO CONDICIONAL DE SECCIONES --- */}
                         
@@ -608,13 +639,13 @@ const PagosPage: React.FC = () => {
                             <div id="sanciones" className={styleConfig.sancionesSectionWrapper}>
                                 <div className={styleConfig.sancionesHeader}>
                                     <h3 className={styleConfig.sancionesTitle}>
-                                        ⚠️ Sanciones Pendientes (Ejemplo)
+                                         Sanciones Pendientes (Ejemplo)
                                     </h3>
                                 </div>
                                 <div className={styleConfig.sancionesBody}>
                                     <ul className={styleConfig.sancionesList}>
                                         <li className={styleConfig.sancionItem}>
-                                            <span className={styleConfig.sancionIcon}></span> 
+                                            <span className={styleConfig.sancionIcon}></span>
                                             <div>
                                                 <p className={styleConfig.sancionClub}>Club Atlético Ejemplo</p>
                                                 <span className={styleConfig.sancionTypeBadge}>Multa</span>
@@ -623,15 +654,15 @@ const PagosPage: React.FC = () => {
                                             </div>
                                         </li>
                                     </ul>
-                                    <p className={styleConfig.noSancionesMessage} style={{ marginTop: '1rem' }}>✅ No hay sanciones pendientes de pago.</p> 
+                                    <p className={styleConfig.noSancionesMessage} style={{ marginTop: '1rem' }}> No hay sanciones pendientes de pago.</p>
                                 </div>
-                            </div> 
+                            </div>
                         )}
 
-                    </div> {/* Fin del contenedor de pestañas */}
+                    </div> {/* Fin del contenedor de secciones */}
 
 
-                    {/* Modal Registro (Flota por encima, NO CONDICIONAL AL activeSection) */}
+                    {/* Modal Registro (Flota por encima) */}
                     {modal && (
                         <div className={styleConfig.modalBackdrop}>
                             <FormularioPago
@@ -650,7 +681,7 @@ const PagosPage: React.FC = () => {
                         </div>
                     )}
 
-                    {/* Modal Edición (Flota por encima, NO CONDICIONAL AL activeSection) */}
+                    {/* Modal Edición (Flota por encima) */}
                     {pagoEditando && (
                         <div className={styleConfig.modalBackdrop}>
                             <EditarPago
