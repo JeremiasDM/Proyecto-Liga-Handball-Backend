@@ -19,12 +19,15 @@ export default function Reglamento() {
         .reglamento-header {
           text-align: center;
           margin-bottom: 3rem;
+          /* Aseguramos que el contenedor no tenga estilos que afecten el nuevo h2 */
+          width: 100%;
         }
 
-        .reglamento-header h2 {
+        /* Eliminamos el estilo anterior para .reglamento-header h2 */
+        /* .reglamento-header h2 {
           margin: 0;
           color: #1f3c88;
-        }
+        } */
 
         .reglamento-main-content {
           display: flex;
@@ -63,11 +66,8 @@ export default function Reglamento() {
           font-size: 0.95rem;
         }
 
+        /* Modificación del estilo global <a> para solo dejar el hover y las propiedades necesarias */
         a {
-          background: #1f3c88;
-          color: #fff;
-          padding: 0.7rem 1.5rem;
-          border-radius: 6px;
           font-weight: 800;
           text-decoration: none;
           margin-top: 8px;
@@ -76,7 +76,7 @@ export default function Reglamento() {
         }
 
         a:hover {
-          background: #2746a6;
+          background: #2746a6 !important; /* !important para asegurar que el hover funcione sobre los estilos inline */
         }
 
         @media (max-width: 800px) {
@@ -90,10 +90,26 @@ export default function Reglamento() {
         }
       `}</style>
 
-      {/* Header */}
+      {/* Header Actualizado con el nuevo estilo de título */}
       <div className="reglamento-header">
-        <h2>Reglamento Disciplinario</h2>
-        <p style={{ color: "#2746a6", marginTop: 8, fontSize: "1.1rem" }}>
+        <h2
+          style={{
+            color: "#1f3c88", 
+            marginBottom: "10px", // Reducido el margen para que el subtítulo quede cerca
+            textAlign: "center",
+            fontSize: "2.5em",
+            fontWeight: 600,
+            borderBottom: "3px solid #1f3c88", 
+            paddingBottom: "5px",
+            margin: "0 auto 10px auto", // Ajustado margen inferior
+            display: "block",
+            width: "fit-content",
+          }}
+        >
+          Reglamento Disciplinario
+        </h2>
+        {/* Subtítulo reincorporado bajo el h2 estilizado */}
+        <p style={{ color: "#2746a6", marginTop: 0, fontSize: "1.1rem", marginBottom: "3rem" }}>
           Liga Recreativa de Handball Punilla
         </p>
       </div>
@@ -107,7 +123,21 @@ export default function Reglamento() {
             title="Reglamento PDF"
           />
         </div>
-        <a href="/REGLAMENTO.pdf" download>
+        
+        {/* 📥 Botón de descarga con estilos inline aplicados 📥 */}
+        <a 
+          href="/REGLAMENTO.pdf" 
+          download
+          style={{
+            padding: "0.5rem 1rem",
+            borderRadius: 5, 
+            background: "#1f3c88", 
+            color: "white", 
+            border: "none", 
+            cursor: "pointer", 
+            marginRight: "0.5rem", 
+          }}
+        >
           Descargar PDF
         </a>
       </div>
