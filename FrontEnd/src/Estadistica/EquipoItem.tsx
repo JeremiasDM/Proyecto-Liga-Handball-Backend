@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 // (Importa el tipo Equipo si no está global)
 // Asumiendo que Equipo está definido y disponible (como en tu componente padre)
-// Si no lo está, se necesitaría importar:
-// import { Equipo } from './EstadisticasPage'; // Ejemplo de importación si viniera de otro archivo
 
 // --- Definición del tipo Equipo (Repetido aquí por si acaso, pero idealmente se importa) ---
 export type Equipo = {
@@ -112,6 +110,18 @@ const EquipoItem: React.FC<Props> = ({
   // Puntos calculados para mostrar en modo edición
   const puntosCalculados = tempStats.pg * 3 + tempStats.pe;
 
+  // 1. Definiendo el estilo base para los botones de Acción
+  const baseButtonStyle: React.CSSProperties = {
+    padding: "0.5rem 1rem",
+    borderRadius: 5,
+    border: "none",
+    cursor: "pointer",
+    margin: "0 4px", // Espacio entre botones
+    fontSize: "0.85em",
+    transition: 'background-color 0.2s',
+  };
+
+
   return (
     <tr
       style={combinedRowStyle}
@@ -122,6 +132,7 @@ const EquipoItem: React.FC<Props> = ({
       onMouseLeave={(e) => {
         // Restaurar el color original. Si rowStyle.backgroundColor no existe, se usa el color alternado.
         if (!editando) {
+            // Utilizamos el índice de la fila para determinar el color de fondo alterno si no se pasa rowStyle
             const defaultBg = ( (parseInt(e.currentTarget.rowIndex.toString())-1) % 2 === 1 ? '#f8f9fa' : 'white');
             e.currentTarget.style.backgroundColor = rowStyle.backgroundColor || defaultBg;
         }
@@ -129,7 +140,7 @@ const EquipoItem: React.FC<Props> = ({
     >
       {editando ? (
         <>
-          {/* Nombre: ¡Ahora editable! */}
+          {/* Modo Edición - Celdas de Input */}
           <td style={{ ...cellStyle, textAlign: "left" }}>
             <input
               name="nombre"
@@ -138,7 +149,6 @@ const EquipoItem: React.FC<Props> = ({
               style={{ ...inputStyle, width: "120px" }}
             />
           </td>
-          {/* PG */}
           <td style={cellStyle}>
             <input
               name="pg"
@@ -149,7 +159,6 @@ const EquipoItem: React.FC<Props> = ({
               style={{ ...inputStyle, width: "60px" }}
             />
           </td>
-          {/* PE */}
           <td style={cellStyle}>
             <input
               name="pe"
@@ -160,7 +169,6 @@ const EquipoItem: React.FC<Props> = ({
               style={{ ...inputStyle, width: "60px" }}
             />
           </td>
-          {/* PP */}
           <td style={cellStyle}>
             <input
               name="pp"
@@ -171,7 +179,6 @@ const EquipoItem: React.FC<Props> = ({
               style={{ ...inputStyle, width: "60px" }}
             />
           </td>
-          {/* Goles */}
           <td style={cellStyle}>
             <input
               name="goles"
@@ -190,13 +197,8 @@ const EquipoItem: React.FC<Props> = ({
             <button
               onClick={guardarCambios}
               style={{
-                padding: "5px 10px",
-                margin: "0 2px",
-                border: "none",
-                borderRadius: 4,
-                cursor: "pointer",
-                fontSize: "0.85em",
-                backgroundColor: "#28a745", // Verde para guardar
+                ...baseButtonStyle, // Aplicar estilos base
+                backgroundColor: "#1f3c88", // ¡AZUL PARA GUARDAR! 💾
                 color: "white",
               }}
             >
@@ -204,14 +206,9 @@ const EquipoItem: React.FC<Props> = ({
             </button>
             <button
               onClick={cancelarEdicion}
-              style={{ // Usamos cancelarEdicion en lugar de solo setEditando(false) para resetear el estado
-                padding: "5px 10px",
-                margin: "0 2px",
-                border: "none",
-                borderRadius: 4,
-                cursor: "pointer",
-                fontSize: "0.85em",
-                backgroundColor: "#dc3545", // Rojo para cancelar
+              style={{ 
+                ...baseButtonStyle, // Aplicar estilos base
+                backgroundColor: "#dc3545", // ¡ROJO PARA CANCELAR! ❌
                 color: "white",
               }}
             >
@@ -221,7 +218,7 @@ const EquipoItem: React.FC<Props> = ({
         </>
       ) : (
         <>
-          {/* Modo Visualización */}
+          {/* Modo Visualización - Celdas de Texto */}
           <td style={{ ...cellStyle, textAlign: "left", fontWeight: 500 }}>{equipo.nombre}</td>
           <td style={cellStyle}>{equipo.pg}</td>
           <td style={cellStyle}>{equipo.pe}</td>
@@ -231,7 +228,7 @@ const EquipoItem: React.FC<Props> = ({
             style={{
               ...cellStyle,
               fontWeight: "bold",
-              color: "#007bff", // Color destacado para los puntos
+              color: "#1f3c88", 
               fontSize: "1.1em",
             }}
           >
@@ -242,13 +239,8 @@ const EquipoItem: React.FC<Props> = ({
             <button
               onClick={() => setEditando(true)}
               style={{
-                padding: "5px 10px",
-                margin: "0 2px",
-                border: "none",
-                borderRadius: 4,
-                cursor: "pointer",
-                fontSize: "0.85em",
-                backgroundColor: "#007bff", // Azul para editar
+                ...baseButtonStyle, // Aplicar estilos base
+                backgroundColor: "#1f3c88", // Azul para Editar
                 color: "white",
               }}
             >
@@ -257,13 +249,8 @@ const EquipoItem: React.FC<Props> = ({
             <button
               onClick={() => onEliminar(equipo.id)}
               style={{
-                padding: "5px 10px",
-                margin: "0 2px",
-                border: "none",
-                borderRadius: 4,
-                cursor: "pointer",
-                fontSize: "0.85em",
-                backgroundColor: "#dc3545", // Rojo para eliminar
+                ...baseButtonStyle, // Aplicar estilos base
+                backgroundColor: "#dc3545", // Rojo para Eliminar
                 color: "white",
               }}
             >
