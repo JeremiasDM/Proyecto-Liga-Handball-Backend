@@ -64,7 +64,7 @@ const TablaEquipos: React.FC<Props> = ({ equipos, onActualizar, onEliminar }) =>
           >
             <thead
               style={{
-                backgroundColor: "#007bff", // Azul Primario 💙
+                backgroundColor: "#1f3c88", // ¡AZUL ACTUALIZADO! 🟦
                 color: "white",
                 fontSize: "0.95em",
                 fontWeight: 700,
