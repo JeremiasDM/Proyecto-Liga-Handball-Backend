@@ -240,7 +240,7 @@ const EditarJugador: React.FC<Props> = ({
 
       <form onSubmit={handleSubmit} className="p-0">
         <h2 className="edit-title">
-          ✏️ Editando a {jugador.nombre} {jugador.apellido}
+           Editando a {jugador.nombre} {jugador.apellido}
         </h2>
         {/* Usamos el error-message del padre, o definimos el nuestro */}
         {error && <div className="error-message-edit">{error}</div>} 
@@ -366,10 +366,10 @@ const EditarJugador: React.FC<Props> = ({
                     className="form-select-edit"
                     required
                 >
-                    <option value="activo">Activo (✅)</option>
-                    <option value="lesionado">Lesionado (🩹)</option>
-                    <option value="sancionado">Sancionado (🚫)</option>
-                    <option value="inactivo">Inactivo (💤)</option>
+                    <option value="activo">Activo </option>
+                    <option value="lesionado">Lesionado </option>
+                    <option value="sancionado">Sancionado </option>
+                    <option value="inactivo">Inactivo </option>
                 </select>
             </div>
         </div>
@@ -380,14 +380,14 @@ const EditarJugador: React.FC<Props> = ({
             type="submit"
             className="btn-action btn-update"
           >
-            ✅ Actualizar Datos
+             Actualizar Datos
           </button>
           <button
             type="button"
             onClick={onCancelar}
             className="btn-action btn-cancel"
           >
-            ❌ Cancelar
+             Cancelar
           </button>
         </div>
       </form>
