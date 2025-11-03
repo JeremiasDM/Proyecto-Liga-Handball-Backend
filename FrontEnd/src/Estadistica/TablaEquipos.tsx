@@ -1,4 +1,5 @@
 import React from "react";
+import type { Equipo } from "./EstadisticasPage";
 import EquipoItem from "./EquipoItem";
 // (Importa el tipo Equipo si no está global)
 
@@ -64,12 +65,42 @@ const TablaEquipos: React.FC<Props> = ({ equipos, onActualizar, onEliminar }) =>
               }}
             >
               <tr>
+                <th style={{ padding: '10px 15px', textAlign: "left" }}>#</th>
                 <th style={{ padding: '10px 15px', textAlign: "left" }}>Equipo</th>
+                <th style={{ padding: '10px 15px' }}>PJ</th>
                 <th style={{ padding: '10px 15px' }}>PG</th>
                 <th style={{ padding: '10px 15px' }}>PE</th>
                 <th style={{ padding: '10px 15px' }}>PP</th>
-                <th style={{ padding: '10px 15px' }}>Dif. Gol</th> {/* Asumiendo diferencia */}
-                <th style={{ padding: '10px 15px' }}>Puntos</th>
+                <th style={{ padding: '10px 15px' }}>CP</th>
+                <th style={{ padding: '10px 15px' }}>GF</th>
+                <th style={{ padding: '10px 15px' }}>GC</th>
+                <th style={{ padding: '10px 15px' }}>DF</th>
+                <th style={{ padding: '10px 15px', position: 'relative' }}>
+                  PTS
+                  <span
+                    style={{
+                      marginLeft: 6,
+                      cursor: 'help',
+                      color: '#ffd700',
+                      fontWeight: 700,
+                      fontSize: '1em',
+                      verticalAlign: 'middle',
+                      userSelect: 'none',
+                    }}
+                    title={
+                      'Referencias:\n' +
+                      'PTS: PG x 3 + PE\n' +
+                      'PJ: PG + PE + PP\n' +
+                      'DF: GF - GC\n' +
+                      'CP: Caminos Perdidos (si aplica)\n' +
+                      'GF: Goles a Favor\n' +
+                      'GC: Goles en Contra\n' +
+                      'PG: Partidos Ganados, PE: Empatados, PP: Perdidos.'
+                    }
+                  >
+                    &#9432;
+                  </span>
+                </th>
                 <th style={{ padding: '10px 15px' }}>Acciones</th>
               </tr>
             </thead>
@@ -78,9 +109,10 @@ const TablaEquipos: React.FC<Props> = ({ equipos, onActualizar, onEliminar }) =>
                 <EquipoItem
                   key={equipo.id}
                   equipo={equipo}
-                  onActualizar={onActualizar} // Pasa el handler del padre
-                  onEliminar={onEliminar}     // Pasa el handler del padre
+                  onActualizar={onActualizar}
+                  onEliminar={onEliminar}
                   rowStyle={index % 2 === 1 ? { backgroundColor: "#f8f9fa" } : {}}
+                  posicion={index + 1}
                 />
               ))}
             </tbody>

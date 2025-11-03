@@ -9,13 +9,17 @@ const API_URL = "http://localhost:3001"; // O la URL de tu backend en Railway
 export type Equipo = {
   id: number;
   nombre: string;
-  pg: number;
-  pe: number;
-  pp: number;
-  goles: number;
+  pj: number; // Partidos jugados
+  pg: number; // Ganados
+  pe: number; // Empatados
+  pp: number; // Perdidos
+  cp: number; // Cedidos
+  gf: number; // Goles a favor
+  gc: number; // Goles en contra
+  df: number; // Diferencia de goles
+  goles: number; // (alias, para compatibilidad)
   puntos: number;
-  activo?: boolean; // Importante si usas soft delete
-  // Otros campos como 'categoria', 'localidad', etc., si los necesitas
+  activo?: boolean;
 };
 
 
@@ -41,12 +45,17 @@ const EstadisticasPage: React.FC = () => {
       const data: Equipo[] = await response.json();
       // Asegurar valores por defecto si vienen null
       const equiposConDefaults = data.map(eq => ({
-          ...eq,
-          pg: eq.pg ?? 0,
-          pe: eq.pe ?? 0,
-          pp: eq.pp ?? 0,
-          goles: eq.goles ?? 0,
-          puntos: eq.puntos ?? 0,
+        ...eq,
+        pj: eq.pj ?? 0,
+        pg: eq.pg ?? 0,
+        pe: eq.pe ?? 0,
+        pp: eq.pp ?? 0,
+        cp: eq.cp ?? 0,
+        gf: eq.gf ?? 0,
+        gc: eq.gc ?? 0,
+        df: eq.df ?? (typeof eq.gf === 'number' && typeof eq.gc === 'number' ? eq.gf - eq.gc : 0),
+        goles: eq.goles ?? eq.gf ?? 0, // compatibilidad
+        puntos: eq.puntos ?? 0,
       }));
       setEquipos(equiposConDefaults.filter(eq => eq.activo !== false)); // Filtrar inactivos
     } catch (err) {
@@ -122,7 +131,6 @@ const EstadisticasPage: React.FC = () => {
           display: "inline-block",
           paddingBottom: "8px",
           margin: "0 auto 40px auto",
-          display: "block",
           width: "fit-content"
         }}
       >
