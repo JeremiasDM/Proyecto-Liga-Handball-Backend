@@ -113,12 +113,12 @@ const EstadisticasPage: React.FC = () => {
     >
       <h2
         style={{
-          color: "#007bff", // Azul primario 🟦
+          color: "#1f3c88", // ¡AZUL ACTUALIZADO! 🟦
           marginBottom: "30px",
           textAlign: "center",
           fontSize: "2.5em",
           fontWeight: 600,
-          borderBottom: "3px solid #007bff",
+          borderBottom: "3px solid #1f3c88", // ¡BORDE ACTUALIZADO!
           display: "inline-block",
           paddingBottom: "5px",
           margin: "0 auto 30px auto", // Centrar el título
