@@ -221,7 +221,7 @@ const EditarPago: React.FC<Props> = ({ pago, montoMinimo, partidos, onGuardar, o
         <>
             <style>{globalStyles}</style> {/* <-- INYECCIÓN DE ESTILOS */}
             <div className="edit-form-card"> {/* <-- CLASE APLICADA */}
-                <h2 className="form-edit-title">✏️ Editar Pago (ID: {form.id})</h2> {/* <-- CLASE APLICADA */}
+                <h2 className="form-edit-title"> Editar Pago (ID: {form.id})</h2> {/* <-- CLASE APLICADA */}
                 {error && <div className="alert-error" role="alert">{error}</div>} {/* <-- CLASE APLICADA */}
 
                 <form onSubmit={handleSubmit} className="form-edit-body"> {/* <-- CLASE APLICADA */}
@@ -306,10 +306,10 @@ const EditarPago: React.FC<Props> = ({ pago, montoMinimo, partidos, onGuardar, o
                     {/* Botones */}
                     <div className="button-group"> {/* <-- CLASE APLICADA */}
                         <button type="submit" className="btn-save-edit" disabled={loadingPagos}> {/* <-- CLASE APLICADA */}
-                             {loadingPagos ? 'Guardando...' : '💾 Guardar Cambios'}
+                             {loadingPagos ? 'Guardando...' : ' Guardar Cambios'}
                         </button>
                         <button type="button" onClick={onCancelar} className="btn-cancel-edit" disabled={loadingPagos}> {/* <-- CLASE APLICADA */}
-                            ❌ Cancelar
+                             Cancelar
                         </button>
                     </div>
                 </form>
