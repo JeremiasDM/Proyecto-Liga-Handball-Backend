@@ -219,7 +219,7 @@ const FormularioDatos: React.FC<Props> = ({ jugador, onGuardar, onCancelar, juga
       `}</style>
       
       <form onSubmit={handleSubmit} className="form-container-edit">
-        <h4 className="form-title-edit">📝 Editar Datos del Jugador #{form.id}</h4>
+        <h4 className="form-title-edit"> Editar Datos del Jugador #{form.id}</h4>
 
         <div className="form-fields-grid">
             
@@ -278,8 +278,8 @@ const FormularioDatos: React.FC<Props> = ({ jugador, onGuardar, onCancelar, juga
         </div>
         
         <div className="button-group-edit">
-          <button type="submit">💾 Guardar Cambios</button>
-          <button type="button" onClick={onCancelar}>❌ Cancelar</button>
+          <button type="submit"> Guardar Cambios</button>
+          <button type="button" onClick={onCancelar}> Cancelar</button>
         </div>
       </form>
     </>
