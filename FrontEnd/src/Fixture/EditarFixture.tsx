@@ -40,7 +40,18 @@ type Props = {
     onCancelar: () => void;
 };
 
-// 🎯 Nuevo estilo para los inputs con fondo negro y letra blanca 🎯
+// 🎯 Estilo base reutilizable para los botones 🎯
+const buttonBaseStyle: CSSProperties = {
+    padding: "0.5rem 1rem", // Relleno interno vertical y horizontal.
+    borderRadius: "5px", // Bordes ligeramente redondeados.
+    border: "none", // Sin borde.
+    cursor: "pointer", // Indica que es un elemento interactivo.
+    marginRight: "0.5rem", // Margen derecho.
+    fontWeight: 'bold',
+    transition: 'background-color 0.3s, transform 0.1s',
+};
+
+// 🎯 Estilo para los inputs con fondo negro y letra blanca 🎯
 const inputStylesNegro: CSSProperties = {
     color: 'white', // Color del texto (letras) en blanco
     backgroundColor: '#333', // Fondo gris oscuro/negro
@@ -81,7 +92,7 @@ const customStyles: { [key: string]: CSSProperties } = {
     buttonContainer: {
         display: 'flex',
         justifyContent: 'flex-end',
-        gap: '15px',
+        // Quitar gap, el margen lo maneja buttonBase ahora
         marginTop: '40px',
         paddingTop: '20px',
         borderTop: '1px solid #e0e0e0',
@@ -112,27 +123,17 @@ const customStyles: { [key: string]: CSSProperties } = {
         flexGrow: 1,
         color: '#333',
     },
-    // Botones (usando estilos locales para simplificar)
+    // 🚨 BOTONES ACTUALIZADOS 🚨
     buttonPrimary: {
-        padding: '14px 30px',
-        borderRadius: '8px',
-        border: 'none',
-        backgroundColor: '#007bff',
-        color: 'white',
-        cursor: 'pointer',
-        fontSize: '1em',
-        fontWeight: 'bold',
-        transition: 'background-color 0.3s, transform 0.1s',
+        ...buttonBaseStyle,
+        backgroundColor: '#1f3c88', // Fondo Azul Fuerte (Guardar)
+        color: 'white', // Texto blanco
+        marginRight: '0', // Quitar el margen derecho del último botón en el contenedor
     },
     buttonSecondary: {
-        padding: '14px 30px',
-        borderRadius: '8px',
-        border: '1px solid #c8d0d9',
-        backgroundColor: '#f1f4f8',
-        color: '#036edaff',
-        cursor: 'pointer',
-        fontSize: '1em',
-        transition: 'background-color 0.3s, border-color 0.3s',
+        ...buttonBaseStyle,
+        backgroundColor: '#dc3545', // ¡FONDO ROJO PARA CANCELAR! 🚨
+        color: 'white', // Texto blanco
     },
 };
 
@@ -155,6 +156,7 @@ const EditarFixture: React.FC<Props> = ({ fixture, clubes, onGuardar, onCancelar
         onGuardar(fixture.id, { fecha: formData.fecha, lugar: formData.lugar });
     };
 
+    // Usamos los estilos actualizados
     const saveButtonStyle = customStyles.buttonPrimary;
     const cancelButtonStyle = customStyles.buttonSecondary;
 
@@ -178,7 +180,7 @@ const EditarFixture: React.FC<Props> = ({ fixture, clubes, onGuardar, onCancelar
                             type="date"
                             value={formData.fecha}
                             onChange={handleChange}
-                            style={inputStylesNegro} // 👈 Aplicación del estilo negro
+                            style={inputStylesNegro} // Aplicación del estilo negro
                             required
                         />
                     </div>
@@ -190,7 +192,7 @@ const EditarFixture: React.FC<Props> = ({ fixture, clubes, onGuardar, onCancelar
                             name="lugar"
                             value={formData.lugar}
                             onChange={handleChange}
-                            style={inputStylesNegro} // 👈 Aplicación del estilo negro
+                            style={inputStylesNegro} // Aplicación del estilo negro
                             required
                         />
                     </div>
