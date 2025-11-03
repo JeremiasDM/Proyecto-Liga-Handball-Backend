@@ -164,21 +164,22 @@ const ListaJugadores: React.FC<Props> = ({
         .action-cell {
           padding: 0.75rem;
           display: flex;
-          gap: 0.5rem;
+          gap: 0.75rem; /* Un poco más de espacio entre los botones */
           justify-content: center;
           align-items: center;
         }
 
-        /* Botones de Acción base - ¡MEJORADO! */
+        /* Botones de Acción base - ¡FORMA Y TAMAÑO AJUSTADOS! */
         .action-button {
-          /* Padding ajustado para un aspecto más compacto */
-          padding: 0.35rem 0.75rem;
-          border-radius: 0.5rem;
+          /* Padding más generoso para un aspecto más 'lleno' */
+          padding: 0.8rem 1.4rem; 
+          border-radius: 0.75rem; /* Bordes más redondeados (como en la imagen) */
           color: white;
-          font-weight: 600; /* Un poco más de peso */
-          font-size: 0.825rem; /* Fuente un poco más pequeña */
-          transition: background-color 0.2s, transform 0.1s;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+          font-weight: 700; /* Fuente más audaz */
+          font-size: 1rem; /* Tamaño de fuente más grande */
+          transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+          /* Sombra más profunda para imitar el botón de la imagen */
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); 
           border: none;
           cursor: pointer;
           
@@ -186,39 +187,42 @@ const ListaJugadores: React.FC<Props> = ({
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 0.3rem; /* Espacio entre el icono y el texto */
+          gap: 0.6rem; /* Espacio entre el icono y el texto */
         }
         
         /* Estilo para los iconos dentro de los botones */
         .action-button .icon {
-            width: 1rem; /* Tamaño del icono */
-            height: 1rem;
+          width: 1.15rem; /* Iconos ligeramente más grandes */
+          height: 1.15rem;
         }
 
-        /* Botón Editar */
+        /* Botón Editar - manteniendo el color azul */
         .action-button-edit {
-          background-color: var(--edit-color);
+          background-color: var(--edit-color); /* blue-500 */
         }
 
         .action-button-edit:hover {
-          background-color: var(--edit-color-hover);
-          box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4), 0 2px 4px -2px rgba(59, 130, 246, 0.4);
+          background-color: var(--edit-color-hover); /* blue-700 */
+          /* Ajuste de sombra para hover */
+          box-shadow: 0 6px 15px rgba(59, 130, 246, 0.5); 
         }
 
-        /* Botón Eliminar */
+        /* Botón Eliminar - manteniendo el color rojo */
         .action-button-delete {
-          background-color: var(--delete-color);
+          background-color: var(--delete-color); /* red-500 */
         }
 
         .action-button-delete:hover {
-          background-color: var(--delete-color-hover);
-          box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.4), 0 2px 4px -2px rgba(239, 68, 68, 0.4);
+          background-color: var(--delete-color-hover); /* red-700 */
+          /* Ajuste de sombra para hover */
+          box-shadow: 0 6px 15px rgba(239, 68, 68, 0.5);
         }
         
         /* Efecto de clic */
         .action-button:active {
-            transform: scale(0.95);
-            opacity: 0.8;
+            transform: scale(0.98);
+            opacity: 0.95;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra más sutil al hacer clic */
         }
       `}</style>
       <div className="table-container">
