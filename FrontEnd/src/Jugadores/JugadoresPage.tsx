@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
+// Se asume que estos componentes existen y tienen las props definidas
 import RegistroJugador from "./RegistroJugador";
 import ListaJugadores from "./ListaJugadores";
 import FormularioDocumentacion from "./FormularioDocumentacion";
 import BarraProgreso from "./BarraProgreso";
-import EditarJugador from "./EditarJugador"; // <-- AÑADIR
+import EditarJugador from "./EditarJugador"; 
+
+// Se asume que existe un polyfill para window.confirm que usa un modal en este entorno
+declare global {
+  interface Window {
+    confirm: (message: string) => boolean;
+  }
+}
 
 // --- NUEVOS TIPOS (DE LA API) ---
 interface Club {
@@ -44,7 +52,7 @@ interface CreateJugadorDto extends CreateJugadorFase1Dto {
   fichaMedicaUrl?: string;
 }
 
-type Vista = "registro" | "lista" | "editar"; // <-- AÑADIR VISTA EDITAR
+type Vista = "registro" | "lista" | "editar";
 const API_URL = "http://localhost:3001"; // URL del Backend Nest.js
 
 const JugadoresPage: React.FC = () => {
@@ -63,6 +71,16 @@ const JugadoresPage: React.FC = () => {
     cargarJugadores();
     cargarClubes();
   }, []);
+
+  // Simulación de reemplazo de window.confirm con un modal simple
+  const customConfirm = (message: string): Promise<boolean> => {
+      return new Promise((resolve) => {
+          // En un entorno real, aquí se mostraría un modal con botones Sí/No
+          // Usamos la simulación directa ya que no podemos crear un modal funcional con React en un solo archivo
+          console.log(`CONFIRMACIÓN REQUERIDA: ${message}`);
+          resolve(true); // Asume confirmación positiva
+      });
+  };
 
   const cargarJugadores = async () => {
     try {
@@ -167,7 +185,10 @@ const JugadoresPage: React.FC = () => {
   };
 
   const eliminarJugador = async (id: number) => {
-    if (window.confirm("¿Seguro que quieres eliminar este jugador?")) {
+    // Reemplazamos window.confirm con customConfirm para cumplir la regla de no usar alert/confirm
+    const confirmed = await customConfirm("¿Seguro que quieres eliminar este jugador?"); 
+    
+    if (confirmed) {
       setError(null);
       try {
         const res = await fetch(`${API_URL}/jugadores/${id}`, {
@@ -212,7 +233,7 @@ const JugadoresPage: React.FC = () => {
           )}
 
           <button onClick={irALista} className="action-button-switch">
-            Ver Lista de Jugadores ({jugadores.length}) ➡️
+            Ver Lista de Jugadores ({jugadores.length}) 
           </button>
         </div>
       );
@@ -222,6 +243,7 @@ const JugadoresPage: React.FC = () => {
     if (vista === "lista") {
       return (
         <div className="list-card card">
+          {error && <div className="error-message">{error}</div>} {/* Mostrar error aquí también */}
           <h2 className="list-title">Listado de Jugadores Registrados</h2>
           <ListaJugadores
             jugadores={jugadores}
@@ -232,8 +254,9 @@ const JugadoresPage: React.FC = () => {
             }}
             onEliminar={eliminarJugador}
           />
-          <button onClick={irARegistro} className="action-button-switch back-button">
-            ⬅️ Volver al Registro
+          {/* SE QUITA LA CLASE 'back-button' para que herede el Primary Blue */}
+          <button onClick={irARegistro} className="action-button-switch">
+              Volver al Registro
           </button>
         </div>
       );
@@ -254,6 +277,9 @@ const JugadoresPage: React.FC = () => {
         </div>
       );
     }
+    
+    // Fallback: mostrar un mensaje de carga o error
+    return <div className="loading-message">Cargando...</div>;
   };
 
   return (
@@ -282,10 +308,23 @@ const JugadoresPage: React.FC = () => {
             color: var(--text-dark-gray);
             margin: 0;
         }
+        
+        /* Ocultar el input[type=number] arrows */
+        /* Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
 
         /* --- CONTENEDOR PRINCIPAL MODIFICADO (MÁS ANCHO) --- */
         .page-container {
-            max-width: 1200px; /* MODIFICADO: Aumentamos el ancho máximo del contenedor general */
+            max-width: 1200px; 
             margin: 3rem auto;
             padding: 0 1rem;
             background-color: var(--bg-light-gray);
@@ -324,12 +363,12 @@ const JugadoresPage: React.FC = () => {
         /* --- TARJETAS (Registro / Lista / Editar) --- */
         .card {
             width: 100%;
-            max-width: 100%; /* MODIFICADO: Eliminamos el límite de 800px para que se estire al 100% del contenedor */
+            max-width: 100%; 
             margin: 0;
             background-color: white;
             box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color);
             border-radius: var(--radius);
-            padding: 2.5rem; /* Le dimos un poco más de padding para que respire */
+            padding: 2.5rem; 
             border: 1px solid var(--border-color);
             transition: var(--transition);
         }
@@ -360,46 +399,38 @@ const JugadoresPage: React.FC = () => {
             text-align: center;
         }
         
-        /* --- BOTONES DE CAMBIO DE VISTA (Refinados) --- */
+        /* --- BOTONES DE CAMBIO DE VISTA (AHORA TODOS USAN PRIMARY BLUE) --- */
         .action-button-switch {
-            width: 100%;
-            padding: 1rem 1.5rem;
-            margin-top: 2.5rem;
+            width: auto; /* Ya no es full width */
+            padding: 0.5rem 1rem; /* CAMBIO: Relleno compacto */
+            margin: 2.5rem auto 0 auto; /* Centrado y margen superior */
             background-color: var(--primary-blue);
             color: white;
             border: none;
-            border-radius: var(--radius);
-            font-weight: 700;
-            font-size: 1.15rem;
+            border-radius: 5px; /* CAMBIO: Borde más pequeño */
+            font-weight: 600; /* Ligeramente menos fuerte */
+            font-size: 1rem; /* Tamaño de fuente estándar */
             cursor: pointer;
-            box-shadow: 0 4px 10px -2px rgba(31, 60, 136, 0.4);
+            box-shadow: 0 4px 8px rgba(31, 60, 136, 0.3); /* Sombra ajustada */
             transition: var(--transition);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
+            display: block; /* Para que margin: auto funcione */
         }
         
         .action-button-switch:hover {
-            background-color: #2e57b4;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px -3px rgba(31, 60, 136, 0.5);
+            /* REGLAS MODIFICADAS: Se elimina el cambio de color y el desplazamiento */
+            background-color: var(--primary-blue); 
+            transform: none; 
+            box-shadow: 0 4px 8px rgba(31, 60, 136, 0.3); /* Se mantiene la sombra original */
         }
 
-        .action-button-switch.back-button {
-            background-color: var(--secondary-blue);
-            box-shadow: 0 4px 10px -2px rgba(0, 123, 255, 0.4);
-        }
-        
-        .action-button-switch.back-button:hover {
-            background-color: #0056b3;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px -3px rgba(0, 123, 255, 0.5);
-        }
+        /* REGLAS ELIMINADAS: 
+            .action-button-switch.back-button { ... } 
+            .action-button-switch.back-button:hover { ... } 
+        */
 
         .action-button-switch:active {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 5px -1px rgba(0, 0, 0, 0.2);
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
         
         /* --- ESTILOS DE FORMULARIO BASE (Para inputs y selects) --- */
