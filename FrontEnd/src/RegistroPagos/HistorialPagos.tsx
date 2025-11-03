@@ -227,7 +227,7 @@ const HistorialPagos: React.FC<Props> = ({ pagos, clubes, onEditar, onEliminar }
             <style>{globalStyles}</style> 
             
             <div className={styleConfig.wrapper}>
-                <h2 style={{ fontWeight: 800, fontSize: '1.75rem', marginBottom: '1.5rem', color: '#1f2937' }}>💰 Historial de Pagos Registrados</h2>
+                <h2 style={{ fontWeight: 800, fontSize: '1.75rem', marginBottom: '1.5rem', color: '#1f2937' }}> Historial de Pagos Registrados</h2>
                 
                 {/* --- Filtros --- */}
                 <div className={styleConfig.filterBar}>
