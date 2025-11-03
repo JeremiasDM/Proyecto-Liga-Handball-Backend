@@ -53,10 +53,6 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar, clubes }) => {
 
     setForm({
       ...form,
-      [name]: name === "clubId" || name === "dni" || name === "telefono" ? value : value,
-      // Nota: Mantener 'dni' y 'telefono' como strings por la validación
-      // Solo convertimos 'clubId' a número si realmente lo necesitamos para la API
-      // En este caso, ya que la API lo espera, lo convertimos aquí.
       [name]: name === "clubId" ? Number(value) : value,
     });
   };
@@ -175,43 +171,41 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar, clubes }) => {
           font-weight: 600;
         }
 
-        /* --- Botón de Enviar MEJORADO --- */
+        /* --- Botón de Enviar (Actualizado según solicitud) --- */
         .btn-submit {
-          background-color: var(--primary-blue);
-          color: white;
-          padding: 1rem 1.5rem; /* Más vertical */
-          border-radius: var(--radius);
-          font-weight: 700;
-          cursor: pointer;
-          border: none;
+          background-color: var(--primary-blue); /* Solicitado: #1f3c88 */
+          color: white; /* Solicitado: white */
+          padding: 0.5rem 1rem; /* CAMBIO: Relleno solicitado (0.5rem 1rem) */
+          border-radius: 5px; /* CAMBIO: Bordes solicitados (5) */
+          font-weight: 600; /* Ligeramente más ligero para un botón compacto */
+          cursor: pointer; /* Solicitado: pointer */
+          border: none; /* Solicitado: none */
           transition: var(--transition);
-          box-shadow: 0 4px 12px rgba(31, 60, 136, 0.4); 
-          margin-top: 2rem; /* Más separación */
-          width: 100%;
-          font-size: 1.15rem;
-          grid-column: 1 / -1;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 10px;
+          box-shadow: 0 4px 8px rgba(31, 60, 136, 0.3); /* Sombra ajustada */
+          margin-top: 2rem; /* Separación superior */
+          /* width: auto; Eliminado para que se ajuste al contenido */
+          font-size: 1rem; /* Texto más pequeño */
+          grid-column: 1 / -1; /* Mantiene el span de dos columnas */
+          justify-self: center; /* Centrado en el span de dos columnas */
+          /* Se omite 'marginRight: 0.5rem' ya que el botón está centrado en el span */
         }
 
         .btn-submit:hover {
           background-color: #2e57b4; /* Tono de hover */
-          transform: translateY(-2px);
-          box-shadow: 0 8px 15px rgba(31, 60, 136, 0.5);
+          transform: translateY(-1px); /* Menos movimiento */
+          box-shadow: 0 6px 12px rgba(31, 60, 136, 0.4);
         }
 
         .btn-submit:active {
-          transform: scale(0.99);
-          box-shadow: 0 2px 5px rgba(31, 60, 136, 0.2);
+          transform: scale(0.98); /* Menos contracción */
+          box-shadow: 0 1px 3px rgba(31, 60, 136, 0.2);
         }
         
         /* Media Query: En pantallas pequeñas, volvemos a una sola columna */
         @media (max-width: 768px) {
             .form-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
+              grid-template-columns: 1fr;
+              gap: 1.5rem;
             }
         }
       `}</style>
@@ -220,7 +214,7 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar, clubes }) => {
         <form onSubmit={handleSubmit} className="form-grid">
           
           <h2 className="form-title">
-            Paso 1: Datos del Jugador 📝
+            Paso 1: Datos del Jugador 
           </h2>
 
           {error && <div className="error-message">{error}</div>}
@@ -359,7 +353,7 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar, clubes }) => {
             type="submit"
             className="btn-submit"
           >
-            Continuar a Fase 2 (Documentación) ➡️
+            Continuar a Fase 2 (Documentación) 
           </button>
         </form>
       </div>
@@ -367,4 +361,4 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar, clubes }) => {
   );
 };
 
-export default RegistroJugador;     
+export default RegistroJugador;    
