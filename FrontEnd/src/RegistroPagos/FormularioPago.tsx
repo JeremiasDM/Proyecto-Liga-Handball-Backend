@@ -224,10 +224,10 @@ const FormularioPago: React.FC<Props> = ({ tipo, club, montoMinimo, partidos = [
         <button type="button" onClick={onCerrar} style={styleConfig.closeButton}>&times;</button>
         <h2 style={styleConfig.title}>
             {/* Títulos dinámicos */}
-            {tipo === "cuota" && `💸 Pago de Cuota Anual: ${club}`}
-            {tipo === "arbitraje" && `⚖️ Pago de Arbitraje: ${club}`}
-            {tipo === "multa" && ` 🛡️ Pago de Multa: ${club}`}
-            {tipo === "otro" && `🧾 Otro Pago: ${club}`}
+            {tipo === "cuota" && ` Pago de Cuota Anual: ${club}`}
+            {tipo === "arbitraje" && ` Pago de Arbitraje: ${club}`}
+            {tipo === "multa" && `  Pago de Multa: ${club}`}
+            {tipo === "otro" && ` Otro Pago: ${club}`}
         </h2>
 
         {/* Mensaje de Error */}
