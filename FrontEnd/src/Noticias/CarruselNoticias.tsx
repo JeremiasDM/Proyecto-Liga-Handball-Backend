@@ -15,69 +15,71 @@ type Props = {
 // Estilos convertidos a objeto para su uso en línea
 const styles = {
     carrouselContainer: {
-        display: 'flex',
+        display: 'flex' as const,
         overflowX: 'auto' as const,
-        gap: '1.5rem', // space-x-6
-        paddingTop: '1rem', // py-4
-        paddingBottom: '1rem', // py-4
-        paddingLeft: '0.5rem', // px-2 (simulando -mx-2 en el padre)
-        paddingRight: '0.5rem', // px-2 (simulando -mx-2 en el padre)
+        gap: '1.5rem', 
+        paddingTop: '1rem', 
+        paddingBottom: '1rem', 
+        paddingLeft: '0.5rem', 
+        paddingRight: '0.5rem', 
         marginRight: '-0.5rem',
         marginLeft: '-0.5rem',
+        // Añadir estilos de scroll si lo deseas
     },
     card: {
         minWidth: '280px',
         maxWidth: '280px',
         backgroundColor: '#fff',
-        borderRadius: '0.75rem', // rounded-xl
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)', // shadow-lg
+        borderRadius: '0.75rem', 
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)', 
         transition: 'all 0.3s ease',
         overflow: 'hidden',
-        border: '1px solid #e5e7eb', // border border-gray-200
+        border: '1px solid #e5e7eb', 
         cursor: 'pointer',
+        flexShrink: 0, // Importante para el carrusel
     },
     image: {
         width: '100%',
-        height: '10rem', // h-40
-        objectFit: 'cover' as 'cover',
+        height: '10rem', 
+        objectFit: 'cover' as const,
     },
     noImage: {
         width: '100%',
-        height: '10rem', // h-40
-        backgroundColor: '#eef2ff', // indigo-100
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        height: '10rem', 
+        backgroundColor: '#eef2ff', 
+        display: 'flex' as const,
+        alignItems: 'center' as const,
+        justifyContent: 'center' as const,
         borderTopLeftRadius: '0.75rem',
         borderTopRightRadius: '0.75rem',
-        color: '#4f46e5', // indigo-700
+        color: '#4f46e5', 
         fontWeight: '600',
     },
     cardContent: {
-        padding: '1rem', // p-4
+        padding: '1rem', 
     },
     title: {
-        marginTop: '0.25rem', // mt-1
-        fontSize: '1.125rem', // text-lg
-        fontWeight: '800', // font-extrabold
-        color: '#111827', // text-gray-900
+        marginTop: '0.25rem', 
+        fontSize: '1.125rem', 
+        fontWeight: '800', 
+        color: '#111827', 
         lineHeight: '1.375',
         overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        textOverflow: 'ellipsis', // truncate
+        whiteSpace: 'nowrap' as const,
+        textOverflow: 'ellipsis', 
     },
     date: {
-        fontSize: '0.75rem', // text-xs
-        color: '#6366f1', // text-indigo-500
-        fontWeight: '500', // font-medium
-        marginTop: '0.25rem', // mt-1
+        fontSize: '0.75rem', 
+        color: '#6366f1', 
+        fontWeight: '500', 
+        marginTop: '0.25rem', 
     },
     content: {
-        fontSize: '0.875rem', // text-sm
-        color: '#4b5563', // text-gray-600
-        marginTop: '0.5rem', // mt-2
+        fontSize: '0.875rem', 
+        color: '#4b5563', 
+        marginTop: '0.5rem', 
         display: '-webkit-box',
-        WebkitLineClamp: 3, // line-clamp-3
+        WebkitLineClamp: 3, 
         WebkitBoxOrient: 'vertical' as const,
         overflow: 'hidden',
     }
@@ -86,6 +88,7 @@ const styles = {
 const CarrouselNoticias: React.FC<Props> = ({ noticias }) => {
   if (noticias.length === 0) return <p style={{ padding: '1rem', color: '#6b7280', fontStyle: 'italic' }}>No hay noticias recientes para mostrar en el carrusel.</p>;
 
+  // Obtener y ordenar las últimas 5 noticias por fecha
   const ultimas = [...noticias]
     .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
     .slice(0, 5);
@@ -96,7 +99,6 @@ const CarrouselNoticias: React.FC<Props> = ({ noticias }) => {
         <div 
             key={n.id} 
             style={styles.card}
-            // NOTA: hover:shadow-xl y hover:scale-[1.02] no son posibles con estilos en línea simples.
         >
           {n.imagenUrl ? (
             <img 
@@ -106,14 +108,14 @@ const CarrouselNoticias: React.FC<Props> = ({ noticias }) => {
             />
           ) : (
             <div style={styles.noImage}>
-              🖼️ Sin imagen
+               [Imagen de Placeholder de Noticia]
             </div>
           )}
           <div style={styles.cardContent}>
-            <h4 style={styles.title}>{n.titulo}</h4>
             <p style={styles.date}>
                 {new Date(n.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
             </p>
+            <h4 style={styles.title}>{n.titulo}</h4>
             <p style={styles.content}>
                 {n.contenido}
             </p>

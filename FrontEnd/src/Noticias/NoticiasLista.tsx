@@ -92,9 +92,9 @@ const styles = {
         alignItems: 'flex-end',
         flexShrink: 0,
     } as React.CSSProperties,
-    editButton: { // Nuevo estilo para el botón de editar
+    editButton: { // 🚨 COLOR ACTUALIZADO A #1f3c88
         padding: '0.25rem 0.75rem', 
-        backgroundColor: '#f59e0b', // amber-500
+        backgroundColor: '#1f3c88', // Azul Fuerte
         color: 'white',
         borderRadius: '0.5rem', 
         transition: 'background-color 0.15s ease',
@@ -104,7 +104,7 @@ const styles = {
     } as React.CSSProperties,
     deleteButton: {
         padding: '0.25rem 0.75rem', 
-        backgroundColor: '#dc2626', // red-600
+        backgroundColor: '#dc2626', // red-600 (rojo de eliminación)
         color: 'white',
         borderRadius: '0.5rem', 
         transition: 'background-color 0.15s ease',
@@ -123,7 +123,7 @@ const NoticiasLista: React.FC<Props> = ({ noticias, onEliminar, onEditar }) => {
   );
 
   return (
-    <div style={styles.listContainer as React.CSSProperties}>
+    <div className="list-scroll-container" style={styles.listContainer as React.CSSProperties}>
       {noticiasOrdenadas.map((n) => (
         <div 
             key={n.id} 
@@ -155,14 +155,14 @@ const NoticiasLista: React.FC<Props> = ({ noticias, onEliminar, onEditar }) => {
                 style={styles.editButton}
                 title="Editar Noticia"
              >
-                ✏️ Editar
+                 Editar
              </button>
              <button
                 onClick={() => onEliminar(n.id)}
                 style={styles.deleteButton}
                 title="Eliminar Noticia"
              >
-                🗑️ Eliminar
+                 Eliminar
              </button>
           </div>
         </div>
