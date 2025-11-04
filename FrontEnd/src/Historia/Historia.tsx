@@ -212,9 +212,9 @@ export default function Historia() {
         
         .evento img {
           width: 100%;
-          height: 180px; /* Altura más uniforme para el diseño en grilla */
-          max-width: 400px; 
-          object-fit: cover;
+          height: 250px; /* Aumentado de 180px a 250px */ 
+          max-width: 450px; /* Aumentado de 400px a 450px para permitir más ancho */
+          object-fit: cover; /* CAMBIO A 'COVER' para que la imagen ocupe todo el espacio. Si prefieres que la imagen se vea completa aunque deje espacios, usa 'contain'. */ 
           border-radius: 12px;
           box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
           border: 4px solid #ffffff;
@@ -250,13 +250,13 @@ export default function Historia() {
               max-width: none;
           }
           .evento img {
-             height: 180px;
+             height: 220px; /* Ajuste para móviles, un poco más pequeñas pero aún grandes */
           }
         }
       `}</style>
 
       <div className="historia-header">
-        <h2>Nuestra Historia 📜</h2>
+        <h2>Nuestra Historia </h2>
       </div>
 
       {/* --- Línea de tiempo (Botones de Año) --- */}
