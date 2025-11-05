@@ -281,7 +281,7 @@ const RegistrarFixture: React.FC<Props> = ({
             </div>
 
             {/* --- Formulario de Agregación de Partido --- */}
-            <h4 style={formStyles.sectionHeader}>Datos del Partido (Uno a la vez)</h4>
+            <h4 style={formStyles.sectionHeader}>Datos del Partido ()</h4>
             <div style={formStyles.formPartidoGrid}>
                 
                 {/* Jornada */}
@@ -298,9 +298,9 @@ const RegistrarFixture: React.FC<Props> = ({
                     />
                 </div>
 
-                {/* Fecha Partido (Opcional) */}
+                {/* Fecha Partido  */}
                 <div>
-                    <label style={{ display: 'block', fontWeight: 600, color: '#4a5568' }}>Fecha Partido (Opcional)</label>
+                    <label style={{ display: 'block', fontWeight: 600, color: '#4a5568' }}>Fecha Partido</label>
                     <input
                         name="fecha"
                         type="date"

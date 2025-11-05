@@ -219,7 +219,7 @@ const FormularioDatos: React.FC<Props> = ({ jugador, onGuardar, onCancelar, juga
       `}</style>
       
       <form onSubmit={handleSubmit} className="form-container-edit">
-        <h4 className="form-title-edit"> Editar Datos del Jugador #{form.id}</h4>
+        <h4 className="form-title-edit"> Editar Datos del Jugador {form.id}</h4>
 
         <div className="form-fields-grid">
             
@@ -261,7 +261,7 @@ const FormularioDatos: React.FC<Props> = ({ jugador, onGuardar, onCancelar, juga
             
             {/* 4. Vencimiento (Fila separada para darle más espacio si es necesario) */}
             <div className="form-group-edit">
-                <label htmlFor="vencimiento">Vencimiento Ficha/Carnet</label>
+                <label htmlFor="vencimiento">Vencimiento Ficha Medica</label>
                 {/* Aseguramos que el valor de la fecha sea una cadena vacía si es nulo, para evitar advertencias de React */}
                 <input 
                     type="date" 
