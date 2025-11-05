@@ -223,7 +223,7 @@ const EditarFixture: React.FC<Props> = ({ fixture, clubes, onGuardar, onCancelar
                         Cancelar
                     </button>
                     <button type="submit" style={saveButtonStyle}>
-                        Guardar Cambios (Fecha/Lugar)
+                        Guardar Cambios 
                     </button>
                 </div>
             </form>
