@@ -6,11 +6,16 @@ import React, { useState } from "react";
 export type Equipo = {
   id: number;
   nombre: string;
-  pg: number;
-  pe: number;
-  pp: number;
-  goles: number;
-  puntos: number;
+  pj?: number;
+  pg?: number;
+  pe?: number;
+  pp?: number;
+  cp?: number;
+  gf?: number;
+  gc?: number;
+  df?: number;
+  goles?: number;
+  puntos?: number;
   activo?: boolean;
 };
 // -----------------------------------------------------------------------------------------
@@ -18,9 +23,10 @@ export type Equipo = {
 
 type Props = {
   equipo: Equipo;
-  onActualizar: (id: number, actualizado: Partial<Equipo>) => void; // Recibe handler
-  onEliminar: (id: number) => void; // Recibe handler
+  onActualizar: (id: number, actualizado: Partial<Equipo>) => void;
+  onEliminar: (id: number) => void;
   rowStyle?: React.CSSProperties;
+  posicion?: number;
 };
 
 const EquipoItem: React.FC<Props> = ({
@@ -28,15 +34,21 @@ const EquipoItem: React.FC<Props> = ({
   onActualizar,
   onEliminar,
   rowStyle = {},
+  posicion,
 }) => {
   const [editando, setEditando] = useState(false);
   // Estado temporal solo para la edición
   const [tempStats, setTempStats] = useState({
-    nombre: equipo.nombre, // Permitir editar nombre si es necesario
-    pg: equipo.pg,
-    pe: equipo.pe,
-    pp: equipo.pp,
-    goles: equipo.goles,
+    nombre: equipo.nombre,
+    pj: equipo.pj ?? (equipo.pg ?? 0) + (equipo.pe ?? 0) + (equipo.pp ?? 0),
+    pg: equipo.pg ?? 0,
+    pe: equipo.pe ?? 0,
+    pp: equipo.pp ?? 0,
+    cp: equipo.cp ?? 0,
+    gf: equipo.gf ?? 0,
+    gc: equipo.gc ?? 0,
+    df: equipo.df ?? ((equipo.gf ?? 0) - (equipo.gc ?? 0)),
+    puntos: equipo.puntos ?? ((equipo.pg ?? 0) * 3 + (equipo.pe ?? 0)),
   });
   // Los puntos se calculan al guardar o se muestran los del prop
 
@@ -44,7 +56,7 @@ const EquipoItem: React.FC<Props> = ({
     const { name, value } = e.target;
     setTempStats(prev => ({
       ...prev,
-      [name]: name === "nombre" ? value : Number(value), // Convertir a número excepto nombre
+      [name]: name === "nombre" ? value : Number(value),
     }));
   };
 
@@ -58,26 +70,38 @@ const EquipoItem: React.FC<Props> = ({
       alert("PG, PE, PP deben ser mayores o iguales a 0.");
       return;
     }
+    // Calcular puntos automáticamente (PG * 3 + PE)
+    const puntosCalculados = (tempStats.pg ?? 0) * 3 + (tempStats.pe ?? 0);
 
-    // Llama a la función onActualizar del padre, pasando solo los datos modificables
+    // Llama a la función onActualizar del padre con los valores y puntos calculados
     onActualizar(equipo.id, {
-        nombre: tempStats.nombre, // ¡Ahora se puede editar!
-        pg: tempStats.pg,
-        pe: tempStats.pe,
-        pp: tempStats.pp,
-        goles: tempStats.goles,
-        // Los puntos se recalcularán en el padre/backend al llamar onActualizar
+      nombre: tempStats.nombre,
+      pj: tempStats.pj,
+      pg: tempStats.pg,
+      pe: tempStats.pe,
+      pp: tempStats.pp,
+      cp: tempStats.cp,
+      gf: tempStats.gf,
+      gc: tempStats.gc,
+      df: tempStats.df,
+      puntos: puntosCalculados,
     });
     setEditando(false);
   };
 
   const cancelarEdicion = () => {
-      setTempStats({ // Resetear al valor original
-          nombre: equipo.nombre,
-          pg: equipo.pg,
-          pe: equipo.pe,
-          pp: equipo.pp,
-          goles: equipo.goles,
+      // Resetear valores temporales al estado del equipo
+      setTempStats({
+        nombre: equipo.nombre,
+        pj: equipo.pj ?? (equipo.pg ?? 0) + (equipo.pe ?? 0) + (equipo.pp ?? 0),
+        pg: equipo.pg ?? 0,
+        pe: equipo.pe ?? 0,
+        pp: equipo.pp ?? 0,
+        cp: equipo.cp ?? 0,
+        gf: equipo.gf ?? 0,
+        gc: equipo.gc ?? 0,
+        df: equipo.df ?? ((equipo.gf ?? 0) - (equipo.gc ?? 0)),
+        puntos: equipo.puntos ?? ((equipo.pg ?? 0) * 3 + (equipo.pe ?? 0)),
       });
       setEditando(false);
   }
@@ -107,8 +131,7 @@ const EquipoItem: React.FC<Props> = ({
     textAlign: 'center', // Centrar texto en input
   };
 
-  // Puntos calculados para mostrar en modo edición
-  const puntosCalculados = tempStats.pg * 3 + tempStats.pe;
+  // Nota: los puntos se pueden editar directamente en la fila; el backend validará la coherencia
 
   // 1. Definiendo el estilo base para los botones de Acción
   const baseButtonStyle: React.CSSProperties = {
@@ -120,6 +143,9 @@ const EquipoItem: React.FC<Props> = ({
     fontSize: "0.85em",
     transition: 'background-color 0.2s',
   };
+
+  // Calcular puntos en tiempo real para mostrar en edición (PG * 3 + PE)
+  const puntosCalculados = (tempStats.pg ?? 0) * 3 + (tempStats.pe ?? 0);
 
 
   return (
@@ -140,122 +166,59 @@ const EquipoItem: React.FC<Props> = ({
     >
       {editando ? (
         <>
-          {/* Modo Edición - Celdas de Input */}
-          <td style={{ ...cellStyle, textAlign: "left" }}>
-            <input
-              name="nombre"
-              value={tempStats.nombre}
-              onChange={handleChange}
-              style={{ ...inputStyle, width: "120px" }}
-            />
+          {/* Modo Edición - mostrar posición, nombre, puntos y campos editables */}
+          <td style={{ ...cellStyle, textAlign: 'left', fontWeight: 600 }}>{posicion}</td>
+          <td style={{ ...cellStyle, textAlign: 'left' }}>
+            <input name="nombre" value={tempStats.nombre} onChange={handleChange} style={{ ...inputStyle, width: '140px' }} />
+          </td>
+          <td style={{ ...cellStyle, fontWeight: 700 }}>{puntosCalculados}</td>
+          <td style={cellStyle}>
+            <input name="pj" type="number" min={0} value={tempStats.pj} onChange={handleChange} style={{ ...inputStyle, width: '60px' }} />
           </td>
           <td style={cellStyle}>
-            <input
-              name="pg"
-              type="number"
-              min="0"
-              value={tempStats.pg}
-              onChange={handleChange}
-              style={{ ...inputStyle, width: "60px" }}
-            />
+            <input name="pg" type="number" min={0} value={tempStats.pg} onChange={handleChange} style={{ ...inputStyle, width: '60px' }} />
           </td>
           <td style={cellStyle}>
-            <input
-              name="pe"
-              type="number"
-              min="0"
-              value={tempStats.pe}
-              onChange={handleChange}
-              style={{ ...inputStyle, width: "60px" }}
-            />
+            <input name="pe" type="number" min={0} value={tempStats.pe} onChange={handleChange} style={{ ...inputStyle, width: '60px' }} />
           </td>
           <td style={cellStyle}>
-            <input
-              name="pp"
-              type="number"
-              min="0"
-              value={tempStats.pp}
-              onChange={handleChange}
-              style={{ ...inputStyle, width: "60px" }}
-            />
+            <input name="pp" type="number" min={0} value={tempStats.pp} onChange={handleChange} style={{ ...inputStyle, width: '60px' }} />
           </td>
           <td style={cellStyle}>
-            <input
-              name="goles"
-              type="number"
-              value={tempStats.goles}
-              onChange={handleChange}
-              style={{ ...inputStyle, width: "60px" }}
-            />
+            <input name="cp" type="number" min={0} value={tempStats.cp} onChange={handleChange} style={{ ...inputStyle, width: '60px' }} />
           </td>
-          {/* Puntos Calculados */}
-          <td style={{ ...cellStyle, fontWeight: "bold" }}>
-            {puntosCalculados}
+          <td style={cellStyle}>
+            <input name="gf" type="number" min={0} value={tempStats.gf} onChange={handleChange} style={{ ...inputStyle, width: '60px' }} />
+          </td>
+          <td style={cellStyle}>
+            <input name="gc" type="number" min={0} value={tempStats.gc} onChange={handleChange} style={{ ...inputStyle, width: '60px' }} />
+          </td>
+          <td style={cellStyle}>
+            <input name="df" type="number" value={tempStats.df} onChange={handleChange} style={{ ...inputStyle, width: '60px' }} />
           </td>
           {/* Acciones (Guardar/Cancelar) */}
           <td style={cellStyle}>
-            <button
-              onClick={guardarCambios}
-              style={{
-                ...baseButtonStyle, // Aplicar estilos base
-                backgroundColor: "#1f3c88", // ¡AZUL PARA GUARDAR! 💾
-                color: "white",
-              }}
-            >
-              Guardar
-            </button>
-            <button
-              onClick={cancelarEdicion}
-              style={{ 
-                ...baseButtonStyle, // Aplicar estilos base
-                backgroundColor: "#dc3545", // ¡ROJO PARA CANCELAR! ❌
-                color: "white",
-              }}
-            >
-              Cancelar
-            </button>
+            <button onClick={guardarCambios} style={{ ...baseButtonStyle, backgroundColor: '#1f3c88', color: 'white' }}>Guardar</button>
+            <button onClick={cancelarEdicion} style={{ ...baseButtonStyle, backgroundColor: '#6c757d', color: 'white' }}>Cancelar</button>
           </td>
         </>
       ) : (
         <>
-          {/* Modo Visualización - Celdas de Texto */}
-          <td style={{ ...cellStyle, textAlign: "left", fontWeight: 500 }}>{equipo.nombre}</td>
-          <td style={cellStyle}>{equipo.pg}</td>
-          <td style={cellStyle}>{equipo.pe}</td>
-          <td style={cellStyle}>{equipo.pp}</td>
-          <td style={cellStyle}>{equipo.goles}</td>
-          <td
-            style={{
-              ...cellStyle,
-              fontWeight: "bold",
-              color: "#1f3c88", 
-              fontSize: "1.1em",
-            }}
-          >
-            {equipo.puntos}
-          </td>
-          {/* Acciones (Editar/Eliminar) */}
+          {/* Modo Visualización - mostrar posicion, nombre, puntos y demás columnas */}
+          <td style={{ ...cellStyle, textAlign: 'left', fontWeight: 700 }}>{posicion}</td>
+          <td style={{ ...cellStyle, textAlign: 'left', fontWeight: 600 }}>{equipo.nombre}</td>
+          <td style={cellStyle}><strong>{equipo.puntos ?? ((equipo.pg ?? 0) * 3 + (equipo.pe ?? 0))}</strong></td>
+          <td style={cellStyle}>{equipo.pj ?? ((equipo.pg ?? 0) + (equipo.pe ?? 0) + (equipo.pp ?? 0))}</td>
+          <td style={cellStyle}>{equipo.pg ?? 0}</td>
+          <td style={cellStyle}>{equipo.pe ?? 0}</td>
+          <td style={cellStyle}>{equipo.pp ?? 0}</td>
+          <td style={cellStyle}>{equipo.cp ?? 0}</td>
+          <td style={cellStyle}>{equipo.gf ?? 0}</td>
+          <td style={cellStyle}>{equipo.gc ?? 0}</td>
+          <td style={cellStyle}>{equipo.df ?? ((equipo.gf ?? 0) - (equipo.gc ?? 0))}</td>
           <td style={cellStyle}>
-            <button
-              onClick={() => setEditando(true)}
-              style={{
-                ...baseButtonStyle, // Aplicar estilos base
-                backgroundColor: "#1f3c88", // Azul para Editar
-                color: "white",
-              }}
-            >
-              Editar
-            </button>
-            <button
-              onClick={() => onEliminar(equipo.id)}
-              style={{
-                ...baseButtonStyle, // Aplicar estilos base
-                backgroundColor: "#dc3545", // Rojo para Eliminar
-                color: "white",
-              }}
-            >
-              Eliminar
-            </button>
+            <button onClick={() => setEditando(true)} style={{ ...baseButtonStyle, backgroundColor: '#1f3c88', color: 'white' }}>Editar</button>
+            <button onClick={() => onEliminar(equipo.id)} style={{ ...baseButtonStyle, backgroundColor: '#dc3545', color: 'white' }}>Eliminar</button>
           </td>
         </>
       )}
