@@ -17,7 +17,7 @@ interface CreateJugadorFase1Dto {
   clubId: number;
   categoria: string;
   telefono?: string;
-  vencimiento?: string;
+  fechaNacimiento: string;
   estado: string;
 }
 
@@ -35,7 +35,7 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar, clubes }) => {
     clubId: 0,
     categoria: "",
     telefono: "",
-    vencimiento: "",
+    fechaNacimiento: "",
     estado: "activo",
   });
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +50,19 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar, clubes }) => {
     if ((name === "nombre" || name === "apellido") && !/^[A-Za-z\s]*$/.test(value)) return;
     if (name === "dni" && !/^\d{0,8}$/.test(value)) return;
     if (name === "telefono" && !/^\d{0,15}$/.test(value)) return;
+
+    // Máscara para fecha de nacimiento dd/mm/yyyy
+    if (name === "fechaNacimiento") {
+      let valorLimpio = value.replace(/\D/g, '');
+      if (valorLimpio.length > 8) valorLimpio = valorLimpio.slice(0, 8);
+      let valorFormateado = '';
+      for (let i = 0; i < valorLimpio.length; i++) {
+        if (i === 2 || i === 4) valorFormateado += '/';
+        valorFormateado += valorLimpio[i];
+      }
+      setForm({ ...form, [name]: valorFormateado });
+      return;
+    }
 
     setForm({
       ...form,
@@ -79,6 +92,29 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar, clubes }) => {
     // 3. Validación de formato de Teléfono (si existe)
     if (form.telefono && form.telefono.trim() !== "" && !/^\d{7,15}$/.test(form.telefono)) {
       setError("El teléfono debe tener entre 7 y 15 dígitos numéricos.");
+      return;
+    }
+
+    // 4. Validación de fecha de nacimiento
+    if (!form.fechaNacimiento || form.fechaNacimiento.trim() === "") {
+      setError("La fecha de nacimiento es obligatoria.");
+      return;
+    }
+    const partesFecha = form.fechaNacimiento.split('/');
+    if (partesFecha.length !== 3) {
+      setError("La fecha de nacimiento debe tener formato dd/mm/yyyy.");
+      return;
+    }
+    const [dia, mes, anio] = partesFecha.map(Number);
+    const fechaNac = new Date(anio, mes - 1, dia);
+    if (isNaN(fechaNac.getTime())) {
+      setError("La fecha de nacimiento no es válida.");
+      return;
+    }
+    const hoy = new Date();
+    const edad = hoy.getFullYear() - fechaNac.getFullYear() - (hoy < new Date(hoy.getFullYear(), fechaNac.getMonth(), fechaNac.getDate()) ? 1 : 0);
+    if (edad < 16) {
+      setError("El jugador debe tener al menos 16 años.");
       return;
     }
     
@@ -330,18 +366,21 @@ const RegistroJugador: React.FC<Props> = ({ onRegistrar, clubes }) => {
             />
           </div>
           
-          {/* Fecha de Vencimiento */}
+          {/* Fecha de Nacimiento */}
           <div className="form-group">
-            <label htmlFor="vencimiento" className="form-label">
-              Vencimiento Ficha Médica (Opcional)
+            <label htmlFor="fechaNacimiento" className="form-label">
+              Fecha de Nacimiento <span style={{ color: "red" }}>*</span>
             </label>
             <input
-              id="vencimiento"
-              type="date"
-              name="vencimiento"
-              value={form.vencimiento}
+              id="fechaNacimiento"
+              type="text"
+              name="fechaNacimiento"
+              placeholder="dd/mm/yyyy"
+              value={form.fechaNacimiento}
               onChange={handleChange}
               className="form-input"
+              maxLength={10}
+              required
             />
           </div>
 
