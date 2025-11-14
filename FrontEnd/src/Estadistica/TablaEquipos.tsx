@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import EquipoItem from "./EquipoItem";
 // (Importa el tipo Equipo si no está global)
 
@@ -45,16 +45,42 @@ const TablaEquipos: React.FC<Props> = ({ equipos, onActualizar, onEliminar }) =>
 
   // Estado para mostrar/ocultar el popover de referencias
   const [showRefs, setShowRefs] = useState(false);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  // Auto-cerrar popover al hacer click fuera o scroll
+  useEffect(() => {
+    if (!showRefs) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+        setShowRefs(false);
+      }
+    };
+
+    const handleScroll = () => {
+      setShowRefs(false);
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [showRefs]);
 
   return (
     <div
       style={{
         margin: "0 auto",
-        maxWidth: "1000px",
-        position: 'relative', // necesario para posicionar el popover
+        maxWidth: "1200px",
+        display: 'flex',
+        gap: 16,
+        alignItems: 'flex-start'
       }}
     >
-
+      <div style={{ flex: 1 }}>
       {equiposOrdenados.length === 0 ? (
           <p style={{textAlign: 'center', color: '#6c757d', marginTop: '20px'}}>No hay equipos registrados para mostrar estadísticas.</p>
       ) : (
@@ -82,54 +108,7 @@ const TablaEquipos: React.FC<Props> = ({ equipos, onActualizar, onEliminar }) =>
               <tr>
                 <th style={{ padding: 12, textAlign: "left" }}>#</th>
                 <th style={{ padding: 12, textAlign: "left" }}>Equipo</th>
-                {/* Columna PTS con botón para ver referencias */}
-                <th style={{ padding: 12, position: 'relative' }}>
-                  PTS
-                  <button
-                    onClick={() => setShowRefs(!showRefs)}
-                    aria-label="Ver referencias"
-                    style={{
-                      marginLeft: 8,
-                      background: 'transparent',
-                      color: 'white',
-                      border: 'none',
-                      cursor: 'pointer',
-                      textDecoration: 'underline'
-                    }}
-                  >
-                    Ver referencias
-                  </button>
-                  {/* Popover simple que muestra las referencias al hacer click */}
-                  {showRefs && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '110%',
-                        right: 0,
-                        background: '#fff',
-                        color: '#111',
-                        padding: '12px',
-                        borderRadius: 6,
-                        boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
-                        zIndex: 60,
-                        minWidth: 260,
-                        textAlign: 'left'
-                      }}
-                    >
-                      {/* Lista de referencias solicitada */}
-                      <div style={{ fontWeight: 700, marginBottom: 6 }}>Referencias:</div>
-                      <div>PTS: Puntos totales</div>
-                      <div>PJ: Partidos jugados</div>
-                      <div>PG: Partidos ganados</div>
-                      <div>PE: Partidos empatados</div>
-                      <div>PP: Partidos perdidos</div>
-                      <div>CP: Partidos cedidos</div>
-                      <div>GF: Goles a favor</div>
-                      <div>GC: Goles en contra</div>
-                      <div>DF: Diferencia de goles</div>
-                    </div>
-                  )}
-                </th>
+                <th style={{ padding: 12 }}>PTS</th>
                 <th style={{ padding: 12 }}>PJ</th>
                 <th style={{ padding: 12 }}>PG</th>
                 <th style={{ padding: 12 }}>PE</th>
@@ -155,6 +134,61 @@ const TablaEquipos: React.FC<Props> = ({ equipos, onActualizar, onEliminar }) =>
             </tbody>
           </table>
       )}
+      </div>
+
+      {/* Botón Ver referencias al lado derecho de la tabla */}
+      <div style={{ marginTop: 20, position: 'relative' }}>
+        <button
+          onClick={() => setShowRefs(!showRefs)}
+          style={{
+            padding: '8px 16px',
+            background: '#1f3c88',
+            color: 'white',
+            border: 'none',
+            borderRadius: 6,
+            cursor: 'pointer',
+            fontWeight: 600,
+            fontSize: '0.9rem',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {showRefs ? 'Ocultar referencias' : 'Ver referencias'}
+        </button>
+        
+        {/* Popover de referencias posicionado debajo del botón */}
+        {showRefs && (
+          <div
+            ref={popoverRef}
+            style={{
+              position: 'absolute',
+              top: '110%',
+              right: 0,
+              background: '#fff',
+              color: '#111',
+              padding: '16px',
+              borderRadius: 8,
+              boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
+              zIndex: 100,
+              minWidth: 280,
+              textAlign: 'left',
+              border: '1px solid #e5e7eb'
+            }}
+          >
+            <div style={{ fontWeight: 700, marginBottom: 10, fontSize: '1rem', color: '#1f3c88' }}>REFERENCIAS:</div>
+            <div style={{ lineHeight: 1.8 }}>
+              <div><strong>PTS:</strong> Puntos totales</div>
+              <div><strong>PJ:</strong> Partidos jugados</div>
+              <div><strong>PG:</strong> Partidos ganados</div>
+              <div><strong>PE:</strong> Partidos empatados</div>
+              <div><strong>PP:</strong> Partidos perdidos</div>
+              <div><strong>CP:</strong> Partidos cedidos</div>
+              <div><strong>GF:</strong> Goles a favor</div>
+              <div><strong>GC:</strong> Goles en contra</div>
+              <div><strong>DF:</strong> Diferencia de goles</div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
