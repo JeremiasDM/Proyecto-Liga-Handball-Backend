@@ -1,194 +1,234 @@
-import React, { useState, useEffect, type ChangeEvent } from "react";
-// (Pega las interfaces FixtureAPI, EncuentroAPI, Club, CreateFixtureDto, CreateEncuentroDto aquí)
-// ...
-import FormularioPartido from "./FormularioPartido"; // Asumiendo que existe y se adapta
+import React, { useState, useEffect, type ChangeEvent, type CSSProperties } from "react";
+
+// Definiciones de interfaces (Necesarias para el componente)
+interface Club {
+    id: number;
+    nombre: string;
+}
+
+interface EncuentroAPI {
+    id: number;
+    jornada: number;
+    grupo?: string;
+    fecha?: string;
+    resultado: string;
+    club1Id: number;
+    club2Id: number;
+    club1?: Club; // Hacemos opcional para evitar errores si viene nulo
+    club2?: Club;
+}
+
+interface FixtureAPI {
+    id: number;
+    fecha: string;
+    lugar: string;
+    partidos: EncuentroAPI[];
+}
+
+interface CreateFixtureDto {
+    fecha: string;
+    lugar: string;
+    partidos: any[]; // Simplificado
+}
+
+// REMOVIDA: import FormularioPartido from "./FormularioPartido"; // Asumiendo que existe y se adapta
 
 type Props = {
-  fixture: FixtureAPI; // Recibe el fixture de la API
-  clubes: Club[]; // Recibe la lista de clubes
-  onGuardar: (id: number, dto: Partial<CreateFixtureDto>) => void; // Envía DTO parcial
-  onCancelar: () => void;
+    fixture: FixtureAPI; // Recibe el fixture de la API
+    clubes: Club[]; // Recibe la lista de clubes
+    onGuardar: (id: number, dto: Partial<CreateFixtureDto>) => void; // Envía DTO parcial
+    onCancelar: () => void;
+};
+
+// 🎯 Estilo base reutilizable para los botones 🎯
+const buttonBaseStyle: CSSProperties = {
+    padding: "0.5rem 1rem", // Relleno interno vertical y horizontal.
+    borderRadius: "5px", // Bordes ligeramente redondeados.
+    border: "none", // Sin borde.
+    cursor: "pointer", // Indica que es un elemento interactivo.
+    marginRight: "0.5rem", // Margen derecho.
+    fontWeight: 'bold',
+    transition: 'background-color 0.3s, transform 0.1s',
+};
+
+// 🎯 Estilo para los inputs con fondo negro y letra blanca 🎯
+const inputStylesNegro: CSSProperties = {
+    color: 'white', // Color del texto (letras) en blanco
+    backgroundColor: '#333', // Fondo gris oscuro/negro
+    border: '1px solid #555', // Borde gris más oscuro
+    padding: '12px',
+    borderRadius: '8px',
+    fontSize: '1em',
+    width: '100%',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.3s, box-shadow 0.3s',
+};
+
+const customStyles: { [key: string]: CSSProperties } = {
+    // Estilos principales (basados en los estilos proporcionados)
+    form: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '20px',
+    },
+    heading: {
+        color: '#1a4e8d',
+        borderBottom: '4px solid #007bff',
+        paddingBottom: '15px',
+        marginBottom: '35px',
+        textAlign: 'left',
+        fontSize: '2.2em',
+    },
+    subHeading: {
+        color: '#333',
+        marginTop: '10px',
+        marginBottom: '25px',
+        borderLeft: '5px solid #007bff',
+        paddingLeft: '15px',
+        fontWeight: '600',
+        fontSize: '1.4em',
+        letterSpacing: '0.5px',
+    },
+    buttonContainer: {
+        display: 'flex',
+        justifyContent: 'flex-end',
+        // Quitar gap, el margen lo maneja buttonBase ahora
+        marginTop: '40px',
+        paddingTop: '20px',
+        borderTop: '1px solid #e0e0e0',
+    },
+    // Estilos de Elementos del Formulario
+    fieldGroup: {
+        display: 'flex',
+        flexDirection: 'column',
+    },
+    label: {
+        fontWeight: 700,
+        color: '#4a5568',
+        marginBottom: '5px',
+        fontSize: '1em',
+    },
+    partidoItem: {
+        border: '1px solid #e0e0e0',
+        backgroundColor: '#f9f9f9',
+        padding: '10px 15px',
+        marginBottom: '8px',
+        borderRadius: '6px',
+        fontSize: '0.95em',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    partidoInfo: {
+        flexGrow: 1,
+        color: '#333',
+    },
+    // 🚨 BOTONES ACTUALIZADOS 🚨
+    buttonPrimary: {
+        ...buttonBaseStyle,
+        backgroundColor: '#1f3c88', // Fondo Azul Fuerte (Guardar)
+        color: 'white', // Texto blanco
+        marginRight: '0', // Quitar el margen derecho del último botón en el contenedor
+    },
+    buttonSecondary: {
+        ...buttonBaseStyle,
+        backgroundColor: '#dc3545', // ¡FONDO ROJO PARA CANCELAR! 🚨
+        color: 'white', // Texto blanco
+    },
 };
 
 const EditarFixture: React.FC<Props> = ({ fixture, clubes, onGuardar, onCancelar }) => {
-  // Estado inicial con los datos del fixture a editar
-  const [formData, setFormData] = useState<any>({
-      fecha: fixture.fecha,
-      lugar: fixture.lugar,
-      partidos: fixture.partidos ? fixture.partidos.map((p: any) => ({
-        id: p.id,
-        jornada: p.jornada,
-        grupo: p.grupo,
-        club1Id: p.club1?.id || p.club1Id || 0,
-        club2Id: p.club2?.id || p.club2Id || 0,
-        resultado: p.resultado,
-        fecha: p.fecha,
-      })) : [],
-  });
-  const [partidoTemp, setPartidoTemp] = useState<any>({
-    jornada: 1,
-    club1Id: 0,
-    club2Id: 0,
-    resultado: '-',
-    fecha: fixture.fecha || new Date().toISOString().split('T')[0],
-  });
-  // Nota: No manejamos la edición de partidos individuales aquí por simplicidad.
-  // Una implementación completa requeriría manejar cambios en el array de partidos.
-
-  // Sincronizar si cambia el fixture de las props
-  useEffect(() => {
-    setFormData({
-      fecha: fixture.fecha,
-      lugar: fixture.lugar,
-      partidos: fixture.partidos ? fixture.partidos.map((p: any) => ({
-        id: p.id,
-        jornada: p.jornada,
-        grupo: p.grupo,
-        club1Id: p.club1?.id || p.club1Id || 0,
-        club2Id: p.club2?.id || p.club2Id || 0,
-        resultado: p.resultado,
-        fecha: p.fecha,
-      })) : [],
+    const [formData, setFormData] = useState({
+        fecha: fixture.fecha,
+        lugar: fixture.lugar
     });
-  }, [fixture]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    useEffect(() => {
+        setFormData({ fecha: fixture.fecha, lugar: fixture.lugar });
+    }, [fixture]);
 
-  // --- Lógica para editar partidos (PENDIENTE / SIMPLIFICADA) ---
-  // const handlePartidoChange = (index: number, campo: keyof CreateEncuentroDto, valor: string | number) => {
-  //   console.warn("Edición de partidos individuales no implementada en este ejemplo.");
-  //   // Aquí iría la lógica para actualizar el estado 'formData.partidos'
-  // };
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Validaciones básicas: fecha y lugar obligatorios
-    if (!formData.fecha || !formData.lugar) {
-      alert('Fecha y Lugar son campos obligatorios.');
-      return;
-    }
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onGuardar(fixture.id, { fecha: formData.fecha, lugar: formData.lugar });
+    };
 
-    // Validar que si existen partidos con fecha, coincidan con la fecha del fixture (asunción)
-    if (formData.partidos && formData.partidos.some((p: any) => p.fecha && p.fecha !== formData.fecha)) {
-      alert('Todas las fechas de partidos deben coincidir con la fecha del fixture.');
-      return;
-    }
+    // Usamos los estilos actualizados
+    const saveButtonStyle = customStyles.buttonPrimary;
+    const cancelButtonStyle = customStyles.buttonSecondary;
 
-    // Enviar DTO parcial incluyendo partidos (frontend only)
-    onGuardar(fixture.id, { fecha: formData.fecha, lugar: formData.lugar, partidos: formData.partidos });
-  };
 
-  const handleChangePartido = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setPartidoTemp({
-      ...partidoTemp,
-      [name]: name === 'jornada' || name === 'club1Id' || name === 'club2Id' ? Number(value) : value,
-    });
-  };
+    return (
+        <div>
+            <h3 style={customStyles.heading}>
+                Edición de Fixture (ID: {fixture.id})
+            </h3>
 
-  const agregarPartido = () => {
-    // Validaciones similares al registrar
-    if (!partidoTemp.club1Id || !partidoTemp.club2Id) { alert('Debes seleccionar ambos clubes.'); return; }
-    if (partidoTemp.club1Id === partidoTemp.club2Id) { alert('No puedes seleccionar el mismo club para ambos equipos.'); return; }
-    if (!partidoTemp.resultado) { alert("El campo resultado es obligatorio (usa '-')"); return; }
-    if (partidoTemp.resultado !== '-' && !/^\d{1,2}-\d{1,2}$/.test(partidoTemp.resultado)) { alert('Formato de resultado inválido (Ej: 25-21 o -).'); return; }
-    // Duplicado
-    const dup = (formData.partidos || []).some((p: any) =>
-      p.jornada === partidoTemp.jornada && ((p.club1Id === partidoTemp.club1Id && p.club2Id === partidoTemp.club2Id) || (p.club1Id === partidoTemp.club2Id && p.club2Id === partidoTemp.club1Id))
-    );
-    if (dup) { alert('Este enfrentamiento ya está agregado.'); return; }
-    if (formData.fecha && partidoTemp.fecha && partidoTemp.fecha !== formData.fecha) { alert('La fecha del partido debe coincidir con la fecha del fixture.'); return; }
+            <form onSubmit={handleSubmit} style={customStyles.form}>
+                
+                {/* --- Campos de Edición General --- */}
+                <div style={{ display: 'flex', gap: '20px' }}>
+                    
+                    {/* Campo Fecha */}
+                    <div style={{ ...customStyles.fieldGroup, flex: 1 }}>
+                        <label style={customStyles.label}>Fecha General del Evento:</label>
+                        <input
+                            name="fecha"
+                            type="date"
+                            value={formData.fecha}
+                            onChange={handleChange}
+                            style={inputStylesNegro} // Aplicación del estilo negro
+                            required
+                        />
+                    </div>
+                    
+                    {/* Campo Lugar */}
+                    <div style={{ ...customStyles.fieldGroup, flex: 1 }}>
+                        <label style={customStyles.label}>Lugar / Sede:</label>
+                        <input
+                            name="lugar"
+                            value={formData.lugar}
+                            onChange={handleChange}
+                            style={inputStylesNegro} // Aplicación del estilo negro
+                            required
+                        />
+                    </div>
+                </div>
 
-    setFormData({ ...formData, partidos: [...(formData.partidos || []), { ...partidoTemp }] });
-    setPartidoTemp({ jornada: partidoTemp.jornada, club1Id: 0, club2Id: 0, resultado: '-', fecha: formData.fecha });
-  };
+                {/* --- Listado de Partidos (Solo Lectura) --- */}
+                <h4 style={customStyles.subHeading}>
+                    Partidos Registrados (Lectura y Resultados)
+                </h4>
+                
+                <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '10px' }}>
+                    {fixture.partidos.map((partido: EncuentroAPI, i: number) => (
+                        <div key={partido.id || i} style={customStyles.partidoItem}>
+                            <span style={customStyles.partidoInfo}>
+                                **J{partido.jornada}** {partido.grupo ? `| G.${partido.grupo}` : ''}: 
+                                **{partido.club1?.nombre || 'N/A'}** vs **{partido.club2?.nombre || 'N/A'}**
+                            </span>
+                            <span style={{ fontWeight: 'bold', color: '#1a4e8d', minWidth: '80px', textAlign: 'right' }}>
+                                Resultado: {partido.resultado}
+                            </span>
+                        </div>
+                    ))}
+                </div>
 
-  const eliminarPartido = (index: number) => {
-    const nuevos = [...(formData.partidos || [])];
-    nuevos.splice(index, 1);
-    setFormData({ ...formData, partidos: nuevos });
-  };
-
-  return (
-    <div>
-      <h3>Editar Fixture (ID: {fixture.id})</h3>
-      <form onSubmit={handleSubmit}>
-        <label>Fecha:</label>
-        <input
-          name="fecha"
-          type="date"
-          value={formData.fecha}
-          onChange={handleChange}
-          required
-        />
-        <label>Lugar:</label>
-        <input
-          name="lugar"
-          value={formData.lugar}
-          onChange={handleChange}
-          required
-        />
-
-        <h4>Partidos (Editar)</h4>
-
-        {/* Formulario inline para agregar nuevos partidos */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 8 }}>
-          <label>
-            Jornada:
-            <input name="jornada" type="number" min={1} value={partidoTemp.jornada} onChange={handleChangePartido} style={{ width: 60 }} />
-          </label>
-          <label>
-            Club Local:
-            <select name="club1Id" value={partidoTemp.club1Id} onChange={handleChangePartido}>
-              <option value={0} disabled>Selecciona Club</option>
-              {clubes.map((club: any) => <option key={club.id} value={club.id}>{club.nombre}</option>)}
-            </select>
-          </label>
-          <label>
-            Club Visitante:
-            <select name="club2Id" value={partidoTemp.club2Id} onChange={handleChangePartido}>
-              <option value={0} disabled>Selecciona Club</option>
-              {clubes.map((club: any) => <option key={club.id} value={club.id}>{club.nombre}</option>)}
-            </select>
-          </label>
-          <label>
-            Resultado:
-            <input name="resultado" placeholder="Ej: 25-21 o -" value={partidoTemp.resultado} onChange={handleChangePartido} style={{ width: 100 }} />
-          </label>
-          <label>
-            Fecha (opcional):
-            <input name="fecha" type="date" value={partidoTemp.fecha} onChange={handleChangePartido} />
-          </label>
-          <button type="button" onClick={agregarPartido}>Agregar Partido</button>
+                {/* --- Botones de Acción --- */}
+                <div style={customStyles.buttonContainer}>
+                    <button type="button" onClick={onCancelar} style={cancelButtonStyle}>
+                        Cancelar
+                    </button>
+                    <button type="submit" style={saveButtonStyle}>
+                        Guardar Cambios 
+                    </button>
+                </div>
+            </form>
         </div>
-
-        {/* Lista editable de partidos */}
-        {formData.partidos && formData.partidos.length > 0 ? (
-          <div style={{ marginTop: 8 }}>
-            {formData.partidos.map((p: any, idx: number) => (
-              <div key={p.id || idx} style={{ border: '1px solid #ccc', padding: '6px', marginBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <strong>J{p.jornada}</strong> {p.grupo ? `| G.${p.grupo}` : ''}: {clubes.find(c => c.id === p.club1Id)?.nombre || p.club1Id} vs {clubes.find(c => c.id === p.club2Id)?.nombre || p.club2Id} ({p.resultado}) {p.fecha ? `[${p.fecha}]` : ''}
-                </div>
-                <div>
-                  <button type="button" onClick={() => eliminarPartido(idx)} style={{ marginLeft: 8 }}>Eliminar</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p style={{ fontStyle: 'italic', color: '#666' }}>No hay partidos en este fixture.</p>
-        )}
-
-        <button type="submit">Guardar Cambios (Fecha/Lugar)</button>
-        <button type="button" onClick={onCancelar}>
-          Cancelar
-        </button>
-      </form>
-    </div>
-  );
+    );
 };
 
 export default EditarFixture;

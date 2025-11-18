@@ -3,7 +3,7 @@ import React, { useState } from "react";
 // Props simplificadas
 type Props = {
   jugadorInfo: { nombre: string; apellido: string };
-  onGuardar: (docs: { carnetUrl?: string; fichaMedicaUrl?: string }) => void;
+  onGuardar: (docs: { carnetUrl?: string; fichaMedicaUrl?: string; vencimientoFichaMedica?: string }) => void;
   onCancelar: () => void;
 };
 
@@ -14,7 +14,19 @@ const FormularioDocumentacion: React.FC<Props> = ({
 }) => {
   const [carnet, setCarnet] = useState<string | undefined>(undefined);
   const [fichaMedica, setFichaMedica] = useState<string | undefined>(undefined);
+  const [vencimientoFichaMedica, setVencimientoFichaMedica] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+
+  const handleFechaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let valorLimpio = e.target.value.replace(/\D/g, '');
+    if (valorLimpio.length > 8) valorLimpio = valorLimpio.slice(0, 8);
+    let valorFormateado = '';
+    for (let i = 0; i < valorLimpio.length; i++) {
+      if (i === 2 || i === 4) valorFormateado += '/';
+      valorFormateado += valorLimpio[i];
+    }
+    setVencimientoFichaMedica(valorFormateado);
+  };
 
   const handleFileUpload = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -51,13 +63,7 @@ const FormularioDocumentacion: React.FC<Props> = ({
     e.preventDefault();
     setError(null);
     
-    // Opcional: Requerir al menos un documento
-    // if (!carnet && !fichaMedica) {
-    //   setError("Debe cargar al menos un documento.");
-    //   return;
-    // }
-    
-    onGuardar({ carnetUrl: carnet, fichaMedicaUrl: fichaMedica });
+    onGuardar({ carnetUrl: carnet, fichaMedicaUrl: fichaMedica, vencimientoFichaMedica: vencimientoFichaMedica || undefined });
   };
 
   return (
@@ -102,6 +108,18 @@ const FormularioDocumentacion: React.FC<Props> = ({
               Ver ficha médica cargada
             </a>
           )}
+        </div>
+
+        <div>
+          <label className="block font-semibold">Vencimiento Ficha Médica:</label>
+          <input
+            type="text"
+            placeholder="dd/mm/yyyy"
+            value={vencimientoFichaMedica}
+            onChange={handleFechaChange}
+            maxLength={10}
+            className="w-full p-2 border rounded"
+          />
         </div>
 
         <div className="flex gap-2 mt-4">

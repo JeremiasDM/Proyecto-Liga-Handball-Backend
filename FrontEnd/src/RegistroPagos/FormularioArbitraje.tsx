@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import type { Pago, Fixture } from "../types/types";
 
 type Props = {
     club: string;
@@ -192,7 +191,7 @@ const FormularioArbitraje: React.FC<Props> = ({ club, partidos, montoMinimo, onG
                     &times;
                 </button>
                 <h2 className={styleConfig.title}>
-                    💵 Pago de Arbitraje: {club}
+                     Pago de Arbitraje: {club}
                 </h2>
                 <form onSubmit={handleSubmit} className={styleConfig.form}>
                     

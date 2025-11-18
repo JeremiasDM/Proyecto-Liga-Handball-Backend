@@ -1,5 +1,3 @@
-
-
 export default function Autoridades() {
   const autoridades = [
     { nombre: "Myriam Calderon", cargo: "Presidenta", foto: "./Autoridades/Myriam Calderon.jpeg" },
@@ -21,7 +19,7 @@ export default function Autoridades() {
         }
 
         .autoridades-container {
-          background: #f9f9f9; /* ✅ fondo claro en vez del negro */
+          background: #f9f9f9;
           color: #333;
           width: 100%;
           min-height: 100vh;
@@ -29,20 +27,12 @@ export default function Autoridades() {
           font-family: 'Inter', sans-serif;
         }
         
-        .titulo {
-          text-align: center;
-          font-size: 2.5rem;
-          font-weight: 700;
-          margin-bottom: 3rem;
-          letter-spacing: 0.05rem;
-          color: #222;
-        }
-        
         .grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
           gap: 2rem;
           justify-items: center;
+          margin-top: 30px; 
         }
         
         .card {
@@ -120,16 +110,11 @@ export default function Autoridades() {
           text-align: center;
         }
         
-        .organigrama h2 {
-          font-size: 2rem;
-          font-weight: 600;
-          color: #222;
-          margin-bottom: 1.5rem;
-        }
-        
         .organigrama img {
-          max-width: 100%;
-          height: auto;
+          /* 📏 MODIFICACIÓN AQUÍ PARA REDUCIR LIGERAMENTE EL TAMAÑO */
+          width: 80%; /* Ocupa el 80% del ancho del contenedor */
+          max-width: 800px; /* No más de 800px de ancho */
+          height: auto; 
           border-radius: 1rem;
           box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
           transition: transform 0.3s ease-in-out;
@@ -141,7 +126,24 @@ export default function Autoridades() {
       `}</style>
       
       <div className="autoridades-container">
-        <h1 className="titulo">Autoridades de la Organización</h1>
+        {/* TÍTULO 1: Autoridades de la Organización */}
+        <h2
+          style={{
+            color: "#1f3c88", 
+            marginBottom: "30px",
+            textAlign: "center",
+            fontSize: "2.5em",
+            fontWeight: 600,
+            borderBottom: "3px solid #1f3c88", 
+            paddingBottom: "5px",
+            margin: "0 auto 30px auto", 
+            display: "block",
+            width: "fit-content",
+          }}
+        >
+          Autoridades de la Organización
+        </h2>
+        
         <div className="grid">
           {autoridades.map((a, index) => (
             <div className="card" key={index}>
@@ -153,7 +155,24 @@ export default function Autoridades() {
         </div>
 
         <div className="organigrama">
-          <h2>Organigrama</h2>
+          {/* TÍTULO 2: Organigrama */}
+          <h2
+             style={{
+                color: "#1f3c88", 
+                marginBottom: "30px",
+                textAlign: "center",
+                fontSize: "2.5em",
+                fontWeight: 600,
+                borderBottom: "3px solid #1f3c88", 
+                paddingBottom: "5px",
+                margin: "0 auto 30px auto", 
+                display: "block",
+                width: "fit-content",
+                marginTop: "3rem",
+              }}
+          >
+            Organigrama
+          </h2>
           <img src="/Organigrama.png" alt="Organigrama" />
         </div>
       </div>
