@@ -1,12 +1,26 @@
 import React, { useState } from "react";
 // (Importa el tipo Equipo si no está global)
+// Asumiendo que Equipo está definido y disponible (como en tu componente padre)
+
+// --- Definición del tipo Equipo (Repetido aquí por si acaso, pero idealmente se importa) ---
+export type Equipo = {
+  id: number;
+  nombre: string;
+  pg: number;
+  pe: number;
+  pp: number;
+  goles: number;
+  puntos: number;
+  activo?: boolean;
+};
+// -----------------------------------------------------------------------------------------
+
 
 type Props = {
-  equipo: any;
-  onActualizar: (id: number, actualizado: any) => void;
-  onEliminar: (id: number) => void;
+  equipo: Equipo;
+  onActualizar: (id: number, actualizado: Partial<Equipo>) => void; // Recibe handler
+  onEliminar: (id: number) => void; // Recibe handler
   rowStyle?: React.CSSProperties;
-  posicion: number; // Desestructuración de props
 };
 
 const EquipoItem: React.FC<Props> = ({
@@ -14,22 +28,15 @@ const EquipoItem: React.FC<Props> = ({
   onActualizar,
   onEliminar,
   rowStyle = {},
-  posicion, // Desestructuración de props
 }) => {
   const [editando, setEditando] = useState(false);
   // Estado temporal solo para la edición
   const [tempStats, setTempStats] = useState({
-    nombre: equipo.nombre,
-    pj: equipo.pj,
+    nombre: equipo.nombre, // Permitir editar nombre si es necesario
     pg: equipo.pg,
     pe: equipo.pe,
     pp: equipo.pp,
-    cp: equipo.cp,
-    gf: equipo.gf,
-    gc: equipo.gc,
-    df: equipo.df,
     goles: equipo.goles,
-    puntos: equipo.puntos,
   });
   // Los puntos se calculan al guardar o se muestran los del prop
 
@@ -54,7 +61,7 @@ const EquipoItem: React.FC<Props> = ({
 
     // Llama a la función onActualizar del padre, pasando solo los datos modificables
     onActualizar(equipo.id, {
-        // nombre: tempStats.nombre, // Descomentar si quieres poder editar el nombre aquí
+        nombre: tempStats.nombre, // ¡Ahora se puede editar!
         pg: tempStats.pg,
         pe: tempStats.pe,
         pp: tempStats.pp,
@@ -66,17 +73,11 @@ const EquipoItem: React.FC<Props> = ({
 
   const cancelarEdicion = () => {
       setTempStats({ // Resetear al valor original
-    nombre: equipo.nombre,
-    pj: equipo.pj,
-    pg: equipo.pg,
-    pe: equipo.pe,
-    pp: equipo.pp,
-    cp: equipo.cp,
-    gf: equipo.gf,
-    gc: equipo.gc,
-    df: equipo.df,
-    goles: equipo.goles,
-    puntos: equipo.puntos,
+          nombre: equipo.nombre,
+          pg: equipo.pg,
+          pe: equipo.pe,
+          pp: equipo.pp,
+          goles: equipo.goles,
       });
       setEditando(false);
   }
@@ -107,71 +108,154 @@ const EquipoItem: React.FC<Props> = ({
   };
 
   // Puntos calculados para mostrar en modo edición
-  // Cálculo de campos derivados
   const puntosCalculados = tempStats.pg * 3 + tempStats.pe;
-  const pjCalculado = tempStats.pj ?? (tempStats.pg + tempStats.pe + tempStats.pp);
-  const dfCalculado = tempStats.df ?? (tempStats.gf - tempStats.gc);
+
+  // 1. Definiendo el estilo base para los botones de Acción
+  const baseButtonStyle: React.CSSProperties = {
+    padding: "0.5rem 1rem",
+    borderRadius: 5,
+    border: "none",
+    cursor: "pointer",
+    margin: "0 4px", // Espacio entre botones
+    fontSize: "0.85em",
+    transition: 'background-color 0.2s',
+  };
+
 
   return (
     <tr
       style={combinedRowStyle}
+      // Hover effect usando onMouseEnter/onMouseLeave
       onMouseEnter={(e) => {
         if (!editando) e.currentTarget.style.backgroundColor = "#e9ecef";
       }}
       onMouseLeave={(e) => {
-        if (!editando) e.currentTarget.style.backgroundColor = rowStyle.backgroundColor || ( (parseInt(e.currentTarget.rowIndex.toString())-1) % 2 === 1 ? '#f8f9fa' : 'white');
+        // Restaurar el color original. Si rowStyle.backgroundColor no existe, se usa el color alternado.
+        if (!editando) {
+            // Utilizamos el índice de la fila para determinar el color de fondo alterno si no se pasa rowStyle
+            const defaultBg = ( (parseInt(e.currentTarget.rowIndex.toString())-1) % 2 === 1 ? '#f8f9fa' : 'white');
+            e.currentTarget.style.backgroundColor = rowStyle.backgroundColor || defaultBg;
+        }
       }}
     >
       {editando ? (
         <>
-          <td style={{ ...cellStyle, textAlign: "left", fontWeight: 500 }}>{posicion}</td>
-          <td style={{ ...cellStyle, textAlign: "left", fontWeight: 500 }}>{tempStats.nombre}</td>
-          <td style={cellStyle}>
-            <input name="pj" type="number" min="0" value={pjCalculado} onChange={handleChange} style={{ ...inputStyle, width: "50px" }}/>
+          {/* Modo Edición - Celdas de Input */}
+          <td style={{ ...cellStyle, textAlign: "left" }}>
+            <input
+              name="nombre"
+              value={tempStats.nombre}
+              onChange={handleChange}
+              style={{ ...inputStyle, width: "120px" }}
+            />
           </td>
           <td style={cellStyle}>
-            <input name="pg" type="number" min="0" value={tempStats.pg} onChange={handleChange} style={{ ...inputStyle, width: "50px" }}/>
+            <input
+              name="pg"
+              type="number"
+              min="0"
+              value={tempStats.pg}
+              onChange={handleChange}
+              style={{ ...inputStyle, width: "60px" }}
+            />
           </td>
           <td style={cellStyle}>
-            <input name="pe" type="number" min="0" value={tempStats.pe} onChange={handleChange} style={{ ...inputStyle, width: "50px" }}/>
+            <input
+              name="pe"
+              type="number"
+              min="0"
+              value={tempStats.pe}
+              onChange={handleChange}
+              style={{ ...inputStyle, width: "60px" }}
+            />
           </td>
           <td style={cellStyle}>
-            <input name="pp" type="number" min="0" value={tempStats.pp} onChange={handleChange} style={{ ...inputStyle, width: "50px" }}/>
+            <input
+              name="pp"
+              type="number"
+              min="0"
+              value={tempStats.pp}
+              onChange={handleChange}
+              style={{ ...inputStyle, width: "60px" }}
+            />
           </td>
           <td style={cellStyle}>
-            <input name="cp" type="number" min="0" value={tempStats.cp} onChange={handleChange} style={{ ...inputStyle, width: "50px" }}/>
+            <input
+              name="goles"
+              type="number"
+              value={tempStats.goles}
+              onChange={handleChange}
+              style={{ ...inputStyle, width: "60px" }}
+            />
           </td>
+          {/* Puntos Calculados */}
+          <td style={{ ...cellStyle, fontWeight: "bold" }}>
+            {puntosCalculados}
+          </td>
+          {/* Acciones (Guardar/Cancelar) */}
           <td style={cellStyle}>
-            <input name="gf" type="number" min="0" value={tempStats.gf} onChange={handleChange} style={{ ...inputStyle, width: "50px" }}/>
-          </td>
-          <td style={cellStyle}>
-            <input name="gc" type="number" min="0" value={tempStats.gc} onChange={handleChange} style={{ ...inputStyle, width: "50px" }}/>
-          </td>
-          <td style={cellStyle}>
-            <input name="df" type="number" value={dfCalculado} onChange={handleChange} style={{ ...inputStyle, width: "50px" }}/>
-          </td>
-          <td style={{ ...cellStyle, fontWeight: "bold" }}>{puntosCalculados}</td>
-          <td style={{...cellStyle, whiteSpace: 'nowrap'}}>
-            <button onClick={guardarCambios} style={{ backgroundColor: '#28a745', color: 'white', padding: '4px 8px', border:'none', borderRadius: '4px', cursor: 'pointer', marginRight: '4px' }}>Guardar</button>
-            <button onClick={cancelarEdicion} style={{ backgroundColor: '#6c757d', color: 'white', padding: '4px 8px', border:'none', borderRadius: '4px', cursor: 'pointer' }}>Cancelar</button>
+            <button
+              onClick={guardarCambios}
+              style={{
+                ...baseButtonStyle, // Aplicar estilos base
+                backgroundColor: "#1f3c88", // ¡AZUL PARA GUARDAR! 💾
+                color: "white",
+              }}
+            >
+              Guardar
+            </button>
+            <button
+              onClick={cancelarEdicion}
+              style={{ 
+                ...baseButtonStyle, // Aplicar estilos base
+                backgroundColor: "#dc3545", // ¡ROJO PARA CANCELAR! ❌
+                color: "white",
+              }}
+            >
+              Cancelar
+            </button>
           </td>
         </>
       ) : (
         <>
-          <td style={{ ...cellStyle, textAlign: "left", fontWeight: 500 }}>{posicion}</td>
+          {/* Modo Visualización - Celdas de Texto */}
           <td style={{ ...cellStyle, textAlign: "left", fontWeight: 500 }}>{equipo.nombre}</td>
-          <td style={cellStyle}>{equipo.pj ?? (equipo.pg + equipo.pe + equipo.pp)}</td>
           <td style={cellStyle}>{equipo.pg}</td>
           <td style={cellStyle}>{equipo.pe}</td>
           <td style={cellStyle}>{equipo.pp}</td>
-          <td style={cellStyle}>{equipo.cp}</td>
-          <td style={cellStyle}>{equipo.gf}</td>
-          <td style={cellStyle}>{equipo.gc}</td>
-          <td style={cellStyle}>{equipo.df ?? (equipo.gf - equipo.gc)}</td>
-          <td style={{ ...cellStyle, fontWeight: "bold", color: "#0056b3", fontSize: "1em" }}>{equipo.puntos}</td>
-          <td style={{...cellStyle, whiteSpace: 'nowrap'}}>
-             <button onClick={() => setEditando(true)} style={{ backgroundColor: '#007bff', color: 'white', padding: '4px 8px', border:'none', borderRadius: '4px', cursor: 'pointer', marginRight: '4px' }}>Editar</button>
-             <button onClick={() => onEliminar(equipo.id)} style={{ backgroundColor: '#dc3545', color: 'white', padding: '4px 8px', border:'none', borderRadius: '4px', cursor: 'pointer' }}>Eliminar</button>
+          <td style={cellStyle}>{equipo.goles}</td>
+          <td
+            style={{
+              ...cellStyle,
+              fontWeight: "bold",
+              color: "#1f3c88", 
+              fontSize: "1.1em",
+            }}
+          >
+            {equipo.puntos}
+          </td>
+          {/* Acciones (Editar/Eliminar) */}
+          <td style={cellStyle}>
+            <button
+              onClick={() => setEditando(true)}
+              style={{
+                ...baseButtonStyle, // Aplicar estilos base
+                backgroundColor: "#1f3c88", // Azul para Editar
+                color: "white",
+              }}
+            >
+              Editar
+            </button>
+            <button
+              onClick={() => onEliminar(equipo.id)}
+              style={{
+                ...baseButtonStyle, // Aplicar estilos base
+                backgroundColor: "#dc3545", // Rojo para Eliminar
+                color: "white",
+              }}
+            >
+              Eliminar
+            </button>
           </td>
         </>
       )}

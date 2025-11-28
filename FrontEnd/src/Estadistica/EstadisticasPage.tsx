@@ -9,17 +9,13 @@ const API_URL = "http://localhost:3001"; // O la URL de tu backend en Railway
 export type Equipo = {
   id: number;
   nombre: string;
-  pj: number; // Partidos jugados
-  pg: number; // Ganados
-  pe: number; // Empatados
-  pp: number; // Perdidos
-  cp: number; // Cedidos
-  gf: number; // Goles a favor
-  gc: number; // Goles en contra
-  df: number; // Diferencia de goles
-  goles: number; // (alias, para compatibilidad)
+  pg: number;
+  pe: number;
+  pp: number;
+  goles: number;
   puntos: number;
-  activo?: boolean;
+  activo?: boolean; // Importante si usas soft delete
+  // Otros campos como 'categoria', 'localidad', etc., si los necesitas
 };
 
 
@@ -45,17 +41,12 @@ const EstadisticasPage: React.FC = () => {
       const data: Equipo[] = await response.json();
       // Asegurar valores por defecto si vienen null
       const equiposConDefaults = data.map(eq => ({
-        ...eq,
-        pj: eq.pj ?? 0,
-        pg: eq.pg ?? 0,
-        pe: eq.pe ?? 0,
-        pp: eq.pp ?? 0,
-        cp: eq.cp ?? 0,
-        gf: eq.gf ?? 0,
-        gc: eq.gc ?? 0,
-        df: eq.df ?? (typeof eq.gf === 'number' && typeof eq.gc === 'number' ? eq.gf - eq.gc : 0),
-        goles: eq.goles ?? eq.gf ?? 0, // compatibilidad
-        puntos: eq.puntos ?? 0,
+          ...eq,
+          pg: eq.pg ?? 0,
+          pe: eq.pe ?? 0,
+          pp: eq.pp ?? 0,
+          goles: eq.goles ?? 0,
+          puntos: eq.puntos ?? 0,
       }));
       setEquipos(equiposConDefaults.filter(eq => eq.activo !== false)); // Filtrar inactivos
     } catch (err) {
@@ -69,8 +60,8 @@ const EstadisticasPage: React.FC = () => {
   const actualizarEquipoAPI = async (id: number, datosActualizados: Partial<Equipo>) => {
     setError(null);
     try {
-       // El backend ya recalcula puntos, no es estrictamente necesario aquí
-       // if (datosActualizados.pg !== undefined || datosActualizados.pe !== undefined) { ... }
+        // El backend ya recalcula puntos, no es estrictamente necesario aquí
+        // if (datosActualizados.pg !== undefined || datosActualizados.pe !== undefined) { ... }
 
       // Usamos la constante API_URL
       const response = await fetch(`${API_URL}/clubes/${id}`, {
@@ -79,11 +70,11 @@ const EstadisticasPage: React.FC = () => {
         body: JSON.stringify(datosActualizados),
       });
       if (!response.ok) {
-         const errorData = await response.json();
+          const errorData = await response.json();
         throw new Error(`Error ${response.status}: ${errorData.message || 'No se pudo actualizar el equipo.'}`);
       }
-       await cargarEquipos(); // Recargar lista
-       alert("Estadísticas actualizadas.");
+        await cargarEquipos(); // Recargar lista
+        alert("Estadísticas actualizadas.");
     } catch (err) {
       setError((err as Error).message);
     }
@@ -98,8 +89,8 @@ const EstadisticasPage: React.FC = () => {
             method: 'DELETE', // Asume que DELETE hace soft delete en tu backend
         });
         if (!response.ok) {
-           const errorData = await response.json();
-           throw new Error(`Error ${response.status}: ${errorData.message || 'No se pudo quitar el equipo.'}`);
+            const errorData = await response.json();
+            throw new Error(`Error ${response.status}: ${errorData.message || 'No se pudo quitar el equipo.'}`);
         }
         await cargarEquipos(); // Recargar lista
         alert("Equipo marcado como inactivo.");
@@ -115,22 +106,23 @@ const EstadisticasPage: React.FC = () => {
     <div
       style={{
         padding: "40px 20px",
-        backgroundColor: "#f4f7f6",
+        backgroundColor: "#f4f7f6", // Fondo suave
         minHeight: "100vh",
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
       }}
     >
       <h2
         style={{
-          color: "#1f3c88",
-          marginBottom: "40px", // Más margen
+          color: "#1f3c88", // ¡AZUL ACTUALIZADO! 🟦
+          marginBottom: "30px",
           textAlign: "center",
-          fontSize: "2.2em",
-          fontWeight: 700,
-          borderBottom: "3px solid #1f3c88",
+          fontSize: "2.5em",
+          fontWeight: 600,
+          borderBottom: "3px solid #1f3c88", // ¡BORDE ACTUALIZADO!
           display: "inline-block",
-          paddingBottom: "8px",
-          margin: "0 auto 40px auto",
+          paddingBottom: "5px",
+          margin: "0 auto 30px auto", // Centrar el título
+          display: "block",
           width: "fit-content"
         }}
       >

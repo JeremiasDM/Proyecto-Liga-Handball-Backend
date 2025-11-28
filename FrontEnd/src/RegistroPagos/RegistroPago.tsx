@@ -172,7 +172,7 @@ const RegistroPago: React.FC<Props> = ({ clubes, partidos, montoMinimo }) => {
         
         // **Validaciones básicas**
         if (!club || !partidoId || !comprobante || monto < montoMinimo) {
-            alert(`🚨 Completa todos los campos obligatorios y verifica que el monto sea de al menos $${montoMinimo.toLocaleString()}.`);
+            alert(` Completa todos los campos obligatorios y verifica que el monto sea de al menos $${montoMinimo.toLocaleString()}.`);
             return;
         }
         
@@ -211,7 +211,7 @@ const RegistroPago: React.FC<Props> = ({ clubes, partidos, montoMinimo }) => {
             
             <form onSubmit={handleSubmit} className={styleConfig.form}>
                 <h2 className={styleConfig.title}>
-                    📝 Registro de Pago de Arbitraje
+                     Registro de Pago de Arbitraje
                 </h2>
 
                 {/* Club Selector */}
@@ -302,7 +302,7 @@ const RegistroPago: React.FC<Props> = ({ clubes, partidos, montoMinimo }) => {
                     type="submit" 
                     className={styleConfig.button}
                 >
-                    💵 Registrar Pago
+                     Registrar Pago
                 </button>
             </form>
         </>
